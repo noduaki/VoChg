@@ -1,6 +1,30 @@
 #include "button.h"
 
 //Button ********
+void selButton1(GtkWidget *widget, gpointer data){
+  VApp* da = (VApp*)data;
+  da->status.selNum = 1;
+  da->status.open   = 1;
+  
+  soundThread(widget, data);
+}
+
+void selButton2(GtkWidget *widget, gpointer data){
+  VApp* da = (VApp*)data;
+  da->status.selNum = 2;
+  da->status.open   = 2;
+
+  mlDataThread(widget, data);
+}
+
+void selButton3(GtkWidget *widget, gpointer data){
+  VApp* da = (VApp*)data;
+  da->status.selNum = 3;
+  da->status.open   = 3;
+
+  SB3Thread(widget, data);
+}
+
 void b1(GtkWidget *widget, gpointer data){
   VApp* tmp = (VApp*)data;
   statusprint("Text Button", data);

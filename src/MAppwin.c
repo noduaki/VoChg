@@ -9,6 +9,20 @@ struct _MAppWindow
 
 G_DEFINE_TYPE_WITH_PRIVATE(MAppWindow, M_app_window, GTK_TYPE_APPLICATION_WINDOW);
 
+void soundThread(GtkWidget* window, gpointer data){
+  statusprint("SB1 Button", data);
+}
+
+void mlDataThread(GtkWidget* window, gpointer data){
+  statusprint("SB2 Button", data);
+}
+
+void SB3Thread(GtkWidget* window, gpointer data){
+  statusprint("SB3 Button", data);
+}
+
+
+
 static void M_app_window_init(MAppWindow *win)
 {
 
@@ -26,6 +40,9 @@ static void M_app_window_init(MAppWindow *win)
   gtk_statusbar_push(GTK_STATUSBAR(vApp.priv->entrytext), statusBar, "Start");
 
   //Buttons**************************
+  g_signal_connect(vApp.priv->selectButton1, "clicked", G_CALLBACK(selButton1), &vApp);
+  g_signal_connect(vApp.priv->selectButton2, "clicked", G_CALLBACK(selButton2), &vApp);
+  g_signal_connect(vApp.priv->selectButton3, "clicked", G_CALLBACK(selButton3), &vApp);
   g_signal_connect(vApp.priv->button1, "clicked", G_CALLBACK(b1), &vApp);
   g_signal_connect(vApp.priv->button2, "clicked", G_CALLBACK(b2), &vApp);
   g_signal_connect(vApp.priv->button3, "clicked", G_CALLBACK(b3), &vApp);
@@ -140,6 +157,9 @@ static void M_app_window_class_init(MAppWindowClass *class)
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, draw1);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, draw2);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, textview);
+  gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton1);
+  gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton2);
+  gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton3);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button1);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button2);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button3);

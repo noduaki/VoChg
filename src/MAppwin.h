@@ -19,7 +19,9 @@ typedef struct _MAppWindowPrivate
   GtkWidget *draw1;
   GtkWidget *draw2;
  
- 
+  GtkWidget *selectButton1;
+  GtkWidget *selectButton2;
+  GtkWidget *selectButton3;
   GtkWidget *button1;
   GtkWidget *button2;
   GtkWidget *button3;
@@ -121,22 +123,30 @@ typedef struct _mDraw{
     double*  y; 
 }mDraw;
 
-
+typedef struct _mStatus{
+    int open;
+    int selNum;
+}mStatus;
 
 typedef struct _VApp{
   MAppWindowPrivate *priv;
+  mStatus   status;
   mInt      dataInt;
   mFloat    dataFloat;
   mDouble   dataDouble;
-  mFlag     mFlag;
+  mFlag     flag;
   mScale    scale;
   mDraw     draw1;
   mDraw     draw2;
   double    entry1;
 }VApp;
 
+void soundThread(GtkWidget* window, gpointer data);
+void mlDataThread(GtkWidget* window, gpointer data);
+void SB3Thread(GtkWidget* window, gpointer data);
 MAppWindow  *M_app_window_new(MApp *app);
 void M_app_window_open(MAppWindow *win, GFile  *file);
+
 
 
 
