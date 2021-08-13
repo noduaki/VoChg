@@ -91,7 +91,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <property name="orientation">vertical</property>
 
             <child>
-              <object id="button0" class="GtkButton">
+              <object id="SelectButton1" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">0</property>
 
@@ -99,7 +99,24 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               </object>
 
             </child>
+            <child>
+              <object id="SelectButton2" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">0</property>
 
+                <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
+              </object>
+
+            </child>
+            <child>
+              <object id="SelectButton3" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">0</property>
+
+                <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
+              </object>
+
+            </child>
             <child>
               <object class="GtkBox" id="box_rightside2">
                 <property name="visible">True</property>
