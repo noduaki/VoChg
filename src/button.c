@@ -1,4 +1,4 @@
-#include "button.h"
+#include "header.h"
 
 //Button ********
 void selButton1(GtkWidget *widget, gpointer data){

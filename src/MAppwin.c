@@ -1,6 +1,5 @@
-#include <gtk/gtk.h>
+#include "header.h"
 
-#include "MAppwin.h"
 
 struct _MAppWindow
 {
@@ -10,6 +9,26 @@ struct _MAppWindow
 G_DEFINE_TYPE_WITH_PRIVATE(MAppWindow, M_app_window, GTK_TYPE_APPLICATION_WINDOW);
 
 void soundThread(GtkWidget* window, gpointer data){
+  VApp* da = (VApp*)data;
+  GTask* soundTask;
+  int error;
+
+  da->status.ref += 1;
+  if(da->status.selNum == 1 && da->status.open == 1){
+    error = initVar(da);
+    if(error){
+      printf("Error malloc");
+      exit(1);
+    }
+    soundTask = g_task_new(NULL, NULL, NULL, NULL);
+    g_task_set_task_data (soundTask, data, NULL);
+    //g_task_run_in_thread (soundTask, privsound);
+  }
+
+
+
+
+
   statusprint("SB1 Button", data);
 }
 
@@ -32,6 +51,9 @@ static void M_app_window_init(MAppWindow *win)
   GMenuModel *menu;
 
   vApp.priv = M_app_window_get_instance_private(win);
+  vApp.status.open   = 0;
+  vApp.status.selNum = 0;
+  vApp.status.ref    = 0;
 
   gtk_widget_init_template(GTK_WIDGET(win));
 

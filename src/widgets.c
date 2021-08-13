@@ -1,4 +1,4 @@
-#include "widgets.h"
+#include "header.h"
 
 //Entry *********
 void fentry1(GtkWidget *widget, gpointer data){

@@ -1,10 +1,6 @@
 #ifndef __MENUBAR__H
 #define __MENUBAR__H
-#include <gtk/gtk.h>
-
-#include "MApp.h"
-
-
+#include "header.h"
 
 MAppPrefs * M_app_prefs_new (MAppWindow *win);
 

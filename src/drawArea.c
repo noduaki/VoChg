@@ -1,4 +1,4 @@
-#include "drawArea.h"
+#include "header.h"
 
 cairo_surface_t *surface1 = NULL;
 cairo_surface_t *surface2 = NULL;

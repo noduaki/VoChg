@@ -1,4 +1,4 @@
-#include "menubar.h"
+#include "header.h"
 
 
 void activate_openfile (GSimpleAction *simple, GVariant  *parameter, gpointer app){    

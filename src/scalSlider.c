@@ -1,4 +1,4 @@
-#include "scalSlider.h"
+#include "header.h"
 
 void fscale1(GtkWidget *widget, gpointer data){
   VApp* tmp = (VApp*)data;

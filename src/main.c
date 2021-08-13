@@ -1,6 +1,5 @@
-#include <gtk/gtk.h>
 
-#include "MApp.h"
+#include "header.h"
 
 int main(int argc, char *argv[])
 {

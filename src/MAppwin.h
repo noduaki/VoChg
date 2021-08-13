@@ -1,10 +1,6 @@
 #ifndef __MAPPWIN_H
 #define __MAPPWIN_H
-
-#include <gtk/gtk.h>
-#include "MApp.h"
-
-
+#include "header.h"
 
 
 typedef struct _MAppWindowPrivate
@@ -126,6 +122,7 @@ typedef struct _mDraw{
 typedef struct _mStatus{
     int open;
     int selNum;
+    int ref;
 }mStatus;
 
 typedef struct _VApp{

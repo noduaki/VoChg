@@ -1,7 +1,6 @@
 
-#include <gtk/gtk.h>
-
 #include "MApp.h"
+
 
 struct _MApp
 {
