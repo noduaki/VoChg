@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--UIファイル　使い方
+<object>を<child>の中に入れ子にして登録
+UnownedObjectは<template>の前に登録
+<property>の項目はそのclassと継承しているclassのPropertiesの項目が使える
+cファイル内でGtkWidget *として宣言した変数名とidを同じにする->
+cファイルの関数somename->window_class_init内にて登録
+登録しないobjectはcファイル内からは操作できない
+SignalsはUIファイルで登録してから関数somename->window_class_init内にて登録又は
+関数somename->window_init内にて関数g_signal_connectにて登録
+-->
+<interface>
+  <!-- interface-requires gtk+ 3.8 -->
+  <object class="GtkAdjustment" id="scale1_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale2_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale3_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale4_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale5_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale6_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale7_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale8_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+    <property name="step-increment">0.01</property>
+  </object>
+  <object class="GtkAdjustment" id="scale9_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale10_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale11_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale12_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+
+  <object class="GtkAdjustment" id="scale13_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale14_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+  <object class="GtkAdjustment" id="scale15_adj">
+    <property name="lower">0.0</property>
+    <property name="upper">10.0</property>
+  </object>
+
+  <template class="MAppWindow" parent="GtkApplicationWindow">
+    <property name="title" translatable="yes">ML-DATA</property>
+    <property name="default-width">1200</property>
+    <property name="default-height">500</property>
+    <child>
+      <object class="GtkGrid" id="content_box">
+        <property name="visible">True</property>
+        <property name="row-spacing">1</property>
+        <property name="column-homogeneous">True</property>
+        <!--First column-->
+        <child>
+          <object class="GtkBox" id="content_boxIn">
+            <property name="visible">True</property>
+
+            <property name="orientation">vertical</property>
+
+            <child>
+              <object id="button0" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">0</property>
+
+                <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
+              </object>
+
+            </child>
+
+            <child>
+              <object class="GtkBox" id="box_rightside2">
+                <property name="visible">True</property>
+                <property name="expand">True</property>
+                <property name="orientation">vertical</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow" id="sr0window">
+                <property name="visible">True</property>
+                <property name="expand">True</property>
+
+                <child>
+                  <object class="GtkFrame" id="sr0frame">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkTextView" id="textview">
+                        <property name="visible">True</property>
+                        <property name="editable">True</property>
+                        <property name="cursor-visible">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">0</property>
+            <property name="width">1</property>
+            <property name="height">55</property>
+          </packing>
+        </child>
+        <!--2 DrawArea****************************-->
+        <child>
+          <object class="GtkGrid" id="drawarea">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkFrame" id="drawframe1">
+                <property name="visible">True</property>
+                <property name="expand">True</property>
+
+                <child>
+                  <object class="GtkDrawingArea" id="draw1">
+                    <!--property name="width_request">700</property>
+                <property name="height_request">100</property-->
+                    <property name="visible">True</property>
+
+                  </object>
+                </child>
+
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="drawframe2">
+                <property name="visible">True</property>
+                <property name="expand">True</property>
+
+                <child>
+                  <object class="GtkDrawingArea" id="draw2">
+                    <property name="visible">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left-attach">1</property>
+            <property name="top-attach">0</property>
+            <property name="width">8</property>
+            <property name="height">55</property>
+          </packing>
+
+        </child>
+        <!--3 >> Button**********************-->
+        <child>
+          <object class="GtkBox" id="content_boxin2">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <!--label-->
+            <child>
+              <object id="label2" class="GtkFrame">
+                <property name="visible">True</property>
+
+                <property name="expand">TRUE</property>
+                <child>
+                  <object id="labelin2" class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">1</property>
+                    <property name="expand">TRUE</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child>
+              <object id="button1" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">1</property>
+                <property name="expand">TRUE</property>
+                <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
+              </object>
+            </child>
+            <child>
+              <object id="button2" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">2</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+            <child>
+              <object id="button3" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">3</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button4" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">4</property>
+                <property name="expand">TRUE</property>
+
+              </object>
+            </child>
+            <child>
+              <object id="button5" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">5</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button6" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">6</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+
+            <child>
+              <object id="button7" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">7</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button8" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">8</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button9" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">9</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button10" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">10</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+
+            <!--label-->
+            <child>
+
+              <object id="label1" class="GtkFrame">
+                <property name="visible">True</property>
+
+                <property name="expand">TRUE</property>
+                <child>
+                  <object id="labelin1" class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">2</property>
+                    <property name="expand">TRUE</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object id="button11" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">11</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button12" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">12</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button13" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">13</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button14" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">14</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+            <child>
+              <object id="button15" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">15</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button16" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">16</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button17" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">17</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+
+            <child>
+              <object id="button18" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">18</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button19" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">19</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+            <child>
+              <object id="button20" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">20</property>
+                <property name="expand">TRUE</property>
+              </object>
+            </child>
+
+
+          </object>
+          <packing>
+            <property name="left-attach">9</property>
+            <property name="top-attach">0</property>
+            <property name="width">1</property>
+            <property name="height">55</property>
+
+          </packing>
+        </child>
+
+        <!--4 >> Scalslider**********************-->
+        <child>
+          <object class="GtkBox" id="content_boxin4">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkScale" id="scale1">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="has-origin">FALSE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale1_adj</property>
+                <property name="digits">1</property>
+                <property name="expand">True</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale2">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale2_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale3">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale3_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale4">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale4_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale5">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale5_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+                <!--property name="inverted">TRUE</property-->
+              </object>
+            </child>
+
+
+
+            <child>
+              <object class="GtkScale" id="scale6">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale6_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+
+
+            <child>
+              <object class="GtkScale" id="scale7">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale7_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale8">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale8_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+
+
+            <child>
+              <object class="GtkScale" id="scale9">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale9_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+
+            <child>
+              <object class="GtkScale" id="scale10">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale10_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale11">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale11_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale12">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale12_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+
+
+
+            <child>
+              <object class="GtkScale" id="scale13">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale13_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+
+            </child>
+            <child>
+              <object class="GtkScale" id="scale14">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale14_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="scale15">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="draw-value">TRUE</property>
+                <property name="value-pos">GTK_POS_RIGHT</property>
+                <property name="adjustment">scale15_adj</property>
+                <property name="digits">1</property>
+                <property name="has-origin">FALSE</property>
+                <property name="expand">True</property>
+
+              </object>
+
+            </child>
+          </object>
+
+
+          <packing>
+            <property name="left-attach">10</property>
+            <property name="top-attach">0</property>
+            <property name="width">2</property>
+            <property name="height">55</property>
+          </packing>
+        </child>
+
+
+        <!--Under bar*****-->
+        <child>
+          <object class="GtkBox" id="content_boxinunderbar">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+            <child>
+              <object id="labelUnderBar" class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="expand">TRUE</property>
+                <child>
+                  <object class="GtkStatusbar" id="entrytext">
+                    <property name="visible">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <!--Entry-->
+            <child>
+              <object id="entry1" class="GtkEntry">
+                <property name="visible">True</property>
+                <property name="text">3.14</property>
+                <property name="max-length">10</property>
+                <property name="expand">FALSE</property>
+              </object>
+              <packing>
+
+                <property name="pack-type">end</property>
+              </packing>
+            </child>
+          </object>
+
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">55</property>
+            <property name="width">12</property>
+            <property name="height">1</property>
+          </packing>
+        </child>
+
+      </object>
+    </child>
+  </template>
+</interface>
+
+
