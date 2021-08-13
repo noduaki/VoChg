@@ -4,8 +4,16 @@
 
 #include <gtk/gtk.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <fftw3.h>
 #include <alsa/asoundlib.h>
+
+#define SOUNDFRAMES    4096
+#define SOUNDRATE      48000
+#define SOUNDCHANNELS  2
+
+
 
 #define M_APP_TYPE (M_app_get_type ())
 G_DECLARE_FINAL_TYPE (MApp, M_app, M, APP, GtkApplication)

@@ -80,12 +80,12 @@ typedef struct _mFloat{
     float* pData;
 }mFloat;
 
-typedef struct _mDouble{
-    double data1;
-    double data2;
-    double data3;
-    double* pData;
-}mDouble;
+typedef struct _mBuffer{
+    char* read;
+    char* write;
+    double* sound;
+    double* fft;
+}mBuffer;
 
 typedef struct _mFlag{
     int flag1;
@@ -130,7 +130,7 @@ typedef struct _VApp{
   mStatus   status;
   mInt      dataInt;
   mFloat    dataFloat;
-  mDouble   dataDouble;
+  mBuffer   dataBuf;
   mFlag     flag;
   mScale    scale;
   mDraw     draw1;

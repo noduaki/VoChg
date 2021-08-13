@@ -22,7 +22,11 @@ void soundThread(GtkWidget* window, gpointer data){
     }
     soundTask = g_task_new(NULL, NULL, NULL, NULL);
     g_task_set_task_data (soundTask, data, NULL);
-    //g_task_run_in_thread (soundTask, privsound);
+    g_task_run_in_thread (soundTask, privsound);
+    
+  }else{
+    printf("soundThread() selNum error");
+    exit(1);
   }
 
 
