@@ -93,7 +93,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="selectButton1" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Sb1</property>
+                <property name="label">SUD MIC </property>
 
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
@@ -102,7 +102,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="selectButton2" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">SB2</property>
+                <property name="label">SUD FILE</property>
 
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
@@ -112,6 +112,15 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="selectButton3" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">SB3</property>
+
+                <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
+              </object>
+
+            </child>
+            <child>
+              <object id="stopButton" class="GtkButton">
+                <property name="visible">True</property>
+                <property name="label">STOP</property>
 
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>

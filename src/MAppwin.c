@@ -12,8 +12,7 @@ void soundThread(GtkWidget* window, gpointer data){
   VApp* da = (VApp*)data;
   GTask* soundTask;
   int error;
-
-  da->status.ref += 1;
+  
   if(da->status.selNum == 1 && da->status.open == 1){
     error = initVar(da);
     if(error){
@@ -22,17 +21,12 @@ void soundThread(GtkWidget* window, gpointer data){
     }
     soundTask = g_task_new(NULL, NULL, NULL, NULL);
     g_task_set_task_data (soundTask, data, NULL);
-    g_task_run_in_thread (soundTask, privsound);
+    g_task_run_in_thread (soundTask, initSound);
     
   }else{
     printf("soundThread() selNum error");
     exit(1);
   }
-
-
-
-
-
   statusprint("SB1 Button", data);
 }
 
@@ -48,7 +42,6 @@ void SB3Thread(GtkWidget* window, gpointer data){
 
 static void M_app_window_init(MAppWindow *win)
 {
-
   static VApp vApp;
   guint statusBar;
   GtkBuilder *builder;
@@ -58,6 +51,9 @@ static void M_app_window_init(MAppWindow *win)
   vApp.status.open   = 0;
   vApp.status.selNum = 0;
   vApp.status.ref    = 0;
+
+  vApp.statusBuf   = (char*)malloc(200);
+  if(vApp.statusBuf == NULL) exit(1);
 
   gtk_widget_init_template(GTK_WIDGET(win));
 
@@ -69,6 +65,7 @@ static void M_app_window_init(MAppWindow *win)
   g_signal_connect(vApp.priv->selectButton1, "clicked", G_CALLBACK(selButton1), &vApp);
   g_signal_connect(vApp.priv->selectButton2, "clicked", G_CALLBACK(selButton2), &vApp);
   g_signal_connect(vApp.priv->selectButton3, "clicked", G_CALLBACK(selButton3), &vApp);
+  g_signal_connect(vApp.priv->stopButton, "clicked", G_CALLBACK(stpButton), &vApp);
   g_signal_connect(vApp.priv->button1, "clicked", G_CALLBACK(b1), &vApp);
   g_signal_connect(vApp.priv->button2, "clicked", G_CALLBACK(b2), &vApp);
   g_signal_connect(vApp.priv->button3, "clicked", G_CALLBACK(b3), &vApp);
@@ -186,6 +183,7 @@ static void M_app_window_class_init(MAppWindowClass *class)
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton1);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton2);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton3);
+  gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, stopButton);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button1);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button2);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button3);

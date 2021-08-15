@@ -18,6 +18,7 @@ typedef struct _MAppWindowPrivate
   GtkWidget *selectButton1;
   GtkWidget *selectButton2;
   GtkWidget *selectButton3;
+  GtkWidget *stopButton;
   GtkWidget *button1;
   GtkWidget *button2;
   GtkWidget *button3;
@@ -87,9 +88,19 @@ typedef struct _mBuffer{
     double* fft;
 }mBuffer;
 
+typedef struct async_private_data {
+    char* samples;
+    snd_pcm_channel_area_t *areas;
+    double phase;
+    int pos;
+    int ready;
+    int periodsize;
+    int bufferSize;
+}mAsyncData;
+
 typedef struct _mFlag{
-    int flag1;
-    int flag2;
+    int soundFile;
+    int soundMic;
     int flag3;
 }mFlag;
 
@@ -112,6 +123,19 @@ typedef struct _mScale{
 
 }mScale;
 
+typedef struct _mSetting{
+
+    unsigned long pcm_buffer_size;
+    unsigned long period_size;
+    snd_pcm_format_t format;
+    int channels;
+    int rate;
+    int frames;
+    int buffersize;
+    char namedevice[200];
+    
+}mSettings;
+
 typedef struct _mDraw{
     int     drawAreaWidth;
     int     drawAreaHeight;
@@ -127,7 +151,8 @@ typedef struct _mStatus{
 
 typedef struct _VApp{
   MAppWindowPrivate *priv;
-  mStatus   status;
+  mStatus           status;
+  mSettings    settings;
   mInt      dataInt;
   mFloat    dataFloat;
   mBuffer   dataBuf;
@@ -136,6 +161,10 @@ typedef struct _VApp{
   mDraw     draw1;
   mDraw     draw2;
   double    entry1;
+
+  mAsyncData soundRead;
+  mAsyncData soundWrite;
+  char*     statusBuf;
 }VApp;
 
 void soundThread(GtkWidget* window, gpointer data);

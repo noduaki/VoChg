@@ -7,11 +7,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <fftw3.h>
+#include <time.h>
 #include <alsa/asoundlib.h>
 
 #define SOUNDFRAMES    4096
 #define SOUNDRATE      48000
 #define SOUNDCHANNELS  2
+#define SOUNDFORMAT    SND_PCM_FORMAT_S16
+#define SOUNDBUFFERSIZE 4096
+#define SOUNDPERIODSIZE 512
 
 
 
@@ -33,4 +37,9 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "widgets.h"
 #include "drawArea.h"
 #include "initVar.h"
+#include "soundcard.h"
+
+
+
+extern mSettings Gset;
 #endif

@@ -2,16 +2,15 @@
 #include "MApp.h"
 
 
-struct _MApp
-{
+struct _MApp{
   GtkApplication parent;
 };
 
-
 G_DEFINE_TYPE(MApp, M_app, GTK_TYPE_APPLICATION);
 
-
-
+mSettings Gset = {SOUNDBUFFERSIZE  , SOUNDPERIODSIZE , SND_PCM_FORMAT_S16_LE, 
+                                    SOUNDCHANNELS, SOUNDRATE, SOUNDFRAMES, 
+                                    SOUNDBUFFERSIZE * SOUNDCHANNELS * 4, "hw:CARD=PCH,DEV=0"};
 
 void
 quit_activated (GSimpleAction *action,  GVariant *parameter, gpointer app){
@@ -21,7 +20,6 @@ quit_activated (GSimpleAction *action,  GVariant *parameter, gpointer app){
 
 static GActionEntry app_entries[] =
 { 
-  
   { "openfile", activate_openfile, NULL, NULL, NULL},
   { "opencolor", activate_color, NULL, NULL, NULL},
   { "quit", quit_activated, NULL, NULL, NULL}
@@ -34,6 +32,7 @@ static void M_app_startup (GApplication *app){
   GMenuModel *menubar; 
   GtkBuilder *builder; 
   GMenuModel *app_menu;  
+
 
   const gchar *quit_accels[2] = { "<Ctrl>q", NULL };
   const gchar *accel[2] = { "<Ctrl>n", NULL };
@@ -81,8 +80,8 @@ static void M_app_class_init (MAppClass *class){
   G_APPLICATION_CLASS (class)->open = M_app_open;
 }
 
-MApp * M_app_new (void)
-{
+MApp * M_app_new (void){
+
   return g_object_new (M_APP_TYPE, "application-id", "org.gtk.MLData",
                              "flags", G_APPLICATION_HANDLES_OPEN, NULL);
 }

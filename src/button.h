@@ -5,6 +5,7 @@
 void selButton1(GtkWidget *widget, gpointer data);
 void selButton2(GtkWidget *widget, gpointer data);
 void selButton3(GtkWidget *widget, gpointer data);
+void stpButton(GtkWidget *widget, gpointer data);
 void b1(GtkWidget *widget, gpointer data);
 void b2(GtkWidget *widget, gpointer data);
 void b3(GtkWidget *widget, gpointer data);

@@ -6,17 +6,20 @@ void selButton1(GtkWidget *widget, gpointer data){
   if(!da->status.open){
     da->status.selNum = 1;
     da->status.open   = 1;
+    da->flag.soundFile = 0;
+    soundThread(widget, data);
   }else statusprint("Please push stop button Button", data);
 
   
-  soundThread(widget, data);
+  
 }
 
 void selButton2(GtkWidget *widget, gpointer data){
   VApp* da = (VApp*)data;
   if(!da->status.open){
     da->status.selNum = 2;
-    da->status.open   = 2;
+    da->status.open   = 1;
+    da->flag.soundFile = 1;
   }else statusprint("Please push stop button", data);
 
   mlDataThread(widget, data);
@@ -26,15 +29,14 @@ void selButton3(GtkWidget *widget, gpointer data){
   VApp* da = (VApp*)data;
   if(!da->status.open){
     da->status.selNum = 3;
-    da->status.open   = 3;
+    da->status.open   = 1;
   }else statusprint("please push stop button", data);
 
   SB3Thread(widget, data);
 }
 
-void stopButton(GtkWidget *widget, gpointer data){
+void stpButton(GtkWidget *widget, gpointer data){
   VApp* da = (VApp*)data;
-  da->status.selNum = 0;
   da->status.open   = 0;
 }
 
