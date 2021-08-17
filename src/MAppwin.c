@@ -32,10 +32,19 @@ void soundThread(GtkWidget* window, gpointer data){
 
 void mlDataThread(GtkWidget* window, gpointer data){
   statusprint("SB2 Button", data);
+  printf("22222222222222222\n");
 }
 
 void SB3Thread(GtkWidget* window, gpointer data){
+  VApp* da = (VApp*)data;
+  da->status.selNum = 0;
+  da->status.open = 0;
   statusprint("SB3 Button", data);
+  printf("3333333333\n");
+  
+  
+  
+  
 }
 
 
@@ -57,9 +66,19 @@ static void M_app_window_init(MAppWindow *win)
 
   gtk_widget_init_template(GTK_WIDGET(win));
 
-
+  printf("%p>>>>>>>>>>>>>>>>\n", &vApp);
   statusBar = gtk_statusbar_get_context_id(GTK_STATUSBAR(vApp.priv->entrytext), "settings");
   gtk_statusbar_push(GTK_STATUSBAR(vApp.priv->entrytext), statusBar, "Start");
+
+
+
+
+
+  
+
+  
+
+
 
   //Buttons**************************
   g_signal_connect(vApp.priv->selectButton1, "clicked", G_CALLBACK(selButton1), &vApp);
@@ -143,7 +162,8 @@ static void M_app_window_init(MAppWindow *win)
   g_signal_connect(vApp.priv->draw1, "motion-notify-event", G_CALLBACK(motion_notify_event_cb), &vApp);
   g_signal_connect(vApp.priv->draw1, "button-press-event", G_CALLBACK(button_press_event_cb), &vApp);
 
-  gtk_widget_set_events(vApp.priv->draw1, gtk_widget_get_events(vApp.priv->draw1) | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_events(vApp.priv->draw1, gtk_widget_get_events(vApp.priv->draw1)
+                               | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
 
   //Drawarea2*************
 
@@ -152,8 +172,15 @@ static void M_app_window_init(MAppWindow *win)
   g_signal_connect(vApp.priv->draw2, "motion-notify-event", G_CALLBACK(motion_notify_event_cb), &vApp);
   g_signal_connect(vApp.priv->draw2, "button-press-event", G_CALLBACK(button_press_event_cb), &vApp);
   g_signal_connect(vApp.priv->draw2, "button-release-event", G_CALLBACK(button_release_event_cb), &vApp);
-  gtk_widget_set_events(vApp.priv->draw2, gtk_widget_get_events(vApp.priv->draw2) | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
+  gtk_widget_set_events(vApp.priv->draw2, gtk_widget_get_events(vApp.priv->draw2)
+                               | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
 
+  //How to use signal-emit-Func-> 
+  //g_signal_emit_by_name(GTK_WIDGET(da->priv->), "key_word", 0); <-this need the following code 
+  //Put here this code
+  //g_signal_connect(GTK_WIDGET(vApp.priv->), "key_word", G_CALLBACK( -CallBackFunc- ), &vApp);
+  //The follow code is put in classInit() 
+  //g_signal_new("key_word", G_TYPE_OBJECT, G_SIGNAL_RUN_FIRST, 0, NULL, NULL, NULL, G_TYPE_NONE, 0);
 }
 
 static void M_app_window_dispose(GObject *object)
@@ -224,7 +251,7 @@ static void M_app_window_class_init(MAppWindowClass *class)
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, entrytext);
   gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, entry1);
 
-
+  
 }
 
 MAppWindow *M_app_window_new(MApp *app)
@@ -232,7 +259,7 @@ MAppWindow *M_app_window_new(MApp *app)
   return g_object_new(M_APP_WINDOW_TYPE, "application", app, NULL);
 }
 
-void M_app_window_open(MAppWindow *win, GFile *file)
+void M_app_text_open(MAppWindow *win, GFile *file)
 {
   MAppWindowPrivate *priv;
   gchar *basename;

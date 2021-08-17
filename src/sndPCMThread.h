@@ -1,5 +1,5 @@
-#ifndef __SOUNDCARD_H
-#define __SOUNDCARD_H
+#ifndef __SNDPCMTHREAD_H
+#define __SNDPCMTHREAD_H
 
 
 #include "header.h"

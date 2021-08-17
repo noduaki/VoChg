@@ -406,9 +406,6 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     struct timespec  req  = {0, 100000};
 
     da->status.ref++;
-
-
-
     signed short tmp;
     
 
@@ -419,37 +416,24 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
         *(da->soundWrite.samples + (i * 4) + 1) = (char)((tmp & 0xff00) >> 8);
         *(da->soundWrite.samples + (i * 4) + 2) = (char)(tmp & 0x00ff);
         *(da->soundWrite.samples + (i * 4) + 3) = (char)((tmp & 0xff00) >> 8);
-    
-
-
     }
-
-
-
-
-
-
-
-
-
-    
-    //pcm_list(SND_PCM_STREAM_CAPTURE, prset.namedevice);  
+    //pcm_list(SND_PCM_STREAM_CAPTURE, da->settings.deviceName);  
    
-    if ((err = snd_pcm_open(&Phandle, "hw:CARD=PCH,DEV=0", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+    if ((err = snd_pcm_open(&Phandle, da->settings.deviceName, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         printf("Playback open error: %s\n", snd_strerror(err));
         statusprint("Playback open error", data);
 
         return ;
     }
     
-    if ((err = snd_pcm_open(&Chandle, "hw:CARD=PCH,DEV=0", SND_PCM_STREAM_CAPTURE, 0)) < 0) {
+    if ((err = snd_pcm_open(&Chandle, da->settings.deviceName, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
         statusprint("Record open error", data);
         return ;
     }
     
     //statusbar shown after strings
-    strcpy(statustext, "hw:CARD=PCH,DEV=0");
+    strcpy(statustext, da->settings.deviceName);
     strcpy(da->statusBuf, "Device--");
     strcat(da->statusBuf, statustext);
     
@@ -457,13 +441,13 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     strcpy(sformat, "  LE16bit  ");
     strcat(da->statusBuf, sformat);
    
-    sprintf(srate, "%d", SOUNDCHANNELS);
+    sprintf(srate, "%d", da->settings.channels);
     strcat(da->statusBuf,srate);
     strcat(da->statusBuf, "ch  ");   
-    sprintf(srate, "%d", SOUNDRATE);
+    sprintf(srate, "%d", da->settings.rate);
     strcat(da->statusBuf,srate);
     strcat(da->statusBuf, "hz  frames--");
-    sprintf(srate, "%d", SOUNDFRAMES);
+    sprintf(srate, "%d", da->settings.frames);
     strcat(da->statusBuf,srate);
 
     frames_in = frames_out = 0;
@@ -478,7 +462,8 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
             exit(0);
         }
     }
-    if (snd_pcm_format_set_silence(SOUNDFORMAT, da->dataBuf.read, SOUNDCHANNELS * SOUNDFRAMES) < 0) {
+    if (snd_pcm_format_set_silence(da->settings.format, da->dataBuf.read, 
+                                da->settings.channels * da->settings.frames) < 0) {
         fprintf(stderr, "silence error\n");
     } 
     gettimestamp(Phandle, &p_tstamp);
@@ -499,33 +484,26 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
         goto err;
     }
     //Write Buffer initial writeing twice
-    err = snd_pcm_writei(Phandle, da->dataBuf.write, SOUNDPERIODSIZE );
+    err = snd_pcm_writei(Phandle, da->dataBuf.write, da->settings.period_size);
         
     if (err < 0) {
         printf("Initial write error: %s\n", snd_strerror(err));
         exit(EXIT_FAILURE);
     }
-    if (err != SOUNDPERIODSIZE) {
-        printf("Initial write error: written %i expected %d\n", err, SOUNDPERIODSIZE);
+    if (err != da->settings.period_size) {
+        printf("Initial write error: written %i expected %ld\n", err, da->settings.period_size);
         exit(EXIT_FAILURE);
     }
-    err = snd_pcm_writei(Phandle, da->dataBuf.write, SOUNDPERIODSIZE);
+    err = snd_pcm_writei(Phandle, da->dataBuf.write, da->settings.period_size);
         
     if (err < 0) {
         printf("Initial write error: %s\n", snd_strerror(err));
         exit(EXIT_FAILURE);
     }
-    if (err != SOUNDPERIODSIZE) {
-        printf("Initial write error: written %i expected %d\n", err, SOUNDPERIODSIZE);
+    if (err != da->settings.period_size) {
+        printf("Initial write error: written %i expected %ld\n", err, da->settings.period_size);
         exit(EXIT_FAILURE);
     }
-   
-
-
-
-
-
-
     if(da->flag.soundFile){
         
         if (snd_pcm_state(Phandle) == SND_PCM_STATE_PREPARED) {
@@ -537,8 +515,8 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
             }
         }
         if(da->flag.soundFile){
-            strcat(da->statusBuf, "  open file -->");
-            strcat(da->statusBuf, "UUUUUUUUUUUUUUU");
+            strcat(da->statusBuf, " open file -->");
+            strcat(da->statusBuf, da->settings.filename);
         }else{
              strcat(da->statusBuf, "--TestWaveMode");
         }

@@ -8,8 +8,9 @@ void activate_openfile (GSimpleAction *simple, GVariant  *parameter, gpointer ap
   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
   gint res;
   
-  GFile *file;
-
+  
+  GApplication* a = (GApplication*)app;
+  
   windows = gtk_application_get_windows (GTK_APPLICATION (app));//windows get app currently focused window data
   
   if (windows)
@@ -25,14 +26,15 @@ void activate_openfile (GSimpleAction *simple, GVariant  *parameter, gpointer ap
 
       gchar *filename;      
       filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      file =  g_file_new_for_path(filename);      
+      snprintf(gSet.filename, 255, "%s", filename);
+      gSet.file =  g_file_new_for_path(filename);      
 
-      M_app_window_open (win, file);
-      gtk_window_present (GTK_WINDOW (win));
       g_free (filename);
     } 
-
+  
+  
   gtk_widget_destroy (dialog); 
+  
  
 }
 

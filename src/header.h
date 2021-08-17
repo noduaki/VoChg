@@ -3,6 +3,8 @@
 
 
 #include <gtk/gtk.h>
+#include <glib.h>
+#include <gio/gio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -37,9 +39,9 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "widgets.h"
 #include "drawArea.h"
 #include "initVar.h"
-#include "soundcard.h"
+#include "sndPCMThread.h"
 
 
 
-extern mSettings Gset;
+extern mSettings gSet;
 #endif

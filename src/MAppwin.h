@@ -132,7 +132,9 @@ typedef struct _mSetting{
     int rate;
     int frames;
     int buffersize;
-    char namedevice[200];
+    char deviceName[256];
+    char filename[256];
+    GFile *file;
     
 }mSettings;
 
@@ -171,7 +173,7 @@ void soundThread(GtkWidget* window, gpointer data);
 void mlDataThread(GtkWidget* window, gpointer data);
 void SB3Thread(GtkWidget* window, gpointer data);
 MAppWindow  *M_app_window_new(MApp *app);
-void M_app_window_open(MAppWindow *win, GFile  *file);
+void M_app_text_open(MAppWindow *win, GFile  *file);
 
 
 

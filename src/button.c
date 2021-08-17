@@ -6,7 +6,9 @@ void selButton1(GtkWidget *widget, gpointer data){
   if(!da->status.open){
     da->status.selNum = 1;
     da->status.open   = 1;
-    da->flag.soundFile = 0;
+    if(gSet.file == NULL)
+      da->flag.soundFile = 0;
+    else da->flag.soundFile = 1;
     soundThread(widget, data);
   }else statusprint("Please push stop button Button", data);
 
@@ -30,9 +32,10 @@ void selButton3(GtkWidget *widget, gpointer data){
   if(!da->status.open){
     da->status.selNum = 3;
     da->status.open   = 1;
+    SB3Thread(widget, data);
   }else statusprint("please push stop button", data);
 
-  SB3Thread(widget, data);
+  
 }
 
 void stpButton(GtkWidget *widget, gpointer data){

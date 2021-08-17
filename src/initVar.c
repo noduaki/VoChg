@@ -2,6 +2,8 @@
 
 int initVar(VApp* data){
     int error = 0;
+    GError* fileErr = NULL;
+    GFileInputStream *istream;
 
     if(data->status.selNum == 1){
         data->dataBuf.read = (char*)malloc(SOUNDFRAMES * 2 * SOUNDCHANNELS);
@@ -13,7 +15,21 @@ int initVar(VApp* data){
         data->dataBuf.fft = (double*)malloc(SOUNDFRAMES * SOUNDCHANNELS * sizeof(double));
         if(data->dataBuf.fft == NULL)error = 1;
 
-        data->settings = Gset;
+        
+
+        data->settings = gSet;
+        if(gSet.file != NULL){
+            istream = g_file_read(gSet.file, NULL, &fileErr);
+            if (fileErr != NULL){
+                printf("Could not open %s for reading: %s \n", gSet.filename, fileErr->message);
+                
+                data->flag.soundFile = 0;
+            }
+            g_input_stream_close (G_INPUT_STREAM (istream), NULL, &fileErr);
+            
+            g_clear_object(&gSet.file);
+        }
+       
         data->soundRead.samples = (unsigned char*)malloc(data->settings.buffersize);
         if(data->soundRead.samples == NULL) error = 1;
         data->soundWrite.samples = (unsigned char*)malloc(data->settings.buffersize);
@@ -55,6 +71,7 @@ int delVar(VApp* data){
         free(data->soundRead.areas); data->soundRead.areas = NULL;
         free(data->soundWrite.areas); data->soundWrite.areas = NULL;
         data->status.selNum = 0;
+        data->flag.soundFile = 0;
 
     }else if(data->status.selNum == 2){
 
