@@ -18,13 +18,32 @@ void selButton1(GtkWidget *widget, gpointer data){
 
 void selButton2(GtkWidget *widget, gpointer data){
   VApp* da = (VApp*)data;
+  GtkWidget *dialog;
+  GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN; 
+  int res = 0;
+ 
   if(!da->status.open){
     da->status.selNum = 2;
     da->status.open   = 1;
     da->flag.soundFile = 1;
+
+    dialog = gtk_file_chooser_dialog_new ("Open File", NULL, action, ("_Cancel"), 
+                              GTK_RESPONSE_CANCEL, ("_Open"), GTK_RESPONSE_ACCEPT, NULL);
+    res = gtk_dialog_run (GTK_DIALOG (dialog)); 
+    if (res == GTK_RESPONSE_ACCEPT){ 
+      gchar *filename; 
+ 
+      filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+      snprintf(gSet.filename, 255, "%s", filename);
+      gSet.file =  g_file_new_for_path(filename);      
+
+      g_free (filename);
+      soundThread(widget, data);
+    }else  da->flag.soundFile = 0;   
+    gtk_widget_destroy (dialog);
   }else statusprint("Please push stop button", data);
 
-  mlDataThread(widget, data);
+ 
 }
 
 void selButton3(GtkWidget *widget, gpointer data){

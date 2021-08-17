@@ -2,6 +2,7 @@
 
 int initVar(VApp* data){
     int error = 0;
+    int ok = 0;
     GError* fileErr = NULL;
     GFileInputStream *inStream = NULL;
     GFileInfo *info = NULL;
@@ -9,7 +10,7 @@ int initVar(VApp* data){
     gboolean err = 0;
     size_t length = 0;
 
-    if(data->status.selNum == 1){
+    if(data->status.selNum == 1 || data->status.selNum == 2){
        
         data->dataBuf.sound = (double*)malloc(SOUNDFRAMES * SOUNDCHANNELS * sizeof(double));
         if(data->dataBuf.sound == NULL)error = 1;
@@ -43,10 +44,10 @@ int initVar(VApp* data){
                     memset(data->dataBuf.read, 0, total_size);
                     if ((length = g_input_stream_read (G_INPUT_STREAM(inStream), data->dataBuf.read,
                                                                      total_size, NULL, &fileErr)) != -1) {
-                            data->dataBuf.rSize = length;
+                            data->dataBuf.readSize = length;
                             printf( "reading file length = %ld\n", length);
                     }else{
-                        data->dataBuf.rSize = 0;
+                        data->dataBuf.readSize = 0;
                         data->flag.soundFile = 0;
                         printf("Error in initVar -> file read\n" );
                     }
@@ -62,6 +63,13 @@ int initVar(VApp* data){
             g_object_unref(inStream);
             g_object_unref (info);
             g_clear_object(&gSet.file);
+        }
+        if(data->flag.soundFile == 1){
+            ok = wavCheck(data);
+            if(ok){
+                data->flag.soundFile = 0;
+                error = 1;
+            }
         }
         
        
@@ -81,8 +89,6 @@ int initVar(VApp* data){
         data->soundWrite.ready   = 0;
         
 
-    }else if(data->status.selNum == 2){
-
     }else if(data->status.selNum == 3){
 
     }else{
@@ -95,7 +101,7 @@ int delVar(VApp* data){
     int error = 0;
 
 
-    if(data->status.selNum == 1){
+    if(data->status.selNum == 1 || data->status.selNum == 2){
         free(data->dataBuf.read);data->dataBuf.read = NULL;
         free(data->dataBuf.write);data->dataBuf.write = NULL;
         free(data->dataBuf.sound); data->dataBuf.sound = NULL;
@@ -107,8 +113,6 @@ int delVar(VApp* data){
         free(data->soundWrite.areas); data->soundWrite.areas = NULL;
         data->status.selNum = 0;
         data->flag.soundFile = 0;
-
-    }else if(data->status.selNum == 2){
 
     }else if(data->status.selNum == 3){
 

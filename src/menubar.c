@@ -22,20 +22,16 @@ void activate_openfile (GSimpleAction *simple, GVariant  *parameter, gpointer ap
                           GTK_RESPONSE_CANCEL, ("_Open"), GTK_RESPONSE_ACCEPT, NULL);
 
   res = gtk_dialog_run (GTK_DIALOG (dialog));
-  if (res == GTK_RESPONSE_ACCEPT) {  
-
-      gchar *filename;      
-      filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
-      snprintf(gSet.filename, 255, "%s", filename);
-      gSet.file =  g_file_new_for_path(filename);      
-
-      g_free (filename);
-    } 
+  if (res == GTK_RESPONSE_ACCEPT) {
   
-  
+    gchar *filename;      
+    filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER (dialog));
+    snprintf(gSet.filename, 255, "%s", filename);
+    gSet.file =  g_file_new_for_path(filename);      
+
+    g_free (filename);
+  } 
   gtk_widget_destroy (dialog); 
-  
- 
 }
 
 void activate_color (GSimpleAction *simple,  GVariant *parameter,  gpointer app){
@@ -60,4 +56,6 @@ void activate_color (GSimpleAction *simple,  GVariant *parameter,  gpointer app)
   printf("%d///\n", res);
   gtk_widget_destroy (dialog); 
 }
+
+
 

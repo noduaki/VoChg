@@ -83,13 +83,13 @@ typedef struct _mFloat{
 
 typedef struct _mBuffer{
     char* read;
-    int rSize;
+    int readSize;
     char* write;
-    int wSize;
+    int writeSize;
     double* sound;
-    int sSize;
+    int soundSize;
     double* fft;
-    int fSize;
+    int fftSize;
 }mBuffer;
 
 typedef struct async_private_data {

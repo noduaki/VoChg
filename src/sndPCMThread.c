@@ -235,12 +235,14 @@ int setparams(snd_pcm_t *phandle, snd_pcm_t *chandle,  gpointer data)
         printf("Prepare error: %s\n", snd_strerror(err));
         exit(0);
     }
+    
     ok = snd_pcm_hw_params_can_pause(p_params);
     if(ok) printf("Pause Ok read\n");
     else printf("NO read\n");
     ok = snd_pcm_hw_params_can_pause(c_params);
     if(ok) printf("Pause Ok write\n");
     else printf("NO write\n");
+    
 
     printf(">>>period size ++++%ld \n",  da->settings.period_size );
     
@@ -421,14 +423,14 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     }
     //pcm_list(SND_PCM_STREAM_CAPTURE, da->settings.deviceName);  
    
-    if ((err = snd_pcm_open(&Phandle, da->settings.deviceName, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+    if ((err = snd_pcm_open(&Phandle, "plughw:CARD=PCH,DEV=0", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         printf("Playback open error: %s\n", snd_strerror(err));
         statusprint("Playback open error", data);
         pcmErr = 1;
         goto err;
     }
     
-    if ((err = snd_pcm_open(&Chandle, da->settings.deviceName, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
+    if ((err = snd_pcm_open(&Chandle, "plughw:CARD=PCH,DEV=0", SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
         statusprint("Record open error", data);
         pcmErr = 1;
@@ -458,13 +460,15 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     if (setparams(Phandle, Chandle,  data) < 0){
         printf("Sound Card Settings Error\n");
     }
-
+/*
     if(!(da->flag.soundFile) ){    
         if ((err = snd_pcm_link(Phandle, Chandle)) < 0) {
             printf("Streams link error: %s\n", snd_strerror(err));
             exit(0);
         }
     }
+    */
+    
     if (snd_pcm_format_set_silence(da->settings.format, da->soundRead.samples, 
                                 da->settings.channels * da->settings.frames) < 0) {
         fprintf(stderr, "silence error\n");
@@ -479,6 +483,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
         statusprint("Unable to register async handler Read Sound Card fail", data);
         goto err;
     }
+    
     
     err = snd_async_add_pcm_handler(&whandler, Phandle, async_write_callback, &da->soundWrite);
     if (err < 0) {
@@ -552,7 +557,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
             
             if(da->soundWrite.ready){
                 g_mutex_lock(&mutex_sound);
-                if(posr + da->soundWrite.avail < da->dataBuf.rSize && posr + da->soundWrite.avail >= 0){
+                if(posr + da->soundWrite.avail < da->dataBuf.readSize && posr + da->soundWrite.avail >= 0){
                     if(posw + da->soundWrite.avail < charBufferSize && posw + da->soundWrite.avail >= 0){
                         memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, da->soundWrite.avail);
                         posw += da->soundWrite.avail;
@@ -568,9 +573,9 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
                         posr = 0;
                        
                     }
-                }else if(posr + da->soundWrite.avail >= da->dataBuf.rSize && posr + da->soundWrite.avail >= 0){
+                }else if(posr + da->soundWrite.avail >= da->dataBuf.readSize && posr + da->soundWrite.avail >= 0){
                     if(posw + da->soundWrite.avail < charBufferSize && posw + da->soundWrite.avail >= 0){
-                        postmp = da->dataBuf.rSize - posr;
+                        postmp = da->dataBuf.readSize - posr;
                         memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, postmp);
                         posw += postmp; 
                         postmp = da->soundWrite.avail - postmp;
@@ -580,7 +585,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
                         posr = postmp;
                         
                     }else if(posw + da->soundWrite.avail == charBufferSize){
-                        postmp = da->dataBuf.rSize - posr;
+                        postmp = da->dataBuf.readSize - posr;
                         memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, postmp);
                         postmp = da->soundWrite.avail - postmp;
                         posw += postmp;

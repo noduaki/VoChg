@@ -10,7 +10,7 @@ G_DEFINE_TYPE(MApp, M_app, GTK_TYPE_APPLICATION);
 
 mSettings gSet = {SOUNDBUFFERSIZE  , SOUNDPERIODSIZE , SND_PCM_FORMAT_S16_LE, 
                                     SOUNDCHANNELS, SOUNDRATE, SOUNDFRAMES, 
-                                    SOUNDBUFFERSIZE * SOUNDCHANNELS * 4, "hw:CARD=PCH,DEV=0", "0", NULL};
+                                    SOUNDBUFFERSIZE * SOUNDCHANNELS * 4, "plughw:CARD=PCH,DEV=0", "0", NULL};
 
 void
 quit_activated (GSimpleAction *action,  GVariant *parameter, gpointer app){

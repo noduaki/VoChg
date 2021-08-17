@@ -13,10 +13,11 @@ void soundThread(GtkWidget* window, gpointer data){
   GTask* soundTask;
   int error;
   
-  if(da->status.selNum == 1 && da->status.open == 1){
+  if((da->status.selNum == 1 || da->status.selNum == 2) && da->status.open == 1){
     error = initVar(da);
     if(error){
-      printf("Error malloc");
+      delVar(da);
+      printf("Error in soundThread() -> malloc");
       exit(1);
     }
     soundTask = g_task_new(NULL, NULL, NULL, NULL);
