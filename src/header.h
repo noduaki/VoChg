@@ -41,6 +41,7 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "initVar.h"
 #include "sndPCMThread.h"
 #include "dataProcess.h"
+#include "utility.h"
 
 
 

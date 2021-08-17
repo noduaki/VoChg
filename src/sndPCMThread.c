@@ -537,6 +537,15 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
                 exit(EXIT_FAILURE);
             }
         } 
+        if (snd_pcm_state(Phandle) == SND_PCM_STATE_PREPARED) {
+            
+            err = snd_pcm_start(Phandle);
+            if (err < 0) {
+                printf("Start error: %s\n", snd_strerror(err));
+                exit(EXIT_FAILURE);
+            }
+        }
+
         
     }
     
