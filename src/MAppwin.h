@@ -83,9 +83,13 @@ typedef struct _mFloat{
 
 typedef struct _mBuffer{
     char* read;
+    int rSize;
     char* write;
+    int wSize;
     double* sound;
+    int sSize;
     double* fft;
+    int fSize;
 }mBuffer;
 
 typedef struct async_private_data {
@@ -93,6 +97,7 @@ typedef struct async_private_data {
     snd_pcm_channel_area_t *areas;
     double phase;
     int pos;
+    int avail;
     int ready;
     int periodsize;
     int bufferSize;

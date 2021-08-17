@@ -3,13 +3,14 @@
 int initVar(VApp* data){
     int error = 0;
     GError* fileErr = NULL;
-    GFileInputStream *istream;
+    GFileInputStream *inStream = NULL;
+    GFileInfo *info = NULL;
+    int total_size = -1;
+    gboolean err = 0;
+    size_t length = 0;
 
     if(data->status.selNum == 1){
-        data->dataBuf.read = (char*)malloc(SOUNDFRAMES * 2 * SOUNDCHANNELS);
-        if(data->dataBuf.read == NULL) error = 1;
-        data->dataBuf.write = (char*)malloc(SOUNDFRAMES * 2 * SOUNDCHANNELS);
-        if(data->dataBuf.write == NULL)error = 1;
+       
         data->dataBuf.sound = (double*)malloc(SOUNDFRAMES * SOUNDCHANNELS * sizeof(double));
         if(data->dataBuf.sound == NULL)error = 1;
         data->dataBuf.fft = (double*)malloc(SOUNDFRAMES * SOUNDCHANNELS * sizeof(double));
@@ -19,16 +20,50 @@ int initVar(VApp* data){
 
         data->settings = gSet;
         if(gSet.file != NULL){
-            istream = g_file_read(gSet.file, NULL, &fileErr);
+            inStream = g_file_read(gSet.file, NULL, &fileErr);
             if (fileErr != NULL){
                 printf("Could not open %s for reading: %s \n", gSet.filename, fileErr->message);
-                
                 data->flag.soundFile = 0;
             }
-            g_input_stream_close (G_INPUT_STREAM (istream), NULL, &fileErr);
-            
+            info = g_file_input_stream_query_info (G_FILE_INPUT_STREAM (inStream),G_FILE_ATTRIBUTE_STANDARD_SIZE,NULL, &fileErr);
+            if (info){
+                if (g_file_info_has_attribute (info, G_FILE_ATTRIBUTE_STANDARD_SIZE))
+                    total_size = g_file_info_get_size (info);
+                    printf( "total_size = %d\n", total_size);
+                    
+            }else {
+                printf("Error in initVar -> Can't get info\n");
+                data->flag.soundFile = 0;
+            }
+
+            if(total_size > 0){
+                if(data->dataBuf.read == NULL){
+                    data->dataBuf.read = (char *) malloc(sizeof(char) * total_size);
+                    data->dataBuf.write = (char *) malloc(sizeof(char) * total_size);
+                    memset(data->dataBuf.read, 0, total_size);
+                    if ((length = g_input_stream_read (G_INPUT_STREAM(inStream), data->dataBuf.read,
+                                                                     total_size, NULL, &fileErr)) != -1) {
+                            data->dataBuf.rSize = length;
+                            printf( "reading file length = %ld\n", length);
+                    }else{
+                        data->dataBuf.rSize = 0;
+                        data->flag.soundFile = 0;
+                        printf("Error in initVar -> file read\n" );
+                    }
+                    
+                }else {
+                    data->flag.soundFile = 0;
+                    printf("Error in initVar -> Buffer busy\n");
+                }
+                
+            }
+            err = g_input_stream_close (G_INPUT_STREAM (inStream), NULL, &fileErr);
+            if(err == FALSE) printf("Error in initVar -> stream_close failed\n");
+            g_object_unref(inStream);
+            g_object_unref (info);
             g_clear_object(&gSet.file);
         }
+        
        
         data->soundRead.samples = (unsigned char*)malloc(data->settings.buffersize);
         if(data->soundRead.samples == NULL) error = 1;

@@ -61,6 +61,9 @@ static void M_app_window_init(MAppWindow *win)
   vApp.status.selNum = 0;
   vApp.status.ref    = 0;
 
+  vApp.dataBuf.read = NULL;
+  vApp.dataBuf.write = NULL;
+
   vApp.statusBuf   = (char*)malloc(200);
   if(vApp.statusBuf == NULL) exit(1);
 

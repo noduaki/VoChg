@@ -337,17 +337,15 @@ void async_read_callback(snd_async_handler_t *ahandler)
       
 }
 
-void async_write_callback(snd_async_handler_t *ahandler)
-
-{
+void async_write_callback(snd_async_handler_t *ahandler){
     snd_pcm_t *handle = snd_async_handler_get_pcm(ahandler);
     mAsyncData* data = snd_async_handler_get_callback_private(ahandler);
     snd_pcm_sframes_t avail;
-   
     
     int err;
     int length = data->periodsize * 4;
     int pos = data->pos;
+    int writeAvail = 0;
     int charBufferSize;
     charBufferSize = data->bufferSize * 4;
     
@@ -355,7 +353,7 @@ void async_write_callback(snd_async_handler_t *ahandler)
     g_mutex_lock(&mutex_sound);    
     while (avail >= data->periodsize) {
             
-        err = snd_pcm_writei(handle, data->samples + data->pos, data->periodsize);
+        err = snd_pcm_writei(handle, data->samples + pos, data->periodsize);
         if (err != data->periodsize) {
             printf("async-Write error: written %i expected %d\n", err, data->periodsize);
             exit(EXIT_FAILURE);
@@ -366,7 +364,8 @@ void async_write_callback(snd_async_handler_t *ahandler)
         }
         
         pos += length;
-        if(pos >= charBufferSize)pos = charBufferSize - pos;
+        writeAvail += length;
+        if(pos >= charBufferSize)pos = 0;
         
         avail = snd_pcm_avail(handle);
             
@@ -378,7 +377,9 @@ void async_write_callback(snd_async_handler_t *ahandler)
         }
     }
     data->pos = pos;
+    data->avail = writeAvail;
     g_mutex_unlock(&mutex_sound);
+    data->ready = 1;
     
 }
 
@@ -392,6 +393,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     int ok;
     int ok2;
     int err;
+    int pcmErr = 0;
     int i;
    
     snd_timestamp_t p_tstamp, c_tstamp;
@@ -422,14 +424,15 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     if ((err = snd_pcm_open(&Phandle, da->settings.deviceName, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         printf("Playback open error: %s\n", snd_strerror(err));
         statusprint("Playback open error", data);
-
-        return ;
+        pcmErr = 1;
+        goto err;
     }
     
     if ((err = snd_pcm_open(&Chandle, da->settings.deviceName, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
         statusprint("Record open error", data);
-        return ;
+        pcmErr = 1;
+        goto err;
     }
     
     //statusbar shown after strings
@@ -462,7 +465,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
             exit(0);
         }
     }
-    if (snd_pcm_format_set_silence(da->settings.format, da->dataBuf.read, 
+    if (snd_pcm_format_set_silence(da->settings.format, da->soundRead.samples, 
                                 da->settings.channels * da->settings.frames) < 0) {
         fprintf(stderr, "silence error\n");
     } 
@@ -484,7 +487,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
         goto err;
     }
     //Write Buffer initial writeing twice
-    err = snd_pcm_writei(Phandle, da->dataBuf.write, da->settings.period_size);
+    err = snd_pcm_writei(Phandle, da->soundWrite.samples, da->settings.period_size);
         
     if (err < 0) {
         printf("Initial write error: %s\n", snd_strerror(err));
@@ -494,7 +497,7 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
         printf("Initial write error: written %i expected %ld\n", err, da->settings.period_size);
         exit(EXIT_FAILURE);
     }
-    err = snd_pcm_writei(Phandle, da->dataBuf.write, da->settings.period_size);
+    err = snd_pcm_writei(Phandle, da->soundWrite.samples, da->settings.period_size);
         
     if (err < 0) {
         printf("Initial write error: %s\n", snd_strerror(err));
@@ -541,32 +544,88 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
     int posr = 0;
     int posw = 0;
     int postmp; 
-    int charBufferSize = da->soundRead.bufferSize * 4;  
-    while(da->status.open) {
-        posr = da->soundRead.pos;
-        
-        g_mutex_lock(&mutex_sound);
-        if(da->soundRead.ready){
-            if(posw + posr <= charBufferSize && posw + posr >= 0){
-                memcpy(da->soundWrite.samples + posw, da->soundRead.samples, posr);
-                posw = posw + posr;
+    int charBufferSize = da->soundRead.bufferSize * 4; 
 
-            }else if(posw + posr > charBufferSize){
-                postmp = charBufferSize - posw;
-                if(postmp > 0)
-                    memcpy(da->soundWrite.samples + posw, da->soundRead.samples, postmp);
-                posw = posr - postmp;
-                memcpy(da->soundWrite.samples, da->soundRead.samples + postmp, posw);
-                
-            }else{
-                printf("Error soundinit()-> RW data transfer");
-                exit(1);
-            }
-            
-        }
-        g_mutex_unlock(&mutex_sound);
+    while(da->status.open) {
         
-        da->soundRead.ready = 0;
+        if(da->flag.soundFile == 1){
+            
+            if(da->soundWrite.ready){
+                g_mutex_lock(&mutex_sound);
+                if(posr + da->soundWrite.avail < da->dataBuf.rSize && posr + da->soundWrite.avail >= 0){
+                    if(posw + da->soundWrite.avail < charBufferSize && posw + da->soundWrite.avail >= 0){
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, da->soundWrite.avail);
+                        posw += da->soundWrite.avail;
+                        posr += da->soundWrite.avail;
+                    }else if(posw + da->soundWrite.avail == charBufferSize){
+                       
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, da->soundWrite.avail);
+                        posw  = 0;
+                        posr += da->soundWrite.avail;
+                    }else{ 
+                        printf("Error in soundinit -> write avail not align 1 \n ");
+                        posw = 0;
+                        posr = 0;
+                       
+                    }
+                }else if(posr + da->soundWrite.avail >= da->dataBuf.rSize && posr + da->soundWrite.avail >= 0){
+                    if(posw + da->soundWrite.avail < charBufferSize && posw + da->soundWrite.avail >= 0){
+                        postmp = da->dataBuf.rSize - posr;
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, postmp);
+                        posw += postmp; 
+                        postmp = da->soundWrite.avail - postmp;
+                       
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read, postmp);
+                        posw += postmp;
+                        posr = postmp;
+                        
+                    }else if(posw + da->soundWrite.avail == charBufferSize){
+                        postmp = da->dataBuf.rSize - posr;
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read + posr, postmp);
+                        postmp = da->soundWrite.avail - postmp;
+                        posw += postmp;
+                        memcpy(da->soundWrite.samples + posw, da->dataBuf.read, postmp);
+                        posw = 0;
+                        posr = postmp;
+                    }else{
+                        printf("Error in soundinit -> write avail not align 2\n ");
+                        posw = 0;
+                        posr = 0;
+                        
+                    }
+
+                }else{
+                    printf("Error soundinit()-> RW data transfer");
+                    exit(1);
+                }
+                da->soundWrite.ready = 0;
+                g_mutex_unlock(&mutex_sound);
+            }
+        }else if(da->flag.soundFile == 0){
+            if(da->soundRead.ready){
+                posr = da->soundRead.pos;
+                g_mutex_lock(&mutex_sound);
+                if(posw + posr <= charBufferSize && posw + posr >= 0){
+                    memcpy(da->soundWrite.samples + posw, da->soundRead.samples, posr);
+                    posw = posw + posr;
+
+                }else if(posw + posr > charBufferSize){
+                    postmp = charBufferSize - posw;
+                    if(postmp > 0)
+                        memcpy(da->soundWrite.samples + posw, da->soundRead.samples, postmp);
+                    posw = posr - postmp;
+                    memcpy(da->soundWrite.samples, da->soundRead.samples + postmp, posw);
+                    
+                }else{
+                    printf("Error soundinit()-> RW data transfer");
+                    exit(1);
+                }
+                da->soundRead.ready = 0;
+                g_mutex_unlock(&mutex_sound); 
+                
+            }
+               
+        }
         
         nanosleep(&req, NULL);
     }
@@ -582,19 +641,22 @@ void initSound(GTask *stask, gpointer source_object, gpointer data, GCancellable
             exit(1);
         }
     }
-    da->status.ref--;
+    
     if(ok)
         printf("Success\n");
     else
         printf("Failure\n"); 
 err:
-    
-    ok = snd_pcm_close(Phandle);
-    ok2 = snd_pcm_close(Chandle);
-    if(err > 0){
-        if(ok || ok2) statusprint("Sound Card Close Error!!", data);
-        else statusprint("Sound Card Close!!", data);
+    da->status.ref--;
+    if(!pcmErr){
+        ok = snd_pcm_close(Phandle);
+        ok2 = snd_pcm_close(Chandle);
+        if(err > 0){
+            if(ok || ok2) statusprint("Sound Card Close Error!!", data);
+            else statusprint("Sound Card Close!!", data);
+        }
     }
+    
    
     
     printf("OutSound()\n");
