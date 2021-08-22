@@ -10,8 +10,10 @@ void fentry1(GtkWidget *widget, gpointer data){
 
 void statusprint(const char* text, gpointer data){
   VApp* da = (VApp*)data;
+  
   gtk_statusbar_pop (GTK_STATUSBAR(da->priv->entrytext), 1);
   gtk_statusbar_push (GTK_STATUSBAR(da->priv->entrytext), 1, text);
+  *da->statusBuf = '\0';
 }
 
 void popupMenu(){}

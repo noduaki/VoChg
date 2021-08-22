@@ -66,13 +66,14 @@ static void M_app_window_init(MAppWindow *win)
   vApp.dataBuf.write = NULL;
 
   vApp.statusBuf   = (char*)malloc(200);
+  *(vApp.statusBuf) = '\0';  
   if(vApp.statusBuf == NULL) exit(1);
 
   gtk_widget_init_template(GTK_WIDGET(win));
 
-  printf("%p>>>>>>>>>>>>>>>>\n", &vApp);
+ 
   statusBar = gtk_statusbar_get_context_id(GTK_STATUSBAR(vApp.priv->entrytext), "settings");
-  gtk_statusbar_push(GTK_STATUSBAR(vApp.priv->entrytext), statusBar, "Start");
+  gtk_statusbar_push(GTK_STATUSBAR(vApp.priv->entrytext), 1, "Start");
 
 
 

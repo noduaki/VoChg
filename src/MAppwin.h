@@ -82,18 +82,20 @@ typedef struct _mFloat{
 }mFloat;
 
 typedef struct _mBuffer{
-    char* read;
+    int16_t* read;
     int readSize;
-    char* write;
+    int16_t* write;
     int writeSize;
     double* sound;
     int soundSize;
+    double* row;
+    int rowsize;
     double* fft;
     int fftSize;
 }mBuffer;
 
 typedef struct async_private_data {
-    char* samples;
+    int16_t* samples;
     snd_pcm_channel_area_t *areas;
     double phase;
     int pos;
@@ -136,7 +138,6 @@ typedef struct _mSetting{
     int channels;
     int rate;
     int frames;
-    int buffersize;
     char deviceName[256];
     char filename[256];
     GFile *file;

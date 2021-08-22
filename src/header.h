@@ -12,14 +12,13 @@
 #include <time.h>
 #include <alsa/asoundlib.h>
 
-#define SOUNDFRAMES    4096
+
 #define SOUNDRATE      48000
 #define SOUNDCHANNELS  2
 #define SOUNDFORMAT    SND_PCM_FORMAT_S16
-#define SOUNDBUFFERSIZE 4096
+#define SOUNDBUFFERSIZE 2048
 #define SOUNDPERIODSIZE 512
-
-
+#define SOUNDFRAMES     4096
 
 #define M_APP_TYPE (M_app_get_type ())
 G_DECLARE_FINAL_TYPE (MApp, M_app, M, APP, GtkApplication)
@@ -40,7 +39,7 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "drawArea.h"
 #include "initVar.h"
 #include "sndPCMThread.h"
-#include "dataProcess.h"
+#include "soundProcess.h"
 #include "utility.h"
 
 

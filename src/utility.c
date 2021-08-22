@@ -1,7 +1,8 @@
 #include "header.h"
 int wavCheck(gpointer tmp){
     VApp* da = (VApp*)tmp;
-    char* data = da->dataBuf.read;
+    
+    char* data = (char*)da->dataBuf.read;
    
     int ok = 1;
     int setting = 0;
@@ -61,7 +62,7 @@ int wavCheck(gpointer tmp){
                                 | (0x00000ff00 & (data[i + 5] << 8)) | (0x000000ff & data[i + 4]);
         i += 8;
         if(size < da->dataBuf.readSize) da->dataBuf.readSize = size;
-        printf("File size %d,\n", size);
+        printf("File size %d,\n", da->dataBuf.readSize);
     }
     if(ok){
         memmove(da->dataBuf.read, da->dataBuf.read + i, da->dataBuf.readSize);
