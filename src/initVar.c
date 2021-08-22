@@ -13,11 +13,11 @@ int initVar(VApp* data){
     if(data->status.selNum == 1 || data->status.selNum == 2){
         data->settings = gSet;
 
-        data->dataBuf.sound = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+        data->dataBuf.sound = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
         if(data->dataBuf.sound == NULL)error = 1;
-        data->dataBuf.row = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+        data->dataBuf.row = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
         if(data->dataBuf.row == NULL)error = 1;
-        data->dataBuf.fft = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+        data->dataBuf.fft = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
         if(data->dataBuf.fft == NULL)error = 1;
 
         
@@ -40,7 +40,7 @@ int initVar(VApp* data){
 
             if(total_size > 0){
                 if(data->dataBuf.read == NULL){
-                    data->dataBuf.read = (int16_t*) malloc(total_size * 2);
+                    data->dataBuf.read = (int16_t*) malloc(total_size);
                     data->dataBuf.write = (int16_t*) malloc(total_size);
                     memset(data->dataBuf.read, 0, total_size);
                     if ((length = g_input_stream_read (G_INPUT_STREAM(inStream), data->dataBuf.read,
@@ -74,9 +74,9 @@ int initVar(VApp* data){
         }
         
        
-        data->soundRead.samples = (int16_t*)malloc(data->settings.frames * data->settings.channels * sizeof(short));
+        data->soundRead.samples = (int16_t*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(short));
         if(data->soundRead.samples == NULL) error = 1;
-        data->soundWrite.samples = (int16_t*)malloc(data->settings.frames * data->settings.channels * sizeof(short));
+        data->soundWrite.samples = (int16_t*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(short));
         if(data->soundWrite.samples == NULL) error = 1;
         data->soundRead.areas = (snd_pcm_channel_area_t*)malloc(sizeof(snd_pcm_channel_area_t) * 2);
         if(data->soundRead.areas == NULL)error = 1;
@@ -112,8 +112,10 @@ int delVar(VApp* data){
         free(data->soundWrite.samples); data->soundWrite.samples = NULL;
         free(data->soundRead.areas); data->soundRead.areas = NULL;
         free(data->soundWrite.areas); data->soundWrite.areas = NULL;
+
         data->status.selNum = 0;
         data->flag.soundFile = 0;
+        data->flag.soundMic = 0;
 
     }else if(data->status.selNum == 3){
 

@@ -7,7 +7,7 @@ void selButton1(GtkWidget *widget, gpointer data){
     da->status.selNum = 1;
     da->status.open   = 1;
     if(gSet.file == NULL)
-      da->flag.soundFile = 0;
+      da->flag.soundMic = 1;
     else da->flag.soundFile = 1;
     soundThread(widget, data);
   }else statusprint("Please push stop button Button", data);
@@ -26,6 +26,7 @@ void selButton2(GtkWidget *widget, gpointer data){
     da->status.selNum = 2;
     da->status.open   = 1;
     da->flag.soundFile = 1;
+    
 
     dialog = gtk_file_chooser_dialog_new ("Open File", NULL, action, ("_Cancel"), 
                               GTK_RESPONSE_CANCEL, ("_Open"), GTK_RESPONSE_ACCEPT, NULL);

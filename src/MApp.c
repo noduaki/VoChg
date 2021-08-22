@@ -9,7 +9,7 @@ struct _MApp{
 G_DEFINE_TYPE(MApp, M_app, GTK_TYPE_APPLICATION);
 
 mSettings gSet = {SOUNDBUFFERSIZE  , SOUNDPERIODSIZE , SND_PCM_FORMAT_S16_LE, 
-                                    SOUNDCHANNELS, SOUNDRATE, SOUNDFRAMES, "hw:CARD=PCH,DEV=0", "0", NULL};//"default"
+                                    SOUNDCHANNELS, SOUNDRATE, SOUNDFRAMES, "default", "0", NULL};//"hw:CARD=PCH,DEV=0"
 
 void
 quit_activated (GSimpleAction *action,  GVariant *parameter, gpointer app){
