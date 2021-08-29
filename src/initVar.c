@@ -177,6 +177,8 @@ int initVar(VApp* data) {
                 (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.pcm_buffer_size - 1)));
         }
 
+        data->flag.drawArea = 0;
+
     } else if (data->status.selNum == 3) {
 
     } else {

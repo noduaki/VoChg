@@ -159,6 +159,7 @@ gboolean update_drawArea1(gpointer data) {
     cairo_set_font_size(cr, 13);
     cairo_move_to(cr, 20.0, 30.0);
     cairo_show_text(cr, "WAVE");
+    da->flag.drawArea = 1;
 
     g_mutex_lock(&mutex_drawArea1);
     for (n = 0; n < 5; n++) {
@@ -215,12 +216,12 @@ gboolean update_drawArea1(gpointer data) {
             }
             cairo_stroke(cr);
         }
-        
     }
     g_mutex_unlock(&mutex_drawArea1);
+    
     cairo_destroy(cr);
     gtk_widget_queue_draw(da->priv->draw1);
-
+    da->flag.drawArea = 0;
     return FALSE;
 }
 
@@ -249,24 +250,56 @@ gboolean update_drawArea2(gpointer data) {
     cairo_set_font_size(cr, 13);
     cairo_move_to(cr, 20.0, 30.0);
     cairo_show_text(cr, "FFT");
-
+    cairo_set_font_size(cr, 8);
+    if (da->draw2[0].log) {
+        
+        cairo_move_to(cr, ((log(608) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "7k");
+        cairo_move_to(cr, ((log(304) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "3.5k");
+        cairo_move_to(cr, ((log(152) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "1.7k");
+        cairo_move_to(cr, ((log(76) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "880");
+        cairo_move_to(cr, ((log(38) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "440");
+        cairo_move_to(cr, ((log(18.5) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "220");
+        cairo_move_to(cr, ((log(9.3) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "110");
+        cairo_move_to(cr, ((log(4.6) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_show_text(cr, "55");
+        cairo_move_to(cr, 5.0, (double)da->drawstatus2.Height);
+        cairo_show_text(cr, "20");
+    }else{
+        cairo_move_to(cr, 1024.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width), (double)da->drawstatus2.Height);
+        cairo_show_text(cr, "24k");
+        cairo_move_to(cr, 512.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5.0, (double)da->drawstatus2.Height);
+        cairo_show_text(cr, "12k");
+        cairo_move_to(cr, 256.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5, (double)da->drawstatus2.Height);
+        cairo_show_text(cr, "6k");
+        cairo_move_to(cr, 128.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width), (double)da->drawstatus2.Height);
+        cairo_show_text(cr, "3k");
+        
+    }
+    da->flag.drawArea = 1;
     g_mutex_lock(&mutex_drawArea2);
     for (n = 0; n < 5; n++) {
         switch (n) {
         case 0:
-            cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.2);
+            cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.5);
             cairo_set_line_width(cr, 2.0);
             break;
         case 1:
-            cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.2);
+            cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.5);
             cairo_set_line_width(cr, 2.0);
             break;
         case 2:
-            cairo_set_source_rgba(cr, 0.5, 1.0, 0.0, 0.2);
+            cairo_set_source_rgba(cr, 0.5, 1.0, 0.0, 0.6);
             cairo_set_line_width(cr, 2.0);
             break;
         case 3:
-            cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.2);
+            cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.3);
             cairo_set_line_width(cr, 2.0);
             break;
         case 4:
@@ -302,7 +335,7 @@ gboolean update_drawArea2(gpointer data) {
                     t = da->drawstatus2.Width - 6.0;
 
                 if (da->draw2[n].bar) {
-                    cairo_move_to(cr, (t + 5.0), (double)(da->drawstatus2.Height));
+                    cairo_move_to(cr, (t + 5.0), (double)(da->drawstatus2.Height) - 10.0);
                     cairo_line_to(cr, (t + 5.0), si - 10.0);
 
                 } else {
@@ -318,10 +351,8 @@ gboolean update_drawArea2(gpointer data) {
     }
 
     g_mutex_unlock(&mutex_drawArea2);
-
     cairo_destroy(cr);
-
     gtk_widget_queue_draw(da->priv->draw2);
-
+    da->flag.drawArea = 0;
     return FALSE;
 }

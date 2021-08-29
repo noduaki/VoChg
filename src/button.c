@@ -26,7 +26,8 @@ void selButton2(GtkWidget* widget, gpointer data) {
         da->status.open = 1;
         da->flag.soundFile = 1;
 
-        dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"), GTK_RESPONSE_ACCEPT, NULL);
+        dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"),
+                                             GTK_RESPONSE_ACCEPT, NULL);
         res = gtk_dialog_run(GTK_DIALOG(dialog));
         if (res == GTK_RESPONSE_ACCEPT) {
             gchar* filename;
@@ -124,19 +125,62 @@ void b9(GtkWidget* widget, gpointer data) {
 }
 
 void b10(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
 }
 
 void b11(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    int n;
+
+    if (i == 0) {
+        i = 1;
+        for (n = 0; n < 5; n++) {
+            da->draw2[n].log = 0;
+        }
+        gtk_button_set_label(GTK_BUTTON(widget), "Linear");
+    } else if (i == 1) {
+        i = 0;
+        for (n = 0; n < 5; n++) {
+            da->draw2[n].log = 1;
+        }
+        gtk_button_set_label(GTK_BUTTON(widget), "Log");
+    } else {
+        printf("b11 Error\n");
+        statusprint("Log-Linear Error", data);
+    }
 }
 
 void b12(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    
+    if (i == 0) {
+        i = 1;
+        da->draw2[0].on = 0;
+    } else if (i == 1) {
+        i = 0;
+        da->draw2[0].on = 1;
+    } else {
+        printf("b12 Error\n");
+        statusprint("Spectrum Error", data);
+    }
 }
 
 void b13(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    
+    if (i == 0) {
+        i = 1;
+        da->draw2[1].on = 0;
+    } else if (i == 1) {
+        i = 0;
+        da->draw2[1].on = 1;
+    } else {
+        printf("b13 Error\n");
+        statusprint("Cepstrum Error", data);
+    }
 }
 
 void b14(GtkWidget* widget, gpointer data) {

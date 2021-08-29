@@ -477,16 +477,13 @@ int mic_poll_loop(snd_pcm_t* chandle, snd_pcm_t* phandle, VApp* da) {
 
             readCount += cerr * da->settings.channels;
             writeCount += perr * da->settings.channels;
-            if (readCount >= da->soundRead.bufferSize * da->settings.channels) {
+            if (readCount == da->soundRead.bufferSize * da->settings.channels) {
                 readCount = 0;
                 writeCount = 0;
-                for (i = 0; i < da->soundRead.bufferSize; i++) {
-                    *(da->dataBuf.row + i) = (double)(*(da->soundRead.samples + i * 2));
-                    // Process Func here !!!!!!!!
-                    memcpy(da->dataBuf.sound, da->dataBuf.row, da->soundRead.bufferSize * sizeof(double));
-                    *(da->soundWrite.samples + i * 2) = (int16_t)(*(da->dataBuf.sound + i));
-                    *(da->soundWrite.samples + i * 2 + 1) = (int16_t)(*(da->dataBuf.sound + i));
-                }
+                soundProcess(da);
+              
+            }else if(readCount > da->soundRead.bufferSize * da->settings.channels){
+                printf("Error read poll -> read count over\n");
             }
             cperiod -= cerr;
             if (cperiod <= 0) {
@@ -713,10 +710,17 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     da->draw1[1].on = 1;
     da->draw2[0].on = 1;
     da->draw2[1].on = 1;
+    da->draw2[2].on = 1;
+    da->draw2[3].on = 1;
     da->draw2[0].log = 1;
     da->draw2[1].log = 1;
+    da->draw2[2].log = 1;
+    da->draw2[3].log = 1;
     da->draw2[0].bar = 0;
     da->draw2[1].bar = 1;
+    da->draw2[2].bar = 0;
+    da->draw2[3].bar = 1;
+
 
     for (i = 0; i < da->settings.pcm_buffer_size; i += 2) {
         tmp = (signed short)((sin(((6.283185 * 32.0) / da->settings.pcm_buffer_size) * (double)i)) * 10000.0);
@@ -863,7 +867,16 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         }
     }
     // Stop soundinit************************************************
-
+    i = 0;
+    while(da->flag.drawArea){
+        sleep(1);
+        i++;
+        if (i > 10) {
+            printf("Error in soundinit() -> drawarea flag\n ");
+            exit(1);
+        }
+    }
+    i = 0;
     while (da->status.ref > 1) {
         sleep(1);
         i++;

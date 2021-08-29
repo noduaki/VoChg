@@ -113,7 +113,7 @@ typedef struct async_private_data {
 typedef struct _mFlag {
     int soundFile;
     int soundMic;
-    int flag3;
+    int drawArea;
 } mFlag;
 
 typedef struct _mScale {
