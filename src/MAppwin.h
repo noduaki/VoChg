@@ -2,100 +2,105 @@
 #define __MAPPWIN_H
 #include "header.h"
 
+typedef struct _MAppWindowPrivate {
+    GSettings *settings;    // settings
+    GtkWidget *content_box; // UI file Widget Registrasion
+    GtkWidget *content_boxIn;
+    GtkWidget *textview;
 
-typedef struct _MAppWindowPrivate
-{ 
-  GSettings *settings;         //settings
-  GtkWidget *content_box;      //UI file Widget Registrasion  
-  GtkWidget *content_boxIn;  
-  GtkWidget *textview;
-  
-  GtkWidget *entrytext;
-  GtkWidget *entry1;
-  GtkWidget *draw1;
-  GtkWidget *draw2;
- 
-  GtkWidget *selectButton1;
-  GtkWidget *selectButton2;
-  GtkWidget *selectButton3;
-  GtkWidget *stopButton;
-  GtkWidget *button1;
-  GtkWidget *button2;
-  GtkWidget *button3;
-  GtkWidget *button4;
-  GtkWidget *button5;
-  GtkWidget *button6;
-  GtkWidget *button7;  
-  GtkWidget *button8;
-  GtkWidget *button9;
-  GtkWidget *button10;
-  GtkWidget *button11;
-  GtkWidget *button12;
-  GtkWidget *button13;
-  GtkWidget *button14;
-  GtkWidget *button15;
-  GtkWidget *button16;
-  GtkWidget *button17;
-  GtkWidget *button18;
-  GtkWidget *button19;
-  GtkWidget *button20;
-  
-  GtkWidget *scale1;
-  GtkWidget *scale2;
-  GtkWidget *scale3;
-  GtkWidget *scale4;
-  GtkWidget *scale5;
-  GtkWidget *scale6;
-  GtkWidget *scale7;
-  GtkWidget *scale8;
-  GtkWidget *scale9;
-  GtkWidget *scale10;
-  GtkWidget *scale11;
-  GtkWidget *scale12;
-  GtkWidget *scale13;
-  GtkWidget *scale14;
-  GtkWidget *scale15;
+    GtkWidget *entrytext;
+    GtkWidget *entry1;
+    GtkWidget *draw1;
+    GtkWidget *draw2;
 
-  GtkWidget *popuplist1;
-  GtkWidget *popuplist2;
-  GtkWidget *popuplist3;
-  GtkWidget *popuplist4;
-  GtkWidget *popuplist5;
+    GtkWidget *selectButton1;
+    GtkWidget *selectButton2;
+    GtkWidget *selectButton3;
+    GtkWidget *stopButton;
+    GtkWidget *selLowerButton1;
+    GtkWidget *selLowerButton2;
+    GtkWidget *button1;
+    GtkWidget *button2;
+    GtkWidget *button3;
+    GtkWidget *button4;
+    GtkWidget *button5;
+    GtkWidget *button6;
+    GtkWidget *button7;
+    GtkWidget *button8;
+    GtkWidget *button9;
+    GtkWidget *button10;
+    GtkWidget *button11;
+    GtkWidget *button12;
+    GtkWidget *button13;
+    GtkWidget *button14;
+    GtkWidget *button15;
+    GtkWidget *button16;
+    GtkWidget *button17;
+    GtkWidget *button18;
+    GtkWidget *button19;
+    GtkWidget *button20;
 
-  GtkWidget *popupMenu;
+    GtkWidget *scale1;
+    GtkWidget *scale2;
+    GtkWidget *scale3;
+    GtkWidget *scale4;
+    GtkWidget *scale5;
+    GtkWidget *scale6;
+    GtkWidget *scale7;
+    GtkWidget *scale8;
+    GtkWidget *scale9;
+    GtkWidget *scale10;
+    GtkWidget *scale11;
+    GtkWidget *scale12;
+    GtkWidget *scale13;
+    GtkWidget *scale14;
+    GtkWidget *scale15;
 
+    GtkWidget *popuplist1;
+    GtkWidget *popuplist2;
+    GtkWidget *popuplist3;
+    GtkWidget *popuplist4;
+    GtkWidget *popuplist5;
 
-}MAppWindowPrivate;
+    GtkWidget *popupMenu;
 
-typedef struct _mInt{
+} MAppWindowPrivate;
+
+typedef struct _mInt {
     int data1;
     int data2;
     int data3;
-    int* pData;
-}mInt;
+    int *pData;
+} mInt;
 
-typedef struct _mFloat{
+typedef struct _mFloat {
     float data1;
     float data2;
     float data3;
-    float* pData;
-}mFloat;
+    float *pData;
+} mFloat;
 
-typedef struct _mBuffer{
-    int16_t* read;
+typedef struct _mBuffer {
+    int16_t *read;
     int readSize;
-    int16_t* write;
+    int16_t *write;
     int writeSize;
-    double* sound;
+    double *sound;
     int soundSize;
-    double* row;
-    int rowsize;
-    double* fft;
-    int fftSize;
-}mBuffer;
+    double *row;
+    int rowSize;
+
+} mBuffer;
+
+typedef struct _mFFTdata {
+    fftw_complex *dataIn;
+    fftw_complex *dataOut;
+    fftw_plan fftPlan;
+    int size;
+} mFFTdata;
 
 typedef struct async_private_data {
-    int16_t* samples;
+    int16_t *samples;
     snd_pcm_channel_area_t *areas;
     double phase;
     int pos;
@@ -103,15 +108,15 @@ typedef struct async_private_data {
     int ready;
     int periodsize;
     int bufferSize;
-}mAsyncData;
+} mAsyncData;
 
-typedef struct _mFlag{
+typedef struct _mFlag {
     int soundFile;
     int soundMic;
     int flag3;
-}mFlag;
+} mFlag;
 
-typedef struct _mScale{
+typedef struct _mScale {
     double slider1;
     double slider2;
     double slider3;
@@ -128,9 +133,9 @@ typedef struct _mScale{
     double slider14;
     double slider15;
 
-}mScale;
+} mScale;
 
-typedef struct _mSetting{
+typedef struct _mSetting {
 
     unsigned long pcm_buffer_size;
     unsigned long period_size;
@@ -141,47 +146,57 @@ typedef struct _mSetting{
     char deviceName[256];
     char filename[256];
     GFile *file;
-    
-}mSettings;
 
-typedef struct _mDraw{
-    int     drawAreaWidth;
-    int     drawAreaHeight;
-    double*  x;
-    double*  y; 
-}mDraw;
+} mSettings;
 
-typedef struct _mStatus{
+typedef struct _mDraw {
+    double *x;
+    double *y;
+    int Width;
+    int Height;
+    int on;
+    int log;
+    int bar;
+
+} mDraw;
+
+typedef struct _mStatus {
     int open;
     int selNum;
     int ref;
-}mStatus;
+} mStatus;
 
-typedef struct _VApp{
-  MAppWindowPrivate *priv;
-  mStatus           status;
-  mSettings    settings;
-  mInt      dataInt;
-  mFloat    dataFloat;
-  mBuffer   dataBuf;
-  mFlag     flag;
-  mScale    scale;
-  mDraw     draw1;
-  mDraw     draw2;
-  double    entry1;
+typedef struct _VApp {
+    MAppWindowPrivate *priv;
+    mStatus status;
+    mSettings settings;
+    mInt dataInt;
+    mFloat dataFloat;
+    mBuffer dataBuf;
+    mFlag flag;
+    mScale scale;
+    mDraw drawstatus1;
+    mDraw drawstatus2;
+    mDraw draw1[5];
+    mDraw draw2[5];
+    double entry1;
 
-  mAsyncData soundRead;
-  mAsyncData soundWrite;
-  char*     statusBuf;
-}VApp;
+    mAsyncData soundRead;
+    mAsyncData soundWrite;
+    char *statusBuf;
 
-void soundThread(GtkWidget* window, gpointer data);
-void mlDataThread(GtkWidget* window, gpointer data);
-void SB3Thread(GtkWidget* window, gpointer data);
-MAppWindow  *M_app_window_new(MApp *app);
-void M_app_text_open(MAppWindow *win, GFile  *file);
+    mFFTdata fftForward;
+    mFFTdata fftBack;
+    mFFTdata fftCep;
+    double *fftWindow;
+    double *fftPower;
+    double *fftCepstrum;
+} VApp;
 
-
-
+void soundThread(GtkWidget *window, gpointer data);
+void mlDataThread(GtkWidget *window, gpointer data);
+void SB3Thread(GtkWidget *window, gpointer data);
+MAppWindow *M_app_window_new(MApp *app);
+void M_app_text_open(MAppWindow *win, GFile *file);
 
 #endif
