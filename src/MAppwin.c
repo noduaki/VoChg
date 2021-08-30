@@ -49,17 +49,20 @@ static void M_app_window_init(MAppWindow* win) {
     GMenuModel* menu;
 
     vApp.priv = M_app_window_get_instance_private(win);
-    vApp.status.open = 0;
+    vApp.status.open   = 0;
     vApp.status.selNum = 0;
-    vApp.status.ref = 0;
+    vApp.status.ref    = 0;
 
-    vApp.dataBuf.read = NULL;
-    vApp.dataBuf.write = NULL;
+    vApp.flag.soundFile  = 0;
+    vApp.flag.soundMic   = 0;
+    vApp.flag.drawArea   = 0;
+    vApp.flag.drawResize = 0;
+    vApp.flag.pause      = 0;
+
 
     vApp.statusBuf = (char*)malloc(200);
     *(vApp.statusBuf) = '\0';
-    if (vApp.statusBuf == NULL)
-        exit(1);
+    if (vApp.statusBuf == NULL) exit(1);
 
     gtk_widget_init_template(GTK_WIDGET(win));
 
@@ -95,10 +98,10 @@ static void M_app_window_init(MAppWindow* win) {
     g_signal_connect(vApp.priv->button20, "clicked", G_CALLBACK(b20), &vApp);
 
     // Scales*****************************
-    vApp.scale.slider1 = 0.0;
-    vApp.scale.slider2 = 0.0;
-    vApp.scale.slider3 = 0.0;
-    vApp.scale.slider4 = 0.0;
+    vApp.scale.slider1 = 200.0;
+    vApp.scale.slider2 = 0.1;
+    vApp.scale.slider3 = 1.0;
+    vApp.scale.slider4 = 1.0;
     vApp.scale.slider5 = 0.0;
     vApp.scale.slider6 = 0.0;
     vApp.scale.slider7 = 0.0;
@@ -111,9 +114,10 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.scale.slider14 = 0.0;
     vApp.scale.slider15 = 0.0;
 
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 0.0);
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 0.0);
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale4), 0.0);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 200.0);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 0.1);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 1.0);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale4), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale5), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale6), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale7), 0.0);
@@ -125,6 +129,10 @@ static void M_app_window_init(MAppWindow* win) {
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale13), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale14), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale15), 0.0);
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale1), 200.0, GTK_POS_TOP, "IIR cutoff");
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale2), 0.01, GTK_POS_TOP, "IIR Q");
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale3), 1.0, GTK_POS_TOP, "Height");
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale4), 1.0, GTK_POS_TOP, "Width");
     g_signal_connect(vApp.priv->scale1, "value-changed", G_CALLBACK(fscale1), &vApp);
     g_signal_connect(vApp.priv->scale2, "value-changed", G_CALLBACK(fscale2), &vApp);
     g_signal_connect(vApp.priv->scale3, "value-changed", G_CALLBACK(fscale3), &vApp);
@@ -149,9 +157,10 @@ static void M_app_window_init(MAppWindow* win) {
     g_signal_connect(vApp.priv->draw1, "configure-event", G_CALLBACK(configure_event_cb), &vApp);
     g_signal_connect(vApp.priv->draw1, "motion-notify-event", G_CALLBACK(motion_notify_event_cb), &vApp);
     g_signal_connect(vApp.priv->draw1, "button-press-event", G_CALLBACK(button_press_event_cb), &vApp);
+    g_signal_connect(vApp.priv->draw1, "button-release-event", G_CALLBACK(button_release_event_cb), &vApp);
 
-    gtk_widget_set_events(vApp.priv->draw1,
-                          gtk_widget_get_events(vApp.priv->draw1) | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
+    gtk_widget_set_events(vApp.priv->draw1, gtk_widget_get_events(vApp.priv->draw1) | GDK_BUTTON_PRESS_MASK |
+                                                GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
 
     // Drawarea2*************
 

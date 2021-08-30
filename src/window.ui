@@ -12,19 +12,19 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
 <interface>
   <!-- interface-requires gtk+ 3.8 -->
   <object class="GtkAdjustment" id="scale1_adj">
-    <property name="lower">0.0</property>
-    <property name="upper">10.0</property>
+    <property name="lower">200.0</property>
+    <property name="upper">5000.0</property>
   </object>
   <object class="GtkAdjustment" id="scale2_adj">
-    <property name="lower">0.0</property>
-    <property name="upper">10.0</property>
+    <property name="lower">0.01</property>
+    <property name="upper">2.0</property>
   </object>
   <object class="GtkAdjustment" id="scale3_adj">
-    <property name="lower">0.0</property>
+    <property name="lower">1.0</property>
     <property name="upper">10.0</property>
   </object>
   <object class="GtkAdjustment" id="scale4_adj">
-    <property name="lower">0.0</property>
+    <property name="lower">1.0</property>
     <property name="upper">10.0</property>
   </object>
   <object class="GtkAdjustment" id="scale5_adj">
@@ -258,7 +258,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button1" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">1</property>
+                <property name="label">Row</property>
                 <property name="expand">TRUE</property>
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
@@ -266,7 +266,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button2" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">2</property>
+                <property name="label">Procd</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -274,7 +274,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button3" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">3</property>
+                <property name="label">IIR L</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -417,7 +417,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button20" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">20</property>
+                <property name="label">Pause</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -457,7 +457,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="draw-value">TRUE</property>
                 <property name="value-pos">GTK_POS_RIGHT</property>
                 <property name="adjustment">scale2_adj</property>
-                <property name="digits">1</property>
+                <property name="digits">2</property>
                 <property name="has-origin">FALSE</property>
                 <property name="expand">True</property>
 

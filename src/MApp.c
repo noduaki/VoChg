@@ -13,12 +13,12 @@ mSettings gSet = {SOUNDBUFFERSIZE,
                   SOUNDCHANNELS,
                   SOUNDRATE,
                   SOUNDFRAMES,
-                  "default",
+                  "default",//"hw:CARD=PCH,DEV=0"
                   "0",
-                  NULL}; //"hw:CARD=PCH,DEV=0"
+                  NULL,
+                  0}; 
 
 void quit_activated(GSimpleAction* action, GVariant* parameter, gpointer app) {
-
     g_application_quit(G_APPLICATION(app));
 }
 

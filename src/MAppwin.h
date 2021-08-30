@@ -114,6 +114,8 @@ typedef struct _mFlag {
     int soundFile;
     int soundMic;
     int drawArea;
+    int drawResize;
+    int pause;
 } mFlag;
 
 typedef struct _mScale {
@@ -140,13 +142,13 @@ typedef struct _mSetting {
     unsigned long pcm_buffer_size;
     unsigned long period_size;
     snd_pcm_format_t format;
-    int channels;
-    int rate;
-    int frames;
-    char deviceName[256];
-    char filename[256];
-    GFile *file;
-
+    int    channels;
+    int    rate;
+    int    frames;
+    char   deviceName[256];
+    char   filename[256];
+    GFile  *file;
+    int    filter;
 } mSettings;
 
 typedef struct _mDraw {

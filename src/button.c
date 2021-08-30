@@ -38,8 +38,13 @@ void selButton2(GtkWidget* widget, gpointer data) {
 
             g_free(filename);
             soundThread(widget, data);
-        } else
+        } else{
             da->flag.soundFile = 0;
+            da->status.open    = 0;
+            da->status.selNum  = 0;
+            printf("File cancel\n");
+        }
+
         gtk_widget_destroy(dialog);
     } else
         statusprint("Please push stop button", data);
@@ -87,17 +92,57 @@ void sLowerButton2(GtkWidget* widget, gpointer data) {
 }
 
 void b1(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
-
-    statusprint("Text Button", data);
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    
+    if (i == 0) {
+        i = 1;
+        da->draw1[0].on = 0;
+    } else if (i == 1) {
+        i = 0;
+        da->draw1[0].on = 1;
+    } else {
+        printf("b1 Error\n");
+        statusprint("Cepstrum Error", data);
+    }
 }
 
 void b2(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    
+    if (i == 0) {
+        i = 1;
+        da->draw1[1].on = 0;
+    } else if (i == 1) {
+        i = 0;
+        da->draw1[1].on = 1;
+    } else {
+        printf("b2 Error\n");
+        statusprint("Cepstrum Error", data);
+    }
 }
 
 void b3(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+     VApp* da = (VApp*)data;
+    static int i = 0;
+    
+    if (i == 0) {
+        i = 1;
+        da->settings.filter = 1;
+        gtk_button_set_label(GTK_BUTTON(widget), "IIR H");
+    } else if (i == 1) {
+        i = 2;
+        da->settings.filter = 2;
+        gtk_button_set_label(GTK_BUTTON(widget), "IIR -");
+    }else if (i == 2) {
+        i = 0;
+        da->settings.filter = 0;
+        gtk_button_set_label(GTK_BUTTON(widget), "IIR L");
+    } else {
+        printf("b3 Error\n");
+        statusprint("Switch Lo Hi Error", data);
+    }
 }
 
 void b4(GtkWidget* widget, gpointer data) {
@@ -208,5 +253,13 @@ void b19(GtkWidget* widget, gpointer data) {
 }
 
 void b20(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    static int i = 0;
+    if(i == 0){
+        i = 1;
+        da->flag.pause = 1;
+    }else if(i == 1){
+        i = 0;
+        da->flag.pause = 0;
+    }
 }

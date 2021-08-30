@@ -1,39 +1,41 @@
 #include "header.h"
 
 void fscale1(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
-    tmp->scale.slider1 = v;
-    statusprint("Text Slider", data);
+    da->scale.slider1 = v;
 }
 
 void fscale2(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
-    tmp->scale.slider2 = v;
+    da->scale.slider2 = v;
 }
 
 void fscale3(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
-    tmp->scale.slider3 = v;
+    da->scale.slider3 = v;
+    
+
 }
 
 void fscale4(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
-    tmp->scale.slider4 = v;
+    da->scale.slider4 = v;
+    da->flag.drawResize = 1;
 }
 
 void fscale5(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
-    tmp->scale.slider5 = v;
+    da->scale.slider5 = v;
 }
 
 void fscale6(GtkWidget* widget, gpointer data) {

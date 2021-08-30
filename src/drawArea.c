@@ -60,6 +60,9 @@ gboolean draw_cb(GtkWidget* widget, cairo_t* cr, gpointer data) {
 gboolean button_press_event_cb(GtkWidget* widget, GdkEventButton* event, gpointer data) {
     int a = 0;
     VApp* da = (VApp*)data;
+    char status[20];
+    int x;
+    int y;
 
     if (widget == da->priv->draw1) {
         a = 1;
@@ -72,7 +75,10 @@ gboolean button_press_event_cb(GtkWidget* widget, GdkEventButton* event, gpointe
     }
     if (a == 1) {
         if (event->button == GDK_BUTTON_PRIMARY) {
-            statusprint("Text Draw1 Press", da);
+            if (a = 1) {
+                da->drawstatus1.log = (int)(event->x);
+                da->drawstatus1.on = (int)(event->y);               
+            }
         } else if (event->button == GDK_BUTTON_SECONDARY) {
         }
     }
@@ -98,7 +104,13 @@ gboolean button_release_event_cb(GtkWidget* widget, GdkEventButton* event, gpoin
         if (surface2 == NULL)
             return FALSE;
     }
-    if (a == 2) {
+
+    if(a == 1){
+        if(event->button == GDK_BUTTON_PRIMARY && da->status.open){
+            
+            
+        }
+    }else if (a == 2) {
         if (event->button == GDK_BUTTON_PRIMARY) {
             statusprint("Text Draw Release", da);
         } else if (event->button == GDK_BUTTON_SECONDARY) {
@@ -114,9 +126,13 @@ gboolean motion_notify_event_cb(GtkWidget* widget, GdkEventMotion* event, gpoint
     static double start = 0.0;
     static double end = 0.0;
     int a = 0;
+    int i = 1;
     int x;
-    double xx;
-    double y;
+    int y;
+    int xx;
+    int yy;
+    char status[100];
+   
 
     // paranoia check, in case we haven't gotten a configure event
     if (widget == da->priv->draw1) {
@@ -128,6 +144,18 @@ gboolean motion_notify_event_cb(GtkWidget* widget, GdkEventMotion* event, gpoint
         if (surface2 == NULL)
             return FALSE;
     }
+
+    if (a == 1) {
+        if (event->state & GDK_BUTTON1_MASK && da->status.open) {
+            
+            *(da->drawstatus1.x) = da->drawstatus1.log - (int)event->x;
+            *(da->drawstatus1.y) = -(da->drawstatus1.on - (int)event->y);
+            sprintf(status, "x=%5.3f y=%5.3f", *(da->drawstatus1.x), *(da->drawstatus1.y) );
+            statusprint(status, data);
+            da->flag.drawResize = 1;
+        }
+    }
+
     return TRUE;
 }
 
@@ -139,13 +167,31 @@ gboolean update_drawArea1(gpointer data) {
     int n;
     int tmp;
     int v;
-    double sitmp = 0;
-    double ttmp = 0;
+    double sitmp = 0.0;
+    double ttmp = 0.0;
+    double height = 0.0;
+    double width = 0.0;
+    static int startPos = 0;
+    static int endPos = 4096;
+    static char startW[10] = "0";
+    static char endW[10] = "0";
     cairo_t* cr;
     VApp* da = (VApp*)data;
 
     static double t = 0;
     static double si;
+
+    if (da->flag.drawResize) {
+        startPos += (int)*(da->drawstatus1.x) / 8;
+        if(startPos < 0) startPos = 0;
+        else if(startPos > da->settings.pcm_buffer_size - (da->settings.pcm_buffer_size / da->scale.slider4)){
+            startPos = da->settings.pcm_buffer_size - (da->settings.pcm_buffer_size / da->scale.slider4);
+        }
+        endPos = startPos + (da->settings.pcm_buffer_size / da->scale.slider4); 
+        sprintf(startW, "%d", startPos);
+        sprintf(endW, "%d", endPos);
+        da->flag.drawResize = 0;
+    }
 
     cr = cairo_create(surface1);
     // Clear surface
@@ -153,23 +199,47 @@ gboolean update_drawArea1(gpointer data) {
     cairo_paint(cr);
 
     // Index part***
-    cairo_set_source_rgba(cr, 0.1, 0.1, 0.1, 1.0);
+    cairo_set_source_rgba(cr, 0.1, 0.1, 0.1, 0.3);
     cairo_select_font_face(cr, "Comic Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 
-    cairo_set_font_size(cr, 13);
+    cairo_set_font_size(cr, 13.0);
     cairo_move_to(cr, 20.0, 30.0);
     cairo_show_text(cr, "WAVE");
-    da->flag.drawArea = 1;
+    cairo_move_to(cr, 5, da->drawstatus1.Height - 10);
+    cairo_show_text(cr, startW);
+    cairo_move_to(cr, da->drawstatus1.Width - 40, da->drawstatus1.Height - 10);
+    cairo_show_text(cr, endW);
+    cairo_set_font_size(cr, 8.0);
+    cairo_move_to(cr, 50.0, 10.0);
+    cairo_show_text(cr, "Row");
+    cairo_move_to(cr, 50.0, 19.0);
+    cairo_show_text(cr, "Procd");
+    cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 20.0, 7.0);
+    cairo_line_to(cr, 40.0, 7.0);
+    cairo_stroke(cr);
+    cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.2);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 20.0, 15.0);
+    cairo_line_to(cr, 40.0, 15.0);
+    cairo_stroke(cr);
+    cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.4);
+    cairo_set_line_width(cr, 1.0);
+    cairo_move_to(cr, 3.0, (double)(da->drawstatus1.Height / 2));
+    cairo_line_to(cr, (double)da->drawstatus1.Width - 3.0, (double)(da->drawstatus1.Height / 2));
+    cairo_stroke(cr);
+    da->flag.drawArea = 1;  //It notify PCM When closeing PCM 
 
     g_mutex_lock(&mutex_drawArea1);
     for (n = 0; n < 5; n++) {
         switch (n) {
         case 0:
-            cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.2);
+            cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.7);
             cairo_set_line_width(cr, 2.0);
             break;
         case 1:
-            cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.2);
+            cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.7);
             cairo_set_line_width(cr, 2.0);
             break;
         case 2:
@@ -190,20 +260,20 @@ gboolean update_drawArea1(gpointer data) {
             cairo_set_line_width(cr, 2.0);
             break;
         }
-
+        height = (double)da->drawstatus1.Height * da->scale.slider3;
+        width = (double)da->drawstatus1.Width * da->scale.slider4;
         sitmp = si;
         ttmp = 0;
         if (da->draw1[n].on) {
             for (i = 0; i < da->draw1[n].Width; i++) {
 
-                si = (double)((da->drawstatus1.Height) / 2) -
-                     (*(da->draw1[n].x + i) * (double)(da->drawstatus1.Height) / da->draw1[n].Height);
-                t = (double)i * (double)da->drawstatus1.Width / (double)(da->draw1[n].Width);
+                si = (double)(da->drawstatus1.Height / 2) - (*(da->draw1[n].x + i) * height / da->draw1[n].Height);
+                t = ((double)i - startPos) * width / (double)(da->draw1[n].Width);
 
-                if (si < 0.0)
-                    si = 0.0;
-                else if (si > da->drawstatus1.Height)
-                    si = da->drawstatus1.Height;
+                if (si < 3.0)
+                    si = 3.0;
+                else if (si > da->drawstatus1.Height - 3.0)
+                    si = da->drawstatus1.Height - 3.0;
                 if (t < 0.0)
                     t = 0.0;
                 if (t > da->drawstatus1.Width - 6.0)
@@ -218,7 +288,7 @@ gboolean update_drawArea1(gpointer data) {
         }
     }
     g_mutex_unlock(&mutex_drawArea1);
-    
+
     cairo_destroy(cr);
     gtk_widget_queue_draw(da->priv->draw1);
     da->flag.drawArea = 0;
@@ -230,8 +300,10 @@ gboolean update_drawArea2(gpointer data) {
     int n;
     int tmp;
     int v;
-    double sitmp = 0;
-    double ttmp = 0;
+    double sitmp = 0.0;
+    double ttmp = 0.0;
+    double height = 0.0;
+    double width = 0.0;
     cairo_t* cr;
     VApp* da = (VApp*)data;
 
@@ -244,43 +316,73 @@ gboolean update_drawArea2(gpointer data) {
     cairo_paint(cr);
 
     // Index part***
-    cairo_set_source_rgba(cr, 0.1, 0.1, 0.1, 1.0);
+
     cairo_select_font_face(cr, "Comic Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+
+    cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.5);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 20.0, 7.0);
+    cairo_line_to(cr, 35.0, 7.0);
+    cairo_stroke(cr);
+    cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 0.5);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 35.0, 7.0);
+    cairo_line_to(cr, 50.0, 7.0);
+    cairo_stroke(cr);
+
+    cairo_set_source_rgba(cr, 0.5, 1.0, 0.0, 0.6);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 20.0, 15.0);
+    cairo_line_to(cr, 35.0, 15.0);
+    cairo_stroke(cr);
+    cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.3);
+    cairo_set_line_width(cr, 2.0);
+    cairo_move_to(cr, 35.0, 15.0);
+    cairo_line_to(cr, 50.0, 15.0);
+    cairo_stroke(cr);
 
     cairo_set_font_size(cr, 13);
     cairo_move_to(cr, 20.0, 30.0);
     cairo_show_text(cr, "FFT");
     cairo_set_font_size(cr, 8);
+    cairo_set_font_size(cr, 8.0);
+    cairo_move_to(cr, 52.0, 10.0);
+    cairo_show_text(cr, "Row");
+    cairo_move_to(cr, 52.0, 19.0);
+    cairo_show_text(cr, "Procd");
     if (da->draw2[0].log) {
-        
-        cairo_move_to(cr, ((log(608) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+
+        cairo_move_to(cr, ((log(608) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "7k");
-        cairo_move_to(cr, ((log(304) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(304) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "3.5k");
-        cairo_move_to(cr, ((log(152) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(152) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "1.7k");
-        cairo_move_to(cr, ((log(76) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(76) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "880");
-        cairo_move_to(cr, ((log(38) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(38) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "440");
-        cairo_move_to(cr, ((log(18.5) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(18.5) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "220");
-        cairo_move_to(cr, ((log(9.3) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(9.3) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "110");
-        cairo_move_to(cr, ((log(4.6) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height );
+        cairo_move_to(cr, ((log(4.6) - 0.693) * (da->drawstatus2.Width / 6.5)), (double)da->drawstatus2.Height);
         cairo_show_text(cr, "55");
         cairo_move_to(cr, 5.0, (double)da->drawstatus2.Height);
         cairo_show_text(cr, "20");
-    }else{
-        cairo_move_to(cr, 1024.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width), (double)da->drawstatus2.Height);
+    } else {
+        cairo_move_to(cr, 1024.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width),
+                      (double)da->drawstatus2.Height);
         cairo_show_text(cr, "24k");
-        cairo_move_to(cr, 512.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5.0, (double)da->drawstatus2.Height);
+        cairo_move_to(cr, 512.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5.0,
+                      (double)da->drawstatus2.Height);
         cairo_show_text(cr, "12k");
-        cairo_move_to(cr, 256.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5, (double)da->drawstatus2.Height);
+        cairo_move_to(cr, 256.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width) + 5,
+                      (double)da->drawstatus2.Height);
         cairo_show_text(cr, "6k");
-        cairo_move_to(cr, 128.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width), (double)da->drawstatus2.Height);
+        cairo_move_to(cr, 128.0 * (double)da->drawstatus2.Width / (double)(da->draw2[0].Width),
+                      (double)da->drawstatus2.Height);
         cairo_show_text(cr, "3k");
-        
     }
     da->flag.drawArea = 1;
     g_mutex_lock(&mutex_drawArea2);
