@@ -116,6 +116,8 @@ typedef struct _mFlag {
     int drawArea;
     int drawResize;
     int pause;
+    int nextWave;
+    int prevWave;
 } mFlag;
 
 typedef struct _mScale {
@@ -168,6 +170,11 @@ typedef struct _mStatus {
     int ref;
 } mStatus;
 
+typedef struct _mlData{
+    double xData[NUM_DATA_X];
+    double yData;
+}mlData;
+
 typedef struct _VApp {
     MAppWindowPrivate *priv;
     mStatus status;
@@ -181,6 +188,7 @@ typedef struct _VApp {
     mDraw drawstatus2;
     mDraw draw1[5];
     mDraw draw2[5];
+    mDraw crossPoint;
     double entry1;
 
     mAsyncData soundRead;
@@ -193,6 +201,8 @@ typedef struct _VApp {
     double *fftWindow;
     double *fftPower;
     double *fftCepstrum;
+
+    mlData* sData;
 } VApp;
 
 void soundThread(GtkWidget *window, gpointer data);

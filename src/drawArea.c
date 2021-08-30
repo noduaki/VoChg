@@ -159,6 +159,8 @@ gboolean motion_notify_event_cb(GtkWidget* widget, GdkEventMotion* event, gpoint
     return TRUE;
 }
 
+//DrawArea drawing ****************************************
+
 GMutex mutex_drawArea1;
 GMutex mutex_drawArea2;
 
@@ -232,6 +234,9 @@ gboolean update_drawArea1(gpointer data) {
     da->flag.drawArea = 1;  //It notify PCM When closeing PCM 
 
     g_mutex_lock(&mutex_drawArea1);
+
+    height = (double)da->drawstatus1.Height * da->scale.slider3;
+    width = (double)da->drawstatus1.Width * da->scale.slider4;
     for (n = 0; n < 5; n++) {
         switch (n) {
         case 0:
@@ -260,14 +265,13 @@ gboolean update_drawArea1(gpointer data) {
             cairo_set_line_width(cr, 2.0);
             break;
         }
-        height = (double)da->drawstatus1.Height * da->scale.slider3;
-        width = (double)da->drawstatus1.Width * da->scale.slider4;
+       
         sitmp = si;
         ttmp = 0;
         if (da->draw1[n].on) {
             for (i = 0; i < da->draw1[n].Width; i++) {
 
-                si = (double)(da->drawstatus1.Height / 2) - (*(da->draw1[n].x + i) * height / da->draw1[n].Height);
+                si = (double)(da->drawstatus1.Height / 2) - (*(da->draw1[n].y + i) * height / da->draw1[n].Height);
                 t = ((double)i - startPos) * width / (double)(da->draw1[n].Width);
 
                 if (si < 3.0)
@@ -285,6 +289,14 @@ gboolean update_drawArea1(gpointer data) {
                 ttmp = t;
             }
             cairo_stroke(cr);
+        }
+    }
+    if(da->crossPoint.on){
+        cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
+        for(i = 0; i < da->crossPoint.Width; i++){
+            t = (*(da->crossPoint.x + i) - (double)startPos) * width / (double)(da->settings.pcm_buffer_size);
+            cairo_arc(cr, t + 5.0, da->drawstatus1.Height / 2, 3.0, 0.0, 6.28318);
+            cairo_fill(cr);
         }
     }
     g_mutex_unlock(&mutex_drawArea1);
@@ -421,7 +433,7 @@ gboolean update_drawArea2(gpointer data) {
             for (i = 0; i < da->draw2[n].Width; i++) {
 
                 si = (double)(da->drawstatus2.Height) -
-                     (*(da->draw2[n].x + i) * (double)(da->drawstatus2.Height) / da->draw2[n].Height);
+                     (*(da->draw2[n].y + i) * (double)(da->drawstatus2.Height) / da->draw2[n].Height);
                 if (da->draw2[n].log)
                     t = (log((double)i) - 0.693) * (da->drawstatus2.Width / 6.5);
                 else

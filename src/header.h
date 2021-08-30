@@ -20,6 +20,9 @@
 #define SOUNDPERIODSIZE 1024
 #define SOUNDFRAMES     4096
 
+#define NUM_MLDATA      1000
+#define NUM_DATA_X       100
+
 #define M_APP_TYPE (M_app_get_type ())
 G_DECLARE_FINAL_TYPE (MApp, M_app, M, APP, GtkApplication)
 
@@ -41,6 +44,7 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "sndPCMThread.h"
 #include "soundProcess.h"
 #include "utility.h"
+#include "mlDataProcess.h"
 
 
 

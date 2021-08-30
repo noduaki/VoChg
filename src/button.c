@@ -51,13 +51,38 @@ void selButton2(GtkWidget* widget, gpointer data) {
 }
 
 void selButton3(GtkWidget* widget, gpointer data) {
-    VApp* da = (VApp*)data;
+     VApp* da = (VApp*)data;
+    GtkWidget* dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    int res = 0;
+
     if (!da->status.open) {
         da->status.selNum = 3;
         da->status.open = 1;
-        SB3Thread(widget, data);
+        da->flag.soundFile = 1;
+
+        dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"),
+                                             GTK_RESPONSE_ACCEPT, NULL);
+        res = gtk_dialog_run(GTK_DIALOG(dialog));
+        if (res == GTK_RESPONSE_ACCEPT) {
+            gchar* filename;
+
+            filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            snprintf(gSet.filename, 255, "%s", filename);
+            gSet.file = g_file_new_for_path(filename);
+
+            g_free(filename);
+            mlDataThread(widget, data);
+        } else{
+            da->flag.soundFile = 0;
+            da->status.open    = 0;
+            da->status.selNum  = 0;
+            printf("File cancel\n");
+        }
+
+        gtk_widget_destroy(dialog);
     } else
-        statusprint("please push stop button", data);
+        statusprint("Please push stop button", data);
 }
 
 void stpButton(GtkWidget* widget, gpointer data) {
@@ -245,11 +270,27 @@ void b17(GtkWidget* widget, gpointer data) {
 }
 
 void b18(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+   
+    if(da->flag.nextWave == 0){
+        da->flag.nextWave = 1;
+    }else if(da->flag.nextWave == 1){
+        da->flag.nextWave = 0;
+    } else{
+        printf("b18 Error\n");
+    }
 }
 
 void b19(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    
+    if(da->flag.prevWave == 0){
+        da->flag.prevWave = 1;
+    }else if(da->flag.prevWave == 1){
+        da->flag.prevWave = 0;
+    } else{
+        printf("b19 Error\n");
+    }
 }
 
 void b20(GtkWidget* widget, gpointer data) {
@@ -261,5 +302,7 @@ void b20(GtkWidget* widget, gpointer data) {
     }else if(i == 1){
         i = 0;
         da->flag.pause = 0;
+    }else{
+        printf("b20 Error\n");
     }
 }

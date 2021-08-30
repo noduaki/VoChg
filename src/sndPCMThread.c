@@ -9,8 +9,7 @@ void pcm_list(snd_pcm_stream_t stream, char* namedevice) {
     char *name, *descr, *descr1, *io;
     const char* filter;
 
-    if (snd_device_name_hint(-1, "pcm", &hints) < 0)
-        return;
+    if (snd_device_name_hint(-1, "pcm", &hints) < 0) return;
     n = hints;
     filter = stream == SND_PCM_STREAM_CAPTURE ? "Input" : "Output";
     while (*n != NULL) {
@@ -29,20 +28,14 @@ void pcm_list(snd_pcm_stream_t stream, char* namedevice) {
         }
     __free:
 
-        if (name != NULL)
-            free(name);
-        if (descr != NULL)
-            free(descr);
-        if (io != NULL)
-            free(io);
+        if (name != NULL) free(name);
+        if (descr != NULL) free(descr);
+        if (io != NULL) free(io);
         n++;
     }
-    if (name != NULL)
-        free(name);
-    if (descr != NULL)
-        free(descr);
-    if (io != NULL)
-        free(io);
+    if (name != NULL) free(name);
+    if (descr != NULL) free(descr);
+    if (io != NULL) free(io);
 
     return;
 }
@@ -263,16 +256,14 @@ static int xrun_recovery(snd_pcm_t* handle, int err) {
     printf("%s>>>>xrun\n", snd_strerror(err));
     if (err == -EPIPE) { //* under-run
         err = snd_pcm_prepare(handle);
-        if (err < 0)
-            printf("Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
+        if (err < 0) printf("Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
         return 0;
     } else if (err == -ESTRPIPE) {
         while ((err = snd_pcm_resume(handle)) == -EAGAIN)
             sleep(1); //* wait until the suspend flag is released
         if (err < 0) {
             err = snd_pcm_prepare(handle);
-            if (err < 0)
-                printf("Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
+            if (err < 0) printf("Can't recovery from suspend, prepare failed: %s\n", snd_strerror(err));
         }
         return 0;
     }
@@ -298,16 +289,14 @@ void async_read_callback(snd_async_handler_t* ahandler) {
         if (pos < shortBufferSize - length && pos >= 0) {
 
             err = snd_pcm_readi(handle, asyData->samples + pos, asyData->periodsize);
-            if (err != asyData->periodsize)
-                printf("Read number is under period ->>%d", err);
+            if (err != asyData->periodsize) printf("Read number is under period ->>%d", err);
             pos += length;
             readLength += err;
 
         } else if (pos >= shortBufferSize - length && pos < shortBufferSize) {
 
             err = snd_pcm_readi(handle, asyData->samples, asyData->periodsize);
-            if (err != asyData->periodsize)
-                printf("Read number is under period ->>%d", err);
+            if (err != asyData->periodsize) printf("Read number is under period ->>%d", err);
             pos += length;
             readLength += err;
 
@@ -378,8 +367,7 @@ void async_write_callback(snd_async_handler_t* ahandler) {
     data->pos = pos;
     data->avail = writeAvail;
 
-    if (data->avail > data->bufferSize)
-        data->avail = data->bufferSize;
+    if (data->avail > data->bufferSize) data->avail = data->bufferSize;
     g_mutex_unlock(&mutex_sound);
     data->ready = 1;
 }
@@ -394,12 +382,9 @@ static int wait_for_poll(snd_pcm_t* handle, struct pollfd* ufds, unsigned int co
     while (1) {
         poll(ufds, count, -1);
         snd_pcm_poll_descriptors_revents(handle, ufds, count, &revents);
-        if (revents & POLLERR)
-            return -EIO;
-        if (revents & POLLIN)
-            return 0;
-        if (revents & POLLOUT)
-            return 0;
+        if (revents & POLLERR) return -EIO;
+        if (revents & POLLIN) return 0;
+        if (revents & POLLOUT) return 0;
     }
 }
 
@@ -472,8 +457,7 @@ int mic_poll_loop(snd_pcm_t* chandle, snd_pcm_t* phandle, VApp* da) {
                 init = 1;
                 break; /* skip one period */
             }
-            if (snd_pcm_state(chandle) == SND_PCM_STATE_RUNNING)
-                init = 0;
+            if (snd_pcm_state(chandle) == SND_PCM_STATE_RUNNING) init = 0;
 
             readCount += cerr * da->settings.channels;
             writeCount += perr * da->settings.channels;
@@ -481,8 +465,8 @@ int mic_poll_loop(snd_pcm_t* chandle, snd_pcm_t* phandle, VApp* da) {
                 readCount = 0;
                 writeCount = 0;
                 soundProcess(da);
-              
-            }else if(readCount > da->soundRead.bufferSize * da->settings.channels){
+
+            } else if (readCount > da->soundRead.bufferSize * da->settings.channels) {
                 printf("Error read poll -> read count over\n");
             }
             cperiod -= cerr;
@@ -557,8 +541,7 @@ int file_poll_loop(snd_pcm_t* phandle, VApp* da) {
                 init = 1;
                 break; /* skip one period */
             }
-            if (snd_pcm_state(phandle) == SND_PCM_STATE_RUNNING)
-                init = 0;
+            if (snd_pcm_state(phandle) == SND_PCM_STATE_RUNNING) init = 0;
 
             writeCount += perr * da->settings.channels;
             if (writeCount == da->soundWrite.bufferSize * da->settings.channels) {
@@ -616,8 +599,7 @@ void asyncPoll(VApp* da) {
             }
 
             g_mutex_unlock(&mutex_sound);
-            if (count + (posr * 2) >= da->dataBuf.readSize / 2)
-                count = 0;
+            if (count + (posr * 2) >= da->dataBuf.readSize / 2) count = 0;
 
             for (i = 0; i < posr; i++) {
 
@@ -652,8 +634,7 @@ void asyncPoll(VApp* da) {
                 *(da->soundWrite.samples + (i * 2) + (posw * 2) + 1) = (int16_t)(*(da->dataBuf.sound + i + posw));
             }
 
-            if (count + (posr * 2) >= da->dataBuf.readSize / 2)
-                count = 0;
+            if (count + (posr * 2) >= da->dataBuf.readSize / 2) count = 0;
 
             for (i = 0; i < posr; i++) {
 
@@ -720,7 +701,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     da->draw2[1].bar = 1;
     da->draw2[2].bar = 0;
     da->draw2[3].bar = 1;
-
+    da->crossPoint.on = 1;
 
     for (i = 0; i < da->settings.pcm_buffer_size; i += 2) {
         tmp = (signed short)((sin(((6.283185 * 32.0) / da->settings.pcm_buffer_size) * (double)i)) * 10000.0);
@@ -744,7 +725,6 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     }
 
     // statusbar shown
-
     strcat(da->statusBuf, da->settings.deviceName);
     strcpy(sformat, "  LE16bit  ");
     strcat(da->statusBuf, sformat);
@@ -817,7 +797,6 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         exit(EXIT_FAILURE);
     }
     if (da->flag.soundFile) {
-
         if (snd_pcm_state(Phandle) == SND_PCM_STATE_PREPARED) {
             err = snd_pcm_start(Phandle);
             if (err < 0) {
@@ -858,17 +837,16 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
             err = mic_poll_loop(Chandle, Phandle, da);
         else if (da->flag.soundFile)
             err = file_poll_loop(Phandle, da);
-        if (err < 0)
-            printf("Error in soundinit() Transfer failed: %s\n", snd_strerror(err));
+        if (err < 0) printf("Error in soundinit() Transfer failed: %s\n", snd_strerror(err));
     } else {
         while (da->status.open) {
             asyncPoll(da);
             nanosleep(&req, NULL);
         }
     }
-    // Stop soundinit************************************************
+    // Close soundinit************************************************
     i = 0;
-    while(da->flag.drawArea){
+    while (da->flag.drawArea) {
         sleep(1);
         i++;
         if (i > 10) {
@@ -893,7 +871,6 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
 err:
     da->status.ref--;
     if (!pcmErr) {
-
         ok = snd_pcm_close(Phandle);
         ok2 = snd_pcm_close(Chandle);
         if (err > 0) {

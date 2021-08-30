@@ -30,20 +30,33 @@ void soundThread(GtkWidget* window, gpointer data) {
 }
 
 void mlDataThread(GtkWidget* window, gpointer data) {
-    statusprint("SB2 Button", data);
-    printf("22222222222222222\n");
+    VApp* da = (VApp*)data;
+    GTask* mlDataTask;
+    int error;
+
+    if (da->status.selNum == 3 && da->status.open == 1) {
+        error = initVar(da);
+        if (error) {
+            delVar(da);
+            printf("Error in mlDataThread() -> malloc");
+            exit(1);
+        }
+        mlDataTask = g_task_new(NULL, NULL, NULL, NULL);
+        g_task_set_task_data(mlDataTask, data, NULL);
+        g_task_run_in_thread(mlDataTask, mlDataProcess);
+
+    } else {
+        printf("mlDataThread() selNum error");
+        exit(1);
+    }
+    statusprint("MLdata Button", data); 
 }
 
-void SB3Thread(GtkWidget* window, gpointer data) {
-    VApp* da = (VApp*)data;
-    da->status.selNum = 0;
-    da->status.open = 0;
-    statusprint("SB3 Button", data);
-    printf("3333333333\n");
-}
+
 
 static void M_app_window_init(MAppWindow* win) {
     static VApp vApp;
+    
     guint statusBar;
     GtkBuilder* builder;
     GMenuModel* menu;

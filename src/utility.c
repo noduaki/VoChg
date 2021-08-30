@@ -60,16 +60,14 @@ int wavCheck(gpointer tmp) {
             break; // seek "data"
         else {
             i++;
-            if (i > 196)
-                ok = 0;
+            if (i > 196) ok = 0;
         }
     }
     if (ok) {
         size = (0xff000000 & (data[i + 7] << 24)) | (0x00ff0000 & (data[i + 6] << 16)) |
                (0x00000ff00 & (data[i + 5] << 8)) | (0x000000ff & data[i + 4]);
         i += 8;
-        if (size < da->dataBuf.readSize)
-            da->dataBuf.readSize = size;
+        if (size < da->dataBuf.readSize) da->dataBuf.readSize = size;
         printf("File size %d,\n", da->dataBuf.readSize);
     }
     if (ok) {

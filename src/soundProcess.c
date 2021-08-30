@@ -1,5 +1,18 @@
 #include "soundProcess.h"
 
+int getCross(double* sound, double* x, int n) {
+    int i;
+    int count = 0;
+
+    for (i = 0; i < n - 1; i++) {
+        if (*(sound + i) > 0.0 && *(sound + i + 1) < 0.0) {
+            *(x + count) = (double)i;
+            count++;
+        }
+    }
+    return count;
+}
+
 void soundProcess(VApp* da) {
     int i;
     _Thread_local static int bufferCount = 0;
@@ -17,14 +30,15 @@ void soundProcess(VApp* da) {
             da->fftForward.dataIn[i][0] = (double)(*(da->dataBuf.read + i * 2 + bufferCount)) * *(da->fftWindow + i);
             da->fftForward.dataIn[i][1] = 0.0;
         }
-        if(!da->flag.pause) bufferCount += da->soundWrite.bufferSize * da->settings.channels;
-        if (bufferCount + da->soundWrite.bufferSize * da->settings.channels > da->dataBuf.readSize / 2)
-            bufferCount = 0;
+        if (!da->flag.pause) bufferCount += da->soundWrite.bufferSize * da->settings.channels;
+        if (bufferCount + da->soundWrite.bufferSize * da->settings.channels > da->dataBuf.readSize / 2) bufferCount = 0;
     } else if (da->flag.soundMic) {
         memmove(da->dataBuf.row, da->dataBuf.row + da->soundWrite.bufferSize,
                 da->soundWrite.bufferSize * sizeof(double));
         for (i = 0; i < da->soundWrite.bufferSize; i++) {
-            *(da->dataBuf.row + da->soundWrite.bufferSize + i) = (double)(*(da->soundRead.samples + i * 2));
+            if (!da->flag.pause) {
+                *(da->dataBuf.row + da->soundWrite.bufferSize + i) = (double)(*(da->soundRead.samples + i * 2));
+            }
             da->fftForward.dataIn[i][0] = (double)(*(da->soundRead.samples + i * 2)) * *(da->fftWindow + i);
             da->fftForward.dataIn[i][1] = 0.0;
         }
@@ -81,11 +95,20 @@ void soundProcess(VApp* da) {
             out1 = *(da->dataBuf.sound + da->soundWrite.bufferSize + i); // 1つ前の出力信号を更新
         }
 
-    } else {
+    } else { // No filter
         memcpy(da->dataBuf.sound + da->soundWrite.bufferSize, da->dataBuf.row + da->soundWrite.bufferSize,
                da->soundWrite.bufferSize * sizeof(double));
     }
 
+    // ML data get *********
+
+    da->crossPoint.Width =
+        getCross(da->dataBuf.sound + da->soundWrite.bufferSize, da->crossPoint.x, da->soundWrite.bufferSize);
+    if(da->crossPoint.Width <= 0){
+        printf("Error getCross\n"); 
+        da->crossPoint.Width = 0; 
+    } 
+    
     // FFT Cal. **********
 
     fftw_execute(da->fftForward.fftPlan);
@@ -112,13 +135,11 @@ void soundProcess(VApp* da) {
                                   da->fftCep.dataOut[i][1] * da->fftCep.dataOut[i][1]) /
                                  100000.0;
     }
-    memcpy(da->draw1[0].x, da->dataBuf.row + (da->soundWrite.bufferSize / 2),
-           da->soundWrite.bufferSize * sizeof(double));
-    memcpy(da->draw1[1].x, da->dataBuf.sound + (da->soundWrite.bufferSize / 2),
-           da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw1[0].y, da->dataBuf.row + (da->soundWrite.bufferSize), da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw1[1].y, da->dataBuf.sound + (da->soundWrite.bufferSize), da->soundWrite.bufferSize * sizeof(double));
 
-    memcpy(da->draw2[0].x, da->fftPower, da->soundWrite.bufferSize * sizeof(double));
-    memcpy(da->draw2[1].x, da->fftCepstrum, da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw2[0].y, da->fftPower, da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw2[1].y, da->fftCepstrum, da->soundWrite.bufferSize * sizeof(double));
 
     // Processed sound FFT
 
@@ -146,8 +167,8 @@ void soundProcess(VApp* da) {
                                  100000.0;
     }
 
-    memcpy(da->draw2[2].x, da->fftPower, da->soundWrite.bufferSize * sizeof(double));
-    memcpy(da->draw2[3].x, da->fftCepstrum, da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw2[2].y, da->fftPower, da->soundWrite.bufferSize * sizeof(double));
+    memcpy(da->draw2[3].y, da->fftCepstrum, da->soundWrite.bufferSize * sizeof(double));
 
     // Sound data send to pcm sample
 
@@ -155,7 +176,6 @@ void soundProcess(VApp* da) {
         *(da->soundWrite.samples + i * 2) = (int16_t)(*(da->dataBuf.sound + i));
         *(da->soundWrite.samples + i * 2 + 1) = (int16_t)(*(da->dataBuf.sound + i));
     }
-    
 
     g_idle_add(update_drawArea1, da);
     g_idle_add(update_drawArea2, da);
