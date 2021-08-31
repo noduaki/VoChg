@@ -118,14 +118,11 @@ void sLowerButton2(GtkWidget* widget, gpointer data) {
 
 void b1(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    static int i = 0;
     
-    if (i == 0) {
-        i = 1;
-        da->draw1[0].on = 0;
-    } else if (i == 1) {
-        i = 0;
+    if ( da->draw1[0].on == 0) {
         da->draw1[0].on = 1;
+    } else if ( da->draw1[0].on == 1) {
+        da->draw1[0].on = 0;
     } else {
         printf("b1 Error\n");
         statusprint("Cepstrum Error", data);
@@ -134,14 +131,11 @@ void b1(GtkWidget* widget, gpointer data) {
 
 void b2(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    static int i = 0;
-    
-    if (i == 0) {
-        i = 1;
-        da->draw1[1].on = 0;
-    } else if (i == 1) {
-        i = 0;
+   
+    if ( da->draw1[1].on == 0) {
         da->draw1[1].on = 1;
+    } else if ( da->draw1[1].on == 1) {
+        da->draw1[1].on = 0;
     } else {
         printf("b2 Error\n");
         statusprint("Cepstrum Error", data);
@@ -150,18 +144,18 @@ void b2(GtkWidget* widget, gpointer data) {
 
 void b3(GtkWidget* widget, gpointer data) {
      VApp* da = (VApp*)data;
-    static int i = 0;
+   
     
-    if (i == 0) {
-        i = 1;
+    if (da->settings.filter == 0) {
+       
         da->settings.filter = 1;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR H");
-    } else if (i == 1) {
-        i = 2;
+    } else if (da->settings.filter == 1) {
+       
         da->settings.filter = 2;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR -");
-    }else if (i == 2) {
-        i = 0;
+    }else if (da->settings.filter == 2) {
+        
         da->settings.filter = 0;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR L");
     } else {
@@ -191,11 +185,15 @@ void b8(GtkWidget* widget, gpointer data) {
 }
 
 void b9(GtkWidget* widget, gpointer data) {
-    VApp* tmp = (VApp*)data;
+    VApp* da = (VApp*)data;
+    *(da->drawstatus1.x) = 4000.0;
+    da->flag.drawResize = 1;
 }
 
 void b10(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
+    *(da->drawstatus1.x) = -4000.0;
+    da->flag.drawResize = 1;
 }
 
 void b11(GtkWidget* widget, gpointer data) {
@@ -223,14 +221,11 @@ void b11(GtkWidget* widget, gpointer data) {
 
 void b12(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    static int i = 0;
     
-    if (i == 0) {
-        i = 1;
-        da->draw2[0].on = 0;
-    } else if (i == 1) {
-        i = 0;
+    if (da->draw2[0].on == 0) {
         da->draw2[0].on = 1;
+    } else if (da->draw2[0].on == 1) {
+        da->draw2[0].on = 0;
     } else {
         printf("b12 Error\n");
         statusprint("Spectrum Error", data);
@@ -239,14 +234,11 @@ void b12(GtkWidget* widget, gpointer data) {
 
 void b13(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    static int i = 0;
     
-    if (i == 0) {
-        i = 1;
-        da->draw2[1].on = 0;
-    } else if (i == 1) {
-        i = 0;
+    if (da->draw2[1].on == 0) {
         da->draw2[1].on = 1;
+    } else if (da->draw2[1].on == 1) {
+        da->draw2[1].on = 0;
     } else {
         printf("b13 Error\n");
         statusprint("Cepstrum Error", data);
@@ -295,12 +287,10 @@ void b19(GtkWidget* widget, gpointer data) {
 
 void b20(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    static int i = 0;
-    if(i == 0){
-        i = 1;
+   
+    if(da->flag.pause == 0){
         da->flag.pause = 1;
-    }else if(i == 1){
-        i = 0;
+    }else if(da->flag.pause == 1){
         da->flag.pause = 0;
     }else{
         printf("b20 Error\n");

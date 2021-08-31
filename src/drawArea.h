@@ -10,4 +10,6 @@ gboolean motion_notify_event_cb(GtkWidget *widget, GdkEventMotion *event, gpoint
 
 gboolean update_drawArea1(gpointer data);
 gboolean update_drawArea2(gpointer data);
+gboolean update_drawArea3(gpointer data);
+gboolean update_drawArea4(gpointer data);
 #endif

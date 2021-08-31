@@ -174,10 +174,18 @@ int initVar(VApp* data) {
                 (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.pcm_buffer_size - 1)));
         }
         // etc.
-        data->flag.drawArea = 0;
+        data->flag.drawArea1  = 0;
+        data->flag.drawArea2  = 0;
         data->flag.drawResize = 1;
+         data->flag.drawReSlider = 0;
         data->flag.nextWave   = 0;
-        data->flag.prevWave = 0;
+        data->flag.prevWave   = 0;
+        data->flag.selPos     = 0;
+        data->selPointS.x     = 0;
+        data->selPointE.x     = 0;
+        data->nextPoint.x     = 0;
+        data->nextPoint.y     = 0;
+        data->nextPoint.z     = 0;
         data->drawstatus1.log = 0; // Use drawArea X
         data->drawstatus1.on = 0;  // Use drawArea Y
         data->drawstatus1.x = (double*)malloc(4 * sizeof(double));
@@ -196,32 +204,32 @@ int initVar(VApp* data) {
         data->settings = gSet;
         for (i = 0; i < 5; i++) {
             data->draw1[i].x =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].x == NULL) error = 1;
             data->draw1[i].y =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].y == NULL) error = 1;
             data->draw1[i].Height = 65536;
-            data->draw1[i].Width = data->settings.pcm_buffer_size;
+            data->draw1[i].Width = data->settings.frames;
             data->draw1[i].on = 0;
             data->draw1[i].log = 0;
             data->draw1[i].bar = 0;
 
             data->draw2[i].x =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].x == NULL) error = 1;
             data->draw2[i].y =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].y == NULL) error = 1;
             data->draw2[i].Height = 65536;
-            data->draw2[i].Width = data->settings.pcm_buffer_size / 2;
+            data->draw2[i].Width = data->settings.frames;
             data->draw2[i].on = 0;
             data->draw2[i].log = 0;
             data->draw2[i].bar = 0;
         }
-        data->crossPoint.x = (double*)malloc(data->settings.pcm_buffer_size * sizeof(double));
+        data->crossPoint.x = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.x == NULL) error = 1;
-        data->crossPoint.y = (double*)malloc(data->settings.pcm_buffer_size * sizeof(double));
+        data->crossPoint.y = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.y == NULL) error = 1;
         data->crossPoint.Height = 0;
         data->crossPoint.Width = 0;
@@ -287,15 +295,26 @@ int initVar(VApp* data) {
         if (data->sData == NULL) error = 1;
 
         data->dataBuf.sound =
-            (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double) * 2);
+            (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.sound == NULL) error = 1;
+        data->dataBuf.row =
+            (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
+        if (data->dataBuf.row == NULL) error = 1;
 
         //ect **********
-        data->flag.drawArea   = 0;
+        data->flag.drawArea1  = 0;
+        data->flag.drawArea2  = 0;
         data->flag.nextWave   = 0;
-        data->flag.prevWave = 0;
+        data->flag.prevWave   = 0;
         data->flag.drawResize = 1;
-         data->drawstatus1.log = 0; // Use drawArea X
+        data->flag.drawReSlider = 0;
+        data->flag.selPos     = 0;
+        data->selPointS.x     = 0;
+        data->selPointE.x     = 0;
+        data->nextPoint.x     = 0;
+        data->nextPoint.y     = 0;
+        data->nextPoint.z     = 0;
+        data->drawstatus1.log = 0; // Use drawArea X
         data->drawstatus1.on = 0;  // Use drawArea Y
         data->drawstatus1.x = (double*)malloc(4 * sizeof(double));
         if (data->drawstatus1.x == NULL) error = 1;
@@ -383,10 +402,12 @@ int delVar(VApp* data) {
         data->flag.soundFile  = 0;
         data->flag.soundMic   = 0;
         data->flag.pause      = 0;
-        data->flag.drawArea   = 0;
+        data->flag.drawArea1  = 0;
+        data->flag.drawArea2  = 0;
         data->flag.drawResize = 0;
         data->flag.nextWave   = 0;
         data->flag.prevWave = 0;
+        data->flag.selPos     = 0;
 
     } else if (data->status.selNum == 3) {
         for (i = 0; i < 5; i++) {
@@ -413,6 +434,8 @@ int delVar(VApp* data) {
 
         free(data->dataBuf.sound);
         data->dataBuf.sound = NULL;
+        free(data->dataBuf.row);
+        data->dataBuf.row = NULL;
 
         free(data->drawstatus1.x);
         data->drawstatus1.x = NULL;
@@ -423,10 +446,12 @@ int delVar(VApp* data) {
         data->flag.soundFile  = 0;
         data->flag.soundMic   = 0;
         data->flag.pause      = 0;
-        data->flag.drawArea   = 0;
+        data->flag.drawArea1  = 0;
+        data->flag.drawArea2  = 0;
         data->flag.drawResize = 0;
         data->flag.nextWave   = 0;
-        data->flag.prevWave = 0;
+        data->flag.prevWave   = 0;
+        data->flag.selPos     = 0;
 
     } else {
         printf("Error in delVar");

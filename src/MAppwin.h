@@ -67,9 +67,9 @@ typedef struct _MAppWindowPrivate {
 } MAppWindowPrivate;
 
 typedef struct _mInt {
-    int data1;
-    int data2;
-    int data3;
+    int x;
+    int y;
+    int z;
     int *pData;
 } mInt;
 
@@ -113,11 +113,14 @@ typedef struct async_private_data {
 typedef struct _mFlag {
     int soundFile;
     int soundMic;
-    int drawArea;
+    int drawArea1;
+    int drawArea2;
     int drawResize;
+    int drawReSlider;
     int pause;
     int nextWave;
     int prevWave;
+    int selPos;
 } mFlag;
 
 typedef struct _mScale {
@@ -203,6 +206,12 @@ typedef struct _VApp {
     double *fftCepstrum;
 
     mlData* sData;
+    mInt    clickPos;
+    mInt    selPointS;
+    mInt    selPointE;
+    mInt    nextPoint;
+    int     drawStartPos;
+    int     drawEndPos;
 } VApp;
 
 void soundThread(GtkWidget *window, gpointer data);

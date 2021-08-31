@@ -845,15 +845,8 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         }
     }
     // Close soundinit************************************************
-    i = 0;
-    while (da->flag.drawArea) {
-        sleep(1);
-        i++;
-        if (i > 10) {
-            printf("Error in soundinit() -> drawarea flag\n ");
-            exit(1);
-        }
-    }
+    if (da->flag.drawArea1) sleep(1);
+    if (da->flag.drawArea2) sleep(1);
     i = 0;
     while (da->status.ref > 1) {
         sleep(1);

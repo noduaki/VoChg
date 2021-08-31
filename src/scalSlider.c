@@ -28,7 +28,8 @@ void fscale4(GtkWidget* widget, gpointer data) {
     double v;
     v = gtk_range_get_value(GTK_RANGE(widget));
     da->scale.slider4 = v;
-    da->flag.drawResize = 1;
+    da->flag.drawResize   = 1;
+    da->flag.drawReSlider = 1;
 }
 
 void fscale5(GtkWidget* widget, gpointer data) {

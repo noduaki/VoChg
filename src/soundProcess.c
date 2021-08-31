@@ -1,6 +1,6 @@
 #include "soundProcess.h"
 
-int getCross(double* sound, double* x, int n) {
+static int getCross(double* sound, double* x, int n) {
     int i;
     int count = 0;
 
@@ -177,6 +177,9 @@ void soundProcess(VApp* da) {
         *(da->soundWrite.samples + i * 2 + 1) = (int16_t)(*(da->dataBuf.sound + i));
     }
 
+    da->flag.drawArea1 = 1;
     g_idle_add(update_drawArea1, da);
+    
+    da->flag.drawArea2 = 1;
     g_idle_add(update_drawArea2, da);
 }

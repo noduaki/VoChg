@@ -68,7 +68,8 @@ static void M_app_window_init(MAppWindow* win) {
 
     vApp.flag.soundFile  = 0;
     vApp.flag.soundMic   = 0;
-    vApp.flag.drawArea   = 0;
+    vApp.flag.drawArea1  = 0;
+    vApp.flag.drawArea2  = 0;
     vApp.flag.drawResize = 0;
     vApp.flag.pause      = 0;
 

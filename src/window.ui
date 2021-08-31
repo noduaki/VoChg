@@ -319,14 +319,14 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button9" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">9</property>
+                <property name="label">-&gt;</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button10" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">10</property>
+                <property name="label">&lt;-</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
