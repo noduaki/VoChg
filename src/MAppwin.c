@@ -18,15 +18,19 @@ void soundThread(GtkWidget* window, gpointer data) {
             printf("Error in soundThread() -> malloc");
             exit(1);
         }
+        
+        da->status.ref++;
         soundTask = g_task_new(NULL, NULL, NULL, NULL);
         g_task_set_task_data(soundTask, data, NULL);
         g_task_run_in_thread(soundTask, initSound);
+
 
     } else {
         printf("soundThread() selNum error");
         exit(1);
     }
-    statusprint("SB1 Button", data);
+    strcpy(da->statusBuf, "Sound Close");
+    
 }
 
 void mlDataThread(GtkWidget* window, gpointer data) {
@@ -49,7 +53,7 @@ void mlDataThread(GtkWidget* window, gpointer data) {
         printf("mlDataThread() selNum error");
         exit(1);
     }
-    statusprint("MLdata Button", data); 
+    
 }
 
 
@@ -113,7 +117,7 @@ static void M_app_window_init(MAppWindow* win) {
 
     // Scales*****************************
     vApp.scale.slider1 = 200.0;
-    vApp.scale.slider2 = 0.1;
+    vApp.scale.slider2 = 1.0;
     vApp.scale.slider3 = 1.0;
     vApp.scale.slider4 = 1.0;
     vApp.scale.slider5 = 0.0;
@@ -129,7 +133,7 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.scale.slider15 = 0.0;
 
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 200.0);
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 0.1);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale4), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale5), 0.0);

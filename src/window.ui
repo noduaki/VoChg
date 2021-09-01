@@ -258,7 +258,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button1" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Row</property>
+                <property name="label">IIR</property>
                 <property name="expand">TRUE</property>
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
@@ -266,7 +266,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button2" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Procd</property>
+                <property name="label">2</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -274,7 +274,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button3" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">IIR L</property>
+                <property name="label">3</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -351,21 +351,21 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button11" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Log</property>
+                <property name="label">11</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button12" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Spec</property>
+                <property name="label">12</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button13" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Ceps</property>
+                <property name="label">13</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
@@ -403,21 +403,21 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="button18" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Next</property>
+                <property name="label">18</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button19" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Prev.</property>
+                <property name="label">19</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button20" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">Pause</property>
+                <property name="label">20</property>
                 <property name="expand">TRUE</property>
               </object>
             </child>

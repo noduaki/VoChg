@@ -684,7 +684,6 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     char cardperiod[6] = {0};
     struct timespec req = {0, 100000};
 
-    da->status.ref++;
     signed short tmp;
 
     da->draw1[0].on = 1;
@@ -712,22 +711,25 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
 
     if ((err = snd_pcm_open(&Phandle, da->settings.deviceName, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
         printf("Playback open error: %s\n", snd_strerror(err));
-        statusprint("Playback open error", data);
+        strcpy(da->statusBuf, "Playback open error");
+        g_idle_add(statusprint, data);
         pcmErr = 1;
         goto err;
     }
+     
 
     if ((err = snd_pcm_open(&Chandle, da->settings.deviceName, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
-        statusprint("Record open error", data);
+        strcpy(da->statusBuf, "Record open error");
+        g_idle_add(statusprint, data);
         pcmErr = 1;
         goto err;
     }
-
+    *da->statusBuf = '\0';
     // statusbar shown
     strcat(da->statusBuf, da->settings.deviceName);
-    strcpy(sformat, "  LE16bit  ");
-    strcat(da->statusBuf, sformat);
+
+    strcat(da->statusBuf, "  LE16bit  ");
     sprintf(srate, "%d", da->settings.channels);
     strcat(da->statusBuf, srate);
     strcat(da->statusBuf, "ch  ");
@@ -762,13 +764,13 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         err = snd_async_add_pcm_handler(&whandler, Phandle, async_write_callback, &da->soundWrite);
         if (err < 0) {
             printf("Unable to register async handler>>write. %s\n", snd_strerror(err));
-            statusprint("Unable to register async handler Write Sound Card Fail", data);
+            // statusprint("Unable to register async handler Write Sound Card Fail", data);
             goto err;
         }
         err = snd_async_add_pcm_handler(&ahandler, Chandle, async_read_callback, &da->soundRead);
         if (err < 0) {
             printf("Unable to register async handler>>read. %s\n", snd_strerror(err));
-            statusprint("Unable to register async handler Read Sound Card fail", data);
+            // statusprint("Unable to register async handler Read Sound Card fail", data);
             goto err;
         }
 
@@ -829,7 +831,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
 
     printf("Start \n");
 
-    statusprint(da->statusBuf, data);
+    g_idle_add(statusprint, data);
 
     // START SOUND CARD*************************************************
     if (deviceflag) {
@@ -867,10 +869,10 @@ err:
         ok = snd_pcm_close(Phandle);
         ok2 = snd_pcm_close(Chandle);
         if (err > 0) {
-            if (ok || ok2)
-                statusprint("Sound Card Close Error!!", data);
-            else
-                statusprint("Sound Card Close!!", data);
+            // if (ok || ok2)
+            // statusprint("Sound Card Close Error!!", data);
+            // else
+            // statusprint("Sound Card Close!!", data);
         }
     }
     Phandle = NULL;

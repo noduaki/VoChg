@@ -3,5 +3,5 @@
 #include "header.h"
 
 void fentry1(GtkWidget* widget, gpointer data);
-void statusprint(const char* text, gpointer data);
+gboolean statusprint(gpointer data);
 #endif

@@ -23,6 +23,8 @@ int initVar(VApp* data) {
             data->draw1[i].y =
                 (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
             if (data->draw1[i].y == NULL) error = 1;
+            data->draw1[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->draw1[i].pos == NULL) error = 1;
             data->draw1[i].Height = 65536;
             data->draw1[i].Width = data->settings.pcm_buffer_size;
             data->draw1[i].on = 0;
@@ -35,6 +37,8 @@ int initVar(VApp* data) {
             data->draw2[i].y =
                 (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
             if (data->draw2[i].y == NULL) error = 1;
+            data->draw2[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->draw2[i].pos == NULL) error = 1;
             data->draw2[i].Height = 65536;
             data->draw2[i].Width = data->settings.pcm_buffer_size / 2;
             data->draw2[i].on = 0;
@@ -45,6 +49,8 @@ int initVar(VApp* data) {
         if (data->crossPoint.x == NULL) error = 1;
         data->crossPoint.y = (double*)malloc(data->settings.pcm_buffer_size * sizeof(double));
         if (data->crossPoint.y == NULL) error = 1;
+         data->crossPoint.pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->crossPoint.pos == NULL) error = 1;
         data->crossPoint.Height = 0;
         data->crossPoint.Width = 0;
         data->crossPoint.on = 0;
@@ -174,18 +180,25 @@ int initVar(VApp* data) {
                 (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.pcm_buffer_size - 1)));
         }
         // etc.
-        data->flag.drawArea1  = 0;
-        data->flag.drawArea2  = 0;
+        data->flag.drawArea1 = 0;
+        data->flag.drawArea2 = 0;
         data->flag.drawResize = 1;
-         data->flag.drawReSlider = 0;
-        data->flag.nextWave   = 0;
-        data->flag.prevWave   = 0;
-        data->flag.selPos     = 0;
-        data->selPointS.x     = 0;
-        data->selPointE.x     = 0;
-        data->nextPoint.x     = 0;
-        data->nextPoint.y     = 0;
-        data->nextPoint.z     = 0;
+        data->flag.drawReSlider = 0;
+        data->flag.nextWave = 0;
+        data->flag.prevWave = 0;
+        data->flag.selPos = 0;
+        data->mlFlag.on = 0;
+        data->mlFlag.enter0 = 0;
+        data->mlFlag.enter1 = 0;
+        data->mlFlag.SRight = 0;
+        data->mlFlag.SLeft = 0;
+        data->mlFlag.ERight = 0;
+        data->mlFlag.ELeft = 0;
+        data->selPointS.x = 0;
+        data->selPointE.x = 0;
+        data->nextPoint.x = 0;
+        data->nextPoint.y = 0;
+        data->nextPoint.z = 0;
         data->drawstatus1.log = 0; // Use drawArea X
         data->drawstatus1.on = 0;  // Use drawArea Y
         data->drawstatus1.x = (double*)malloc(4 * sizeof(double));
@@ -194,8 +207,24 @@ int initVar(VApp* data) {
         data->drawstatus1.y = (double*)malloc(4 * sizeof(double));
         if (data->drawstatus1.y == NULL) error = 1;
         *(data->drawstatus1.y) = 0.0;
-        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "IIR L");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button1), "IIR L");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button2), "Row");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "Procd");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button4), "4");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button5), "5");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button6), "6");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button7), "7");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button8), "8");
         gtk_button_set_label(GTK_BUTTON(data->priv->button11), "Log");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button12), "Spec");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button13), "Ceps");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button14), "14");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button15), "15");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button16), "16");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button17), "17");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button18), "18");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button19), "19");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button20), "Pause");
 
     } else if (data->status.selNum == 3) {
         // 333333**************
@@ -203,24 +232,24 @@ int initVar(VApp* data) {
         // DrawArea ***********
         data->settings = gSet;
         for (i = 0; i < 5; i++) {
-            data->draw1[i].x =
-                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+            data->draw1[i].x = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].x == NULL) error = 1;
-            data->draw1[i].y =
-                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+            data->draw1[i].y = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].y == NULL) error = 1;
+            data->draw1[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->draw1[i].pos == NULL) error = 1;
             data->draw1[i].Height = 65536;
             data->draw1[i].Width = data->settings.frames;
             data->draw1[i].on = 0;
             data->draw1[i].log = 0;
             data->draw1[i].bar = 0;
 
-            data->draw2[i].x =
-                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+            data->draw2[i].x = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].x == NULL) error = 1;
-            data->draw2[i].y =
-                (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
+            data->draw2[i].y = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].y == NULL) error = 1;
+            data->draw2[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->draw2[i].pos == NULL) error = 1;
             data->draw2[i].Height = 65536;
             data->draw2[i].Width = data->settings.frames;
             data->draw2[i].on = 0;
@@ -231,11 +260,18 @@ int initVar(VApp* data) {
         if (data->crossPoint.x == NULL) error = 1;
         data->crossPoint.y = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.y == NULL) error = 1;
+         data->crossPoint.pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
+            if (data->crossPoint.pos == NULL) error = 1;
         data->crossPoint.Height = 0;
         data->crossPoint.Width = 0;
         data->crossPoint.on = 0;
         data->crossPoint.log = 0;
         data->crossPoint.bar = 0;
+        data->mlDraw.x = (double*)malloc(data->settings.frames * sizeof(double));
+        data->mlDraw.y = (double*)malloc(data->settings.frames * sizeof(double));
+        data->mlDraw.Height = 65536;
+        data->mlDraw.Width = 128;
+        data->mlDraw.on = 0;
 
         // File read *********
 
@@ -259,6 +295,7 @@ int initVar(VApp* data) {
 
             if (total_size > 0) {
                 if (data->dataBuf.read == NULL) {
+
                     data->dataBuf.read = (int16_t*)malloc(total_size);
                     data->dataBuf.write = (int16_t*)malloc(total_size);
                     memset(data->dataBuf.read, 0, total_size);
@@ -283,6 +320,10 @@ int initVar(VApp* data) {
             g_object_unref(info);
             g_clear_object(&gSet.file);
         }
+
+        if (strlen(gSet.filename) < 199) strcpy(data->statusBuf, gSet.filename);
+        statusprint((void*)data);
+
         if (data->flag.soundFile == 1) {
             ok = wavCheck(data);
             if (ok) {
@@ -294,26 +335,31 @@ int initVar(VApp* data) {
         data->sData = (mlData*)malloc(NUM_MLDATA * sizeof(mlData));
         if (data->sData == NULL) error = 1;
 
-        data->dataBuf.sound =
-            (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
+        data->dataBuf.sound = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.sound == NULL) error = 1;
-        data->dataBuf.row =
-            (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
+        data->dataBuf.row = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.row == NULL) error = 1;
 
-        //ect **********
-        data->flag.drawArea1  = 0;
-        data->flag.drawArea2  = 0;
-        data->flag.nextWave   = 0;
-        data->flag.prevWave   = 0;
+        // ect **********
+        data->flag.drawArea1 = 0;
+        data->flag.drawArea2 = 0;
+        data->flag.nextWave = 0;
+        data->flag.prevWave = 0;
         data->flag.drawResize = 1;
         data->flag.drawReSlider = 0;
-        data->flag.selPos     = 0;
-        data->selPointS.x     = 0;
-        data->selPointE.x     = 0;
-        data->nextPoint.x     = 0;
-        data->nextPoint.y     = 0;
-        data->nextPoint.z     = 0;
+        data->flag.selPos = 0;
+        data->mlFlag.on = 0;
+        data->mlFlag.enter0 = 0;
+        data->mlFlag.enter1 = 0;
+        data->mlFlag.SRight = 0;
+        data->mlFlag.SLeft = 0;
+        data->mlFlag.ERight = 0;
+        data->mlFlag.ELeft = 0;
+        data->selPointS.x = 0;
+        data->selPointE.x = 0;
+        data->nextPoint.x = 0;
+        data->nextPoint.y = 0;
+        data->nextPoint.z = 0;
         data->drawstatus1.log = 0; // Use drawArea X
         data->drawstatus1.on = 0;  // Use drawArea Y
         data->drawstatus1.x = (double*)malloc(4 * sizeof(double));
@@ -322,8 +368,24 @@ int initVar(VApp* data) {
         data->drawstatus1.y = (double*)malloc(4 * sizeof(double));
         if (data->drawstatus1.y == NULL) error = 1;
         *(data->drawstatus1.y) = 0.0;
-        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "IIR L");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button11), "Log");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button1), "IIR L");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button2), "S >");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "< S");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button4), "E >");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button5), "< E");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button6), "Ent.0");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button7), "Ent.1");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button8), "Auto -");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button11), "11");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button12), "12");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button13), "13");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button14), "14");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button15), "15");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button16), "16");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button17), "17");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button18), "18");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button19), "Next");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button20), "Prev.");
 
     } else {
         printf("Error in initVar");
@@ -331,6 +393,7 @@ int initVar(VApp* data) {
     }
     return error;
 }
+
 int delVar(VApp* data) {
     int i;
     int error = 0;
@@ -342,15 +405,21 @@ int delVar(VApp* data) {
             data->draw1[i].x = NULL;
             free(data->draw1[i].y);
             data->draw1[i].y = NULL;
+            free(data->draw1[i].pos);
+            data->draw1[i].pos = NULL;
             free(data->draw2[i].x);
             data->draw2[i].x = NULL;
             free(data->draw2[i].y);
             data->draw2[i].y = NULL;
+            free(data->draw2[i].pos);
+            data->draw2[i].pos = NULL;
         }
         free(data->crossPoint.x);
         data->crossPoint.x = NULL;
         free(data->crossPoint.y);
         data->crossPoint.y = NULL;
+        free(data->crossPoint.pos); data->crossPoint.pos = NULL;
+
 
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
@@ -398,32 +467,48 @@ int delVar(VApp* data) {
         free(data->drawstatus1.y);
         data->drawstatus1.y = NULL;
 
-        data->status.selNum   = 0;
-        data->flag.soundFile  = 0;
-        data->flag.soundMic   = 0;
-        data->flag.pause      = 0;
-        data->flag.drawArea1  = 0;
-        data->flag.drawArea2  = 0;
+        data->status.selNum = 0;
+        data->flag.soundFile = 0;
+        data->flag.soundMic = 0;
+        data->flag.pause = 0;
+        data->flag.drawArea1 = 0;
+        data->flag.drawArea2 = 0;
         data->flag.drawResize = 0;
-        data->flag.nextWave   = 0;
+        data->flag.nextWave = 0;
         data->flag.prevWave = 0;
-        data->flag.selPos     = 0;
+        data->flag.selPos = 0;
+        data->mlFlag.on = 0;
+        data->mlFlag.enter0 = 0;
+        data->mlFlag.enter1 = 0;
+        data->mlFlag.SRight = 0;
+        data->mlFlag.SLeft = 0;
+        data->mlFlag.ERight = 0;
+        data->mlFlag.ELeft = 0;
 
-    } else if (data->status.selNum == 3) {
-        for (i = 0; i < 5; i++) {
+    } else if (data->status.selNum == 3) { //************************************:
+         for (i = 0; i < 5; i++) {
             free(data->draw1[i].x);
             data->draw1[i].x = NULL;
             free(data->draw1[i].y);
             data->draw1[i].y = NULL;
+            free(data->draw1[i].pos);
+            data->draw1[i].pos = NULL;
             free(data->draw2[i].x);
             data->draw2[i].x = NULL;
             free(data->draw2[i].y);
             data->draw2[i].y = NULL;
+            free(data->draw2[i].pos);
+            data->draw2[i].pos = NULL;
         }
         free(data->crossPoint.x);
         data->crossPoint.x = NULL;
         free(data->crossPoint.y);
         data->crossPoint.y = NULL;
+        free(data->crossPoint.pos); data->crossPoint.pos = NULL;
+        free(data->mlDraw.x);
+        data->mlDraw.x = NULL;
+        free(data->mlDraw.y);
+        data->mlDraw.y = NULL;
 
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
@@ -442,16 +527,23 @@ int delVar(VApp* data) {
         free(data->drawstatus1.y);
         data->drawstatus1.y = NULL;
 
-        data->status.selNum   = 0;
-        data->flag.soundFile  = 0;
-        data->flag.soundMic   = 0;
-        data->flag.pause      = 0;
-        data->flag.drawArea1  = 0;
-        data->flag.drawArea2  = 0;
+        data->status.selNum = 0;
+        data->flag.soundFile = 0;
+        data->flag.soundMic = 0;
+        data->flag.pause = 0;
+        data->flag.drawArea1 = 0;
+        data->flag.drawArea2 = 0;
         data->flag.drawResize = 0;
-        data->flag.nextWave   = 0;
-        data->flag.prevWave   = 0;
-        data->flag.selPos     = 0;
+        data->flag.nextWave = 0;
+        data->flag.prevWave = 0;
+        data->flag.selPos = 0;
+        data->mlFlag.on = 0;
+        data->mlFlag.enter0 = 0;
+        data->mlFlag.enter1 = 0;
+        data->mlFlag.SRight = 0;
+        data->mlFlag.SLeft = 0;
+        data->mlFlag.ERight = 0;
+        data->mlFlag.ELeft = 0;
 
     } else {
         printf("Error in delVar");
