@@ -13,17 +13,24 @@ mSettings gSet = {SOUNDBUFFERSIZE,
                   SOUNDCHANNELS,
                   SOUNDRATE,
                   SOUNDFRAMES,
-                  "default",//"hw:CARD=PCH,DEV=0"
+                  "default", //"hw:CARD=PCH,DEV=0"
                   "0",
                   NULL,
-                  0}; 
+                  0};
+
+
+
+//Init Application ****************************************************
 
 void quit_activated(GSimpleAction* action, GVariant* parameter, gpointer app) {
     g_application_quit(G_APPLICATION(app));
 }
 
 static GActionEntry app_entries[] = {{"openfile", activate_openfile, NULL, NULL, NULL},
-                                     {"opencolor", activate_color, NULL, NULL, NULL},
+                                     {"color", activate_color, NULL, NULL, NULL},
+                                     {"choosesoundcard", choosescard, NULL, NULL, NULL},
+                                     {"choosesoundframes", choosesframes, NULL, NULL, NULL},
+                                     {"choosesoundrate", choosesrate, NULL, NULL, NULL},
                                      {"quit", quit_activated, NULL, NULL, NULL}};
 
 static void M_app_init(MApp* app) {

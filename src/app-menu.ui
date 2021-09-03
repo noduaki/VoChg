@@ -1,95 +1,68 @@
 <?xml version="1.0"?>
 <!--The file is for Menubar-->
 <interface>
-  
+
   <menu id="appmenu">
 
     <submenu>
       <!--MenubarItemName-->
-      <attribute name='label' translatable='yes'>_File</attribute>
-        <section>
-        <!--Menubar sub menu list-->
-          <item>
-            <attribute name="label" translatable="yes">_Preferences</attribute>
-         
-            <attribute name="action">app.preferences</attribute>
-          </item>
-        </section>
-        <section>
-          <item>
-            <attribute name="label" translatable="yes">_Open File</attribute>
-            <attribute name="action">app.openfile</attribute>
-            
-          </item>
-        </section>
-        <section>
-          <submenu>
-            <attribute name="label" translatable="yes">_Settings</attribute>
-               <!--sub sub menu-->
-             
-             
-              <item>
-                <attribute name="label" translatable="yes">_file</attribute>
-                <attribute name="action">app.openfile</attribute>            
-              </item>
-              <item>
-                <attribute name="label" translatable="yes">_item1</attribute>
-                <!--attribute name="action">app.choosesoundcard</attribute-->
-              </item>
-               <submenu>
-                  <attribute name="label" translatable="yes">_Color</attribute>
-                    <item>
-                      <attribute name="label" translatable="yes">_color1</attribute>
-                      <attribute name="action">app.opencolor</attribute>
-                    </item>
-                    <item>
-                      <attribute name="label" translatable="yes">_color2</attribute>
-                      <attribute name="action">app.opencolor</attribute>
-                    </item>
-                </submenu>    
-                <submenu>
-                  <attribute name="label" translatable="yes">_preference</attribute>
-                    <item>
-                      <attribute name="label" translatable="yes">_setting1</attribute>
-                      <attribute name="action">app.preferences</attribute>
-                    </item>
-                    <item>
-                      <attribute name="label" translatable="yes">_setting2</attribute>
-                      <attribute name="action">app.preferences</attribute>
-                    </item>
-                </submenu>
-              
-          </submenu>           
-        </section>
-        <section>
-            <item>
-              <attribute name="label" translatable="yes">_Quit</attribute>
-              <attribute name="action">app.quit</attribute>
-            </item>
-        </section>
-    </submenu>
-    <!--End ***file -->
-    <submenu>
-      <attribute name="label" translatable="yes">_Edit</attribute>
-       <section>
-         <item>
-            <attribute name="label" translatable="yes">_Preferences</attribute>
-            <attribute name="action">app.preferences</attribute>
-         </item>
-      </section>
-    </submenu>  
-    <submenu>
-      <attribute name="label" translatable="yes">_Quit</attribute>
+      <attribute name='label' translatable='yes'>_File</attribute> 
+      <!--Menubar sub menu list-->
       
-      <attribute name="icon">/usr/share/icons/cab_extract.png</attribute>
-       <section>         
-         <item>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Open File</attribute>
+          <attribute name="action">app.openfile</attribute>
+
+        </item>
+      </section>
+      <section>
+        <submenu>
+          <attribute name="label" translatable="yes">_SoundSettings</attribute>
+          <!--sub sub menu-->
+          <item>
+            <attribute name="label" translatable="yes">_sound card</attribute>
+            <attribute name="action">app.choosesoundcard</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">_freams</attribute>
+            <attribute name="action">app.choosesoundframes</attribute>
+          </item>
+          <item>
+            <attribute name="label" translatable="yes">_rate</attribute>
+            <attribute name="action">app.choosesoundrate</attribute>
+          </item>
+        </submenu>
+      </section>
+      
+      <section>
+        <item>
           <attribute name="label" translatable="yes">_Quit</attribute>
           <attribute name="action">app.quit</attribute>
-          
         </item>
-      </section> 
-    </submenu>  
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">_color</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_color</attribute>
+          <attribute name="action">app.color</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="label" translatable="yes">_Quit</attribute>
+
+      <attribute name="icon">/usr/share/icons/cab_extract.png</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">_Quit</attribute>
+          <attribute name="action">app.quit</attribute>
+
+        </item>
+      </section>
+    </submenu>
   </menu>
 </interface>
 

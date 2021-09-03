@@ -279,7 +279,7 @@ void async_read_callback(snd_async_handler_t* ahandler) {
     int pos = 0;
     int readLength = 0;
     int shortBufferSize;
-    shortBufferSize = asyData->bufferSize * 2;
+    shortBufferSize = asyData->bufferSize / 2;
 
     snd_pcm_sframes_t avail;
     int err;
@@ -328,11 +328,11 @@ void async_write_callback(snd_async_handler_t* ahandler) {
 
     int err;
     int length = data->periodsize * 2;
-    int pos = data->pos;
-    int16_t* ptr = data->samples + pos;
+
+    int16_t* ptr = data->samples + data->pos;
     int writeAvail = 0;
     int shortBufferSize;
-    shortBufferSize = data->bufferSize * 2;
+    shortBufferSize = data->bufferSize / 2;
 
     avail = snd_pcm_avail_update(handle);
     g_mutex_lock(&mutex_sound);
@@ -348,10 +348,10 @@ void async_write_callback(snd_async_handler_t* ahandler) {
             exit(EXIT_FAILURE);
         }
         ptr += length;
-        pos += length;
+        data->pos += length;
         writeAvail += err;
-        if (pos >= shortBufferSize) {
-            pos = 0;
+        if (data->pos >= shortBufferSize) {
+            data->pos = 0;
             ptr -= shortBufferSize;
         }
 
@@ -364,7 +364,7 @@ void async_write_callback(snd_async_handler_t* ahandler) {
             }
         }
     }
-    data->pos = pos;
+
     data->avail = writeAvail;
 
     if (data->avail > data->bufferSize) data->avail = data->bufferSize;
@@ -464,7 +464,7 @@ int mic_poll_loop(snd_pcm_t* chandle, snd_pcm_t* phandle, VApp* da) {
             if (readCount == da->soundRead.bufferSize * da->settings.channels) {
                 readCount = 0;
                 writeCount = 0;
-                soundProcess(da);
+                soundProcessPoll(da);
 
             } else if (readCount > da->soundRead.bufferSize * da->settings.channels) {
                 printf("Error read poll -> read count over\n");
@@ -547,7 +547,7 @@ int file_poll_loop(snd_pcm_t* phandle, VApp* da) {
             if (writeCount == da->soundWrite.bufferSize * da->settings.channels) {
 
                 writeCount = 0;
-                soundProcess(da);
+                soundProcessPoll(da);
 
             } else if (writeCount > da->soundWrite.bufferSize * da->settings.channels)
                 printf("Sound_poll_write error\n");
@@ -566,53 +566,37 @@ int file_poll_loop(snd_pcm_t* phandle, VApp* da) {
 void asyncPoll(VApp* da) {
 
     int i;
+
+    _Thread_local static int n = 0;
     _Thread_local static int posr = 0;
     _Thread_local static uint32_t posw = 0;
     _Thread_local static uint32_t postmp = 0;
     _Thread_local static uint32_t count = 0;
     _Thread_local static uint32_t dataCount = 0;
     uint32_t v;
+    int num = da->settings.frames / da->settings.period_size;
 
     static int testCount = 0;
 
     double tmpDuble;
     int tmpData = 0;
     uint32_t frames = da->settings.frames;
-    uint32_t charBufferSize = da->settings.pcm_buffer_size * da->settings.channels * sizeof(short);
+    uint32_t charBufferSize = da->settings.frames * da->settings.channels * sizeof(short);
 
     if (da->flag.soundFile == 1) {
         if (da->soundWrite.ready) {
 
             g_mutex_lock(&mutex_sound);
             posr = da->soundWrite.avail;
-            if (posr + posw > frames) {
+            if (posr != da->soundWrite.periodsize) {
                 posw = 0;
                 printf("Error in asyPoll -> over frames\n");
+            } else {
+                // Async read and write is each period size then frames is changed to period size
+                soundProcessPoll(da);
             }
-
-            // write to pcm playback sample
-
-            for (i = 0; i < posr; i++) {
-
-                *(da->soundWrite.samples + (i * 2) + (posw * 2)) = (int16_t)(*(da->dataBuf.sound + i + posw));
-                *(da->soundWrite.samples + (i * 2) + (posw * 2) + 1) = (int16_t)(*(da->dataBuf.sound + i + posw));
-            }
-
             g_mutex_unlock(&mutex_sound);
-            if (count + (posr * 2) >= da->dataBuf.readSize / 2) count = 0;
 
-            for (i = 0; i < posr; i++) {
-
-                *(da->dataBuf.row + i + posw) = (double)(*(da->dataBuf.read + count + (i * 2)));
-            }
-            count += posr * 2;
-
-            posw += posr;
-
-            if (posw >= da->soundWrite.bufferSize) {
-                posw = 0;
-                memcpy(da->dataBuf.sound, da->dataBuf.row, sizeof(double) * da->soundWrite.bufferSize);
-            }
             da->soundWrite.ready = 0;
         }
 
@@ -621,34 +605,15 @@ void asyncPoll(VApp* da) {
 
             g_mutex_lock(&mutex_sound);
             posr = da->soundRead.avail;
-            if (posr + posw > frames) {
+            if (posr != da->soundRead.periodsize) {
                 posw = 0;
                 printf("Error in asyPoll -> over frames\n");
+            } else {
+                // Async read is each period then frames is changed to period size
+                soundProcessPoll(da);
             }
-
-            // write to pcm playback sample
-
-            for (i = 0; i < posr; i++) {
-
-                *(da->soundWrite.samples + (i * 2) + (posw * 2)) = (int16_t)(*(da->dataBuf.sound + i + posw));
-                *(da->soundWrite.samples + (i * 2) + (posw * 2) + 1) = (int16_t)(*(da->dataBuf.sound + i + posw));
-            }
-
-            if (count + (posr * 2) >= da->dataBuf.readSize / 2) count = 0;
-
-            for (i = 0; i < posr; i++) {
-
-                *(da->dataBuf.row + i + posw) = (double)(*(da->soundRead.samples + (i * 2)));
-            }
-            count += posr * 2;
-
-            posw += posr;
-
             g_mutex_unlock(&mutex_sound);
-            if (posw >= da->soundRead.bufferSize) {
-                posw = 0;
-                memcpy(da->dataBuf.sound, da->dataBuf.row, sizeof(double) * da->soundRead.bufferSize);
-            }
+
             da->soundRead.ready = 0;
         }
     }
@@ -666,12 +631,12 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     int err;
     int pcmErr = 0;
     int i;
-    int deviceflag = 0;
+    da->flag.deviceflag = 0;
 
     if (*da->settings.deviceName == 'd' && *(da->settings.deviceName + 1) == 'e' &&
         *(da->settings.deviceName + 2) == 'f' && *(da->settings.deviceName + 3) == 'a' &&
         *(da->settings.deviceName + 4) == 'u' && *(da->settings.deviceName + 5) == 'l')
-        deviceflag = 1;
+        da->flag.deviceflag = 1;
 
     snd_timestamp_t p_tstamp, c_tstamp;
     ssize_t r;
@@ -716,7 +681,6 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         pcmErr = 1;
         goto err;
     }
-     
 
     if ((err = snd_pcm_open(&Chandle, da->settings.deviceName, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
         printf("Record open error: %s\n", snd_strerror(err));
@@ -743,7 +707,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         printf("Sound Card Settings Error\n");
     }
 
-    if (!deviceflag) {
+    if (!da->flag.deviceflag) {
         if (!(da->flag.soundFile)) {
             if ((err = snd_pcm_link(Phandle, Chandle)) < 0) {
                 printf("Streams link error: %s\n", snd_strerror(err));
@@ -760,7 +724,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     gettimestamp(Chandle, &c_tstamp);
     ok = 1;
 
-    if (!deviceflag) {
+    if (!da->flag.deviceflag) {
         err = snd_async_add_pcm_handler(&whandler, Phandle, async_write_callback, &da->soundWrite);
         if (err < 0) {
             printf("Unable to register async handler>>write. %s\n", snd_strerror(err));
@@ -774,7 +738,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
             goto err;
         }
 
-    } else if (deviceflag) {
+    } else if (da->flag.deviceflag) {
         printf("poll write\n");
     }
     // Write Buffer initial writeing twice
@@ -830,17 +794,21 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
     }
 
     printf("Start \n");
-
     g_idle_add(statusprint, data);
 
     // START SOUND CARD*************************************************
-    if (deviceflag) {
+    if (da->flag.deviceflag) {
         if (da->flag.soundMic)
             err = mic_poll_loop(Chandle, Phandle, da);
         else if (da->flag.soundFile)
             err = file_poll_loop(Phandle, da);
         if (err < 0) printf("Error in soundinit() Transfer failed: %s\n", snd_strerror(err));
     } else {
+        // Async read and write is each period size then frames is changed to period size
+        da->settings.frames = da->settings.period_size;
+        da->draw1[0].Width = da->settings.period_size;
+        da->draw1[1].Width = da->settings.period_size;
+
         while (da->status.open) {
             asyncPoll(da);
             nanosleep(&req, NULL);

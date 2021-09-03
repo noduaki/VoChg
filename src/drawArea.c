@@ -626,40 +626,44 @@ gboolean update_drawArea3(gpointer data) {
         }
     }
     if (da->crossPoint.on) {
-        cairo_set_source_rgba(cr, 0.0, 0.0, 1.0, 5.0);
+        cairo_set_source_rgba(cr, 0.505083, 0.114978, 0.663333, 1.0);
         for (i = 0; i < da->crossPoint.Width; i++) {
             t = (double)(*(da->crossPoint.pos + i) - startPos) * width / (double)da->settings.frames;
             cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
             cairo_fill(cr);
         }
     }
+    //Previous select start point 
     if (da->selPointS.y > 0) {
-        cairo_set_source_rgba(cr, 0.3, 0.8, 0.0, 1.0);
+        cairo_set_source_rgba(cr, 0.035933, 0.980000, 0.276702, 1.0);
         t = (double)(da->selPointS.y - startPos) * width / (double)da->settings.frames;
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
+    //Start point
     if (da->selPointS.x > 0) {
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
         t = (double)(da->selPointS.x - startPos) * width / (double)(da->settings.frames);
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 5.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
+    //End point
     if (da->selPointE.x > 0) {
         cairo_set_source_rgba(cr, 0.0, 0.8, 0.3, 1.0);
         t = (double)(da->selPointE.x - startPos) * width / (double)(da->settings.frames);
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 5.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
+    //Next points
     if (da->nextPoint.x > 0) {
-        cairo_set_source_rgba(cr, 0.0, 0.8, 0.3, 1.0);
+        cairo_set_source_rgba(cr, 0.0, 0.1, 0.1, 1.0);
         t = (double)(da->nextPoint.x - startPos) * width / (double)(da->settings.frames);
         cairo_move_to(cr, t, (double)(da->drawstatus1.Height / 2) + 40.0);
         cairo_line_to(cr, t, (double)(da->drawstatus1.Height / 2) + 3.0);
         cairo_stroke(cr);
     }
     if (da->nextPoint.y > 0) {
-        cairo_set_source_rgba(cr, 0.0, 0.3, 0.9, 1.0);
+        cairo_set_source_rgba(cr, 0.0, 0.1, 0.9, 1.0);
         t = (double)(da->nextPoint.y - startPos) * width / (double)(da->settings.frames);
         cairo_move_to(cr, t, (double)(da->drawstatus1.Height / 2) + 40.0);
         cairo_line_to(cr, t, (double)(da->drawstatus1.Height / 2) + 3.0);

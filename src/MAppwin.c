@@ -6,6 +6,8 @@ struct _MAppWindow {
 
 G_DEFINE_TYPE_WITH_PRIVATE(MAppWindow, M_app_window, GTK_TYPE_APPLICATION_WINDOW);
 
+// Thread launcher *************************************************************************
+
 void soundThread(GtkWidget* window, gpointer data) {
     VApp* da = (VApp*)data;
     GTask* soundTask;
@@ -18,19 +20,18 @@ void soundThread(GtkWidget* window, gpointer data) {
             printf("Error in soundThread() -> malloc");
             exit(1);
         }
-        
+
         da->status.ref++;
         soundTask = g_task_new(NULL, NULL, NULL, NULL);
         g_task_set_task_data(soundTask, data, NULL);
         g_task_run_in_thread(soundTask, initSound);
 
-
     } else {
-        printf("soundThread() selNum error");
-        exit(1);
+        printf("soundThread() selNum error status.open = %d, selnum = %d \n", da->status.open, da->status.selNum);
+        strcat(da->statusBuf, "Please One more time");
+        statusprint(data);
     }
     strcpy(da->statusBuf, "Sound Close");
-    
 }
 
 void mlDataThread(GtkWidget* window, gpointer data) {
@@ -53,30 +54,28 @@ void mlDataThread(GtkWidget* window, gpointer data) {
         printf("mlDataThread() selNum error");
         exit(1);
     }
-    
 }
 
-
+// Init Windows *******************************************************************
 
 static void M_app_window_init(MAppWindow* win) {
     static VApp vApp;
-    
+
     guint statusBar;
     GtkBuilder* builder;
     GMenuModel* menu;
 
     vApp.priv = M_app_window_get_instance_private(win);
-    vApp.status.open   = 0;
+    vApp.status.open = 0;
     vApp.status.selNum = 0;
-    vApp.status.ref    = 0;
+    vApp.status.ref = 0;
 
-    vApp.flag.soundFile  = 0;
-    vApp.flag.soundMic   = 0;
-    vApp.flag.drawArea1  = 0;
-    vApp.flag.drawArea2  = 0;
+    vApp.flag.soundFile = 0;
+    vApp.flag.soundMic = 0;
+    vApp.flag.drawArea1 = 0;
+    vApp.flag.drawArea2 = 0;
     vApp.flag.drawResize = 0;
-    vApp.flag.pause      = 0;
-
+    vApp.flag.pause = 0;
 
     vApp.statusBuf = (char*)malloc(200);
     *(vApp.statusBuf) = '\0';

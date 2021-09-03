@@ -267,12 +267,7 @@ int initVar(VApp* data) {
         data->crossPoint.on = 0;
         data->crossPoint.log = 0;
         data->crossPoint.bar = 0;
-        data->mlDraw.x = (double*)malloc(data->settings.frames * sizeof(double));
-        data->mlDraw.y = (double*)malloc(data->settings.frames * sizeof(double));
-        data->mlDraw.Height = 65536;
-        data->mlDraw.Width = 128;
-        data->mlDraw.on = 0;
-
+        
         // File read *********
 
         if (gSet.file != NULL) {
@@ -485,6 +480,8 @@ int delVar(VApp* data) {
         data->mlFlag.ERight = 0;
         data->mlFlag.ELeft = 0;
 
+        data->status.open  = 0;
+
     } else if (data->status.selNum == 3) { //************************************:
          for (i = 0; i < 5; i++) {
             free(data->draw1[i].x);
@@ -505,11 +502,7 @@ int delVar(VApp* data) {
         free(data->crossPoint.y);
         data->crossPoint.y = NULL;
         free(data->crossPoint.pos); data->crossPoint.pos = NULL;
-        free(data->mlDraw.x);
-        data->mlDraw.x = NULL;
-        free(data->mlDraw.y);
-        data->mlDraw.y = NULL;
-
+       
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
         free(data->dataBuf.write);
@@ -544,6 +537,8 @@ int delVar(VApp* data) {
         data->mlFlag.SLeft = 0;
         data->mlFlag.ERight = 0;
         data->mlFlag.ELeft = 0;
+
+        data->status.open  = 0;
 
     } else {
         printf("Error in delVar");

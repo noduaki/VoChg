@@ -121,6 +121,7 @@ typedef struct _mFlag {
     int nextWave;
     int prevWave;
     int selPos;
+    int deviceflag;
 
 } mFlag;
 
@@ -204,7 +205,7 @@ typedef struct _VApp {
     mDraw draw1[5];
     mDraw draw2[5];
     mDraw crossPoint;
-    mDraw mlDraw;
+    
     double entry1;
 
     mAsyncData soundRead;

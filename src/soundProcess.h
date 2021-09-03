@@ -3,5 +3,5 @@
 #include "header.h"
 
 extern GMutex mutex_sound;
-void soundProcess(VApp* da);
+void soundProcessPoll(VApp* da);
 #endif
