@@ -17,7 +17,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
   </object>
   <object class="GtkAdjustment" id="scale2_adj">
     <property name="lower">0.01</property>
-    <property name="upper">2.0</property>
+    <property name="upper">5.0</property>
   </object>
   <object class="GtkAdjustment" id="scale3_adj">
     <property name="lower">1.0</property>
@@ -129,7 +129,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object class="GtkBox" id="box_rightside2">
                 <property name="visible">True</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
                 <property name="orientation">vertical</property>
 
               </object>
@@ -137,7 +138,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object class="GtkScrolledWindow" id="sr0window">
                 <property name="visible">True</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
                 <child>
                   <object class="GtkFrame" id="sr0frame">
@@ -165,7 +167,7 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="selLowerButton2" class="GtkButton">
                 <property name="visible">True</property>
-                <property name="label">2</property>
+                <property name="label">W->File</property>
 
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
@@ -188,7 +190,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object class="GtkFrame" id="drawframe1">
                 <property name="visible">True</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
                 <child>
                   <object class="GtkDrawingArea" id="draw1">
@@ -210,7 +213,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object class="GtkFrame" id="drawframe2">
                 <property name="visible">True</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
                 <child>
                   <object class="GtkDrawingArea" id="draw2">
@@ -244,12 +248,14 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="label2" class="GtkFrame">
                 <property name="visible">True</property>
 
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
                 <child>
                   <object id="labelin2" class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="label">1</property>
-                    <property name="expand">TRUE</property>
+                    <property name="vexpand">TRUE</property>
+                    <property name="hexpand">TRUE</property>
                   </object>
                 </child>
               </object>
@@ -259,7 +265,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button1" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">IIR</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
                 <!--signal name="clicked" handler="myprint" ***signal connect is connected in c file/-->
               </object>
             </child>
@@ -267,7 +274,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button2" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">2</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -275,14 +283,16 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button3" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">3</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button4" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">4</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -290,14 +300,16 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button5" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">5</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button6" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">6</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -306,28 +318,32 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button7" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">7</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button8" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">8</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button9" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">-&gt;</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button10" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">&lt;-</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -338,12 +354,14 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="label1" class="GtkFrame">
                 <property name="visible">True</property>
 
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
                 <child>
                   <object id="labelin1" class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="label">2</property>
-                    <property name="expand">TRUE</property>
+                    <property name="vexpand">TRUE</property>
+                    <property name="hexpand">TRUE</property>
                   </object>
                 </child>
               </object>
@@ -352,28 +370,32 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button11" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">11</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button12" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">12</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button13" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">13</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button14" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">14</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -381,21 +403,24 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button15" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">15</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button16" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">16</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button17" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">17</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -404,21 +429,24 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
               <object id="button18" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">18</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button19" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">19</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
               <object id="button20" class="GtkButton">
                 <property name="visible">True</property>
                 <property name="label">20</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
 
@@ -447,7 +475,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="value-pos">GTK_POS_RIGHT</property>
                 <property name="adjustment">scale1_adj</property>
                 <property name="digits">1</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
               </object>
             </child>
             <child>
@@ -459,7 +488,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale2_adj</property>
                 <property name="digits">2</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -472,7 +502,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale3_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -485,7 +516,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale4_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -498,7 +530,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale5_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
                 <!--property name="inverted">TRUE</property-->
               </object>
             </child>
@@ -514,7 +547,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale6_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -529,7 +563,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale7_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -542,7 +577,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale8_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -557,7 +593,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale9_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -571,7 +608,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale10_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -584,7 +622,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale11_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -597,7 +636,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale12_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -613,7 +653,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale13_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
 
@@ -627,7 +668,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale14_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
             </child>
@@ -640,7 +682,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="adjustment">scale15_adj</property>
                 <property name="digits">1</property>
                 <property name="has-origin">FALSE</property>
-                <property name="expand">True</property>
+                <property name="vexpand">True</property>
+                <property name="hexpand">TRUE</property>
 
               </object>
 
@@ -665,7 +708,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
             <child>
               <object id="labelUnderBar" class="GtkFrame">
                 <property name="visible">True</property>
-                <property name="expand">TRUE</property>
+                <property name="vexpand">TRUE</property>
+                <property name="hexpand">TRUE</property>
                 <child>
                   <object class="GtkStatusbar" id="entrytext">
                     <property name="visible">True</property>
@@ -679,7 +723,8 @@ SignalsはUIファイルで登録してから関数somename->window_class_init�
                 <property name="visible">True</property>
                 <property name="text">3.14</property>
                 <property name="max-length">10</property>
-                <property name="expand">FALSE</property>
+                <property name="vexpand">FALSE</property>
+                <property name="hexpand">FALSE</property>>
               </object>
               <packing>
 

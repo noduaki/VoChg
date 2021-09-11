@@ -1,12 +1,12 @@
 #include "header.h"
 
-// Button ********
+// Left column Buttons ********
 void selButton1(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
     if (!da->status.open) {
         da->status.selNum = 1;
         da->status.open = 1;
-        if (gSet.file == NULL)
+        if (gSet.readfile == NULL)
             da->flag.soundMic = 1;
         else
             da->flag.soundFile = 1;
@@ -35,8 +35,8 @@ void selButton2(GtkWidget* widget, gpointer data) {
             gchar* filename;
 
             filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-            snprintf(gSet.filename, 255, "%s", filename);
-            gSet.file = g_file_new_for_path(filename);
+            snprintf(gSet.readfilename, 255, "%s", filename);
+            gSet.readfile = g_file_new_for_path(filename);
 
             g_free(filename);
             soundThread(widget, data);
@@ -72,8 +72,8 @@ void selButton3(GtkWidget* widget, gpointer data) {
             gchar* filename;
 
             filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-            snprintf(gSet.filename, 255, "%s", filename);
-            gSet.file = g_file_new_for_path(filename);
+            snprintf(gSet.readfilename, 255, "%s", filename);
+            gSet.readfile = g_file_new_for_path(filename);
 
             g_free(filename);
             mlDataThread(widget, data);
@@ -121,21 +121,26 @@ void sLowerButton1(GtkWidget* widget, gpointer data) {
 }
 
 void sLowerButton2(GtkWidget* widget, gpointer data) {
-    ;
+    VApp* da = (VApp*)data;
+    if (da->status.selNum == 3) {
+        if (da->flag.writeFile == 0) {
+            if (da->mlFlag.on) da->flag.writeFile = 1;
+        }
+    }
 }
 
 // Right column Buttons ********************************************************************************:
 
 void b1(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    if (da->settings.filter == 0) {
-        da->settings.filter = 1;
+    if (da->status.filter == 0) {
+        da->status.filter = 1;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR H");
-    } else if (da->settings.filter == 1) {
-        da->settings.filter = 2;
+    } else if (da->status.filter == 1) {
+        da->status.filter = 2;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR -");
-    } else if (da->settings.filter == 2) {
-        da->settings.filter = 0;
+    } else if (da->status.filter == 2) {
+        da->status.filter = 0;
         gtk_button_set_label(GTK_BUTTON(widget), "IIR L");
     } else {
         printf("b1 Error\n");
@@ -145,7 +150,7 @@ void b1(GtkWidget* widget, gpointer data) {
 }
 
 void b2(GtkWidget* widget, gpointer data) {
-    VApp* da= (VApp*)data;
+    VApp* da = (VApp*)data;
     if (da->status.selNum == 1 || da->status.selNum == 2) {
         if (da->draw1[0].on == 0) {
             da->draw1[0].on = 1;
@@ -154,10 +159,10 @@ void b2(GtkWidget* widget, gpointer data) {
         } else {
             printf("b2 Error draw1 - 0.on\n");
         }
-    }else if (da->status.selNum == 3) {
-        if(da->mlFlag.SRight == 0){
+    } else if (da->status.selNum == 3) {
+        if (da->mlFlag.SRight == 0) {
             da->mlFlag.SRight = 1;
-        }else{
+        } else {
             printf("Error b2 Sright\n");
         }
     }
@@ -173,10 +178,10 @@ void b3(GtkWidget* widget, gpointer data) {
         } else {
             printf("b3 Error draw1-1 on\n");
         }
-    }else if (da->status.selNum == 3) { 
-        if(da->mlFlag.SLeft == 0){
+    } else if (da->status.selNum == 3) {
+        if (da->mlFlag.SLeft == 0) {
             da->mlFlag.SLeft = 1;
-        }else{
+        } else {
             printf("Error b3 Sleft\n");
         }
     }
@@ -184,10 +189,18 @@ void b3(GtkWidget* widget, gpointer data) {
 
 void b4(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    if (da->status.selNum == 3) {
-         if(da->mlFlag.ERight == 0){
+    if (da->status.selNum == 1 || da->status.selNum == 2) {
+        if (da->flag.octaveHi == 0 && !da->flag.octaveLo == 1) {
+            da->flag.octaveHi = 1;
+        } else if (da->flag.octaveHi == 1) {
+            da->flag.octaveHi = 0;
+        } else {
+            printf("b4 Error octave\n");
+        }
+    } else if (da->status.selNum == 3) {
+        if (da->mlFlag.ERight == 0) {
             da->mlFlag.ERight = 1;
-        }else{
+        } else {
             printf("Error b4 Eright\n");
         }
     }
@@ -195,13 +208,20 @@ void b4(GtkWidget* widget, gpointer data) {
 
 void b5(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    if (da->status.selNum == 3) {
-         if(da->mlFlag.ELeft == 0){
+    if (da->status.selNum == 1 || da->status.selNum == 2) {
+        if (da->flag.octaveLo == 0 && !da->flag.octaveHi == 1) {
+            da->flag.octaveLo = 1;
+        } else if (da->flag.octaveLo == 1) {
+            da->flag.octaveLo = 0;
+        } else {
+            printf("b5 Error octave\n");
+        }
+    } else if (da->status.selNum == 3) {
+        if (da->mlFlag.ELeft == 0) {
             da->mlFlag.ELeft = 1;
-        }else{
+        } else {
             printf("Error b5 Eleft\n");
         }
-
     }
 }
 
@@ -233,7 +253,7 @@ void b8(GtkWidget* widget, gpointer data) {
         if (da->mlFlag.on == 0) {
             da->mlFlag.on = 1;
             gtk_button_set_label(GTK_BUTTON(widget), "Auto +");
-            
+
         } else if (da->mlFlag.on == 1) {
             da->mlFlag.on = 0;
             gtk_button_set_label(GTK_BUTTON(widget), "Auto -");
@@ -245,14 +265,18 @@ void b8(GtkWidget* widget, gpointer data) {
 
 void b9(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    *(da->drawstatus1.x) = 4000.0;
-    da->flag.drawResize = 1;
+    if (da->status.open) {
+        *(da->drawstatus1.x) = 4000.0;
+        da->flag.drawResize = 1;
+    }
 }
 
 void b10(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    *(da->drawstatus1.x) = -4000.0;
-    da->flag.drawResize = 1;
+    if (da->status.open) {
+        *(da->drawstatus1.x) = -4000.0;
+        da->flag.drawResize = 1;
+    }
 }
 
 void b11(GtkWidget* widget, gpointer data) {
@@ -276,6 +300,7 @@ void b11(GtkWidget* widget, gpointer data) {
             printf("b11 Error\n");
         }
     } else if (da->status.selNum == 3) {
+        da->mlFlag.dele1 = 1;
     }
 }
 
@@ -290,6 +315,7 @@ void b12(GtkWidget* widget, gpointer data) {
             printf("b12 Error\n");
         }
     } else if (da->status.selNum == 3) {
+        da->mlFlag.right1 = 1;
     }
 }
 
@@ -304,11 +330,15 @@ void b13(GtkWidget* widget, gpointer data) {
             printf("b13 Error\n");
         }
     } else if (da->status.selNum == 3) {
+        da->mlFlag.left1 = 1;
     }
 }
 
 void b14(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
+    if (da->status.selNum == 3) {
+        da->mlFlag.deleAll = 1;
+    }
 }
 
 void b15(GtkWidget* widget, gpointer data) {

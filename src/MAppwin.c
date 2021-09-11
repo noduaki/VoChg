@@ -11,14 +11,17 @@ G_DEFINE_TYPE_WITH_PRIVATE(MAppWindow, M_app_window, GTK_TYPE_APPLICATION_WINDOW
 void soundThread(GtkWidget* window, gpointer data) {
     VApp* da = (VApp*)data;
     GTask* soundTask;
-    int error;
+    int error = 0;
 
     if ((da->status.selNum == 1 || da->status.selNum == 2) && da->status.open == 1) {
         error = initVar(da);
         if (error) {
             delVar(da);
-            printf("Error in soundThread() -> malloc");
-            exit(1);
+            printf("Error in soundThread() -> malloc\n");
+            strcat(da->statusBuf, " Error");
+            statusprint(data);
+            goto err;
+            // exit(1);
         }
 
         da->status.ref++;
@@ -30,30 +33,41 @@ void soundThread(GtkWidget* window, gpointer data) {
         printf("soundThread() selNum error status.open = %d, selnum = %d \n", da->status.open, da->status.selNum);
         strcat(da->statusBuf, "Please One more time");
         statusprint(data);
+        error = 1;
+        goto err;
     }
-    strcpy(da->statusBuf, "Sound Close");
+err:
+    if(error)printf("Error soundthread()\n");
 }
 
 void mlDataThread(GtkWidget* window, gpointer data) {
     VApp* da = (VApp*)data;
     GTask* mlDataTask;
-    int error;
+    int error = 0;
 
     if (da->status.selNum == 3 && da->status.open == 1) {
         error = initVar(da);
         if (error) {
             delVar(da);
             printf("Error in mlDataThread() -> malloc");
-            exit(1);
+            strcat(da->statusBuf, "Error");
+            statusprint(data);
+            goto err;
+            // exit(1);
         }
         mlDataTask = g_task_new(NULL, NULL, NULL, NULL);
         g_task_set_task_data(mlDataTask, data, NULL);
         g_task_run_in_thread(mlDataTask, mlDataProcess);
 
     } else {
-        printf("mlDataThread() selNum error");
-        exit(1);
+        printf("mlDataThread() selNum error\n");
+        strcat(da->statusBuf, "Please One more time");
+        statusprint(data);
+        error = 1;
+        goto err;
     }
+err:
+    if(error)printf("Error mlDatathread()\n");
 }
 
 // Init Windows *******************************************************************

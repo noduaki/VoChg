@@ -3,4 +3,5 @@
 #include "header.h"
 
 int wavCheck(gpointer tmp);
+gboolean getWritefile(gpointer data);
 #endif

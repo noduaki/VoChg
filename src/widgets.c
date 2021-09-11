@@ -13,7 +13,7 @@ gboolean statusprint(gpointer data) {
     VApp* da = (VApp*)data;
     gtk_statusbar_pop(GTK_STATUSBAR(da->priv->entrytext), 1);
     gtk_statusbar_push(GTK_STATUSBAR(da->priv->entrytext), 1, da->statusBuf);
-    *da->statusBuf = '\0';
+    *(da->statusBuf) = '\0';
     return FALSE;
 }
 

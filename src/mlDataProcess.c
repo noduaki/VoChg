@@ -18,18 +18,27 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
     int i = 0;
     int n = 0;
+    int k = 0;
     int selX = 0;
-    
     int tmpPos;
     int tmpi;
-    int change      = 1;
+    int change = 1;
     int selectCount = 1;
     int bufferCount = 0;
-    int autoCount   = 0;
-    int ECount      = 1;
-    int diffCount   = 0;
-    int nextpoint   = 0;
-    double diff  = 0.0;
+    int autoCount = 0;
+    int ECount = 1;
+    int diffCount = 0;
+    int nextpoint = 0;
+    int writeCount = 0;
+    int dataCount = 0;
+    int writeSize;
+    int fileCount = 0;
+    int startFrames = da->settings.frames / 2;
+
+    int row = NUM_DATA_X;
+    int column = NUM_MLDATA;
+    double add = 0.0;
+    double diff = 0.0;
     double ratio = 0.0;
     double tmpddd1;
     double tmpddd2;
@@ -37,13 +46,23 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
     da->draw1[0].on = 1;
     da->draw2[0].on = 1;
     da->draw2[1].on = 1;
-    da->draw2[1].Width = 128;
+    da->draw2[1].Width = row;
     da->crossPoint.on = 1;
 
     double in1 = 0.0;
     double in2 = 0.0;
     double out1 = 0.0;
     double out2 = 0.0;
+
+    int err;
+    GError* fileErr = NULL;
+    GFileIOStream* outStream = NULL;
+    GInputStream* inStrm;
+    GOutputStream* outStrm;
+    GIOStream* iostream;
+
+    char csvData[NUM_MLDATA * NUM_DATA_X * 9] = {0};
+    int csvCount = 0;
 
     da->status.ref++;
 
@@ -84,7 +103,7 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
         // IIR Filter
 
-        if (da->settings.filter == 0) {
+        if (da->status.filter == 0) {
             // Lo pass filter coefficient
             double omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
             double alpha = sin(omega) / (2.0 * da->scale.slider2);
@@ -106,7 +125,7 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                 out2 = out1;                     // 2つ前の出力信号を更新
                 out1 = *(da->dataBuf.sound + i); // 1つ前の出力信号を更新
             }
-        } else if (da->settings.filter == 1) {
+        } else if (da->status.filter == 1) {
             // Hi pass filter coefficient
             double omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
             double alpha = sin(omega) / (2.0 * da->scale.slider2);
@@ -133,19 +152,21 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
             memcpy(da->dataBuf.sound, da->dataBuf.row, da->settings.frames * sizeof(double) * 2);
         }
 
-        memcpy(da->draw1[0].y, da->dataBuf.sound + da->settings.frames / 2, da->settings.frames * sizeof(double));
-        memcpy(da->draw2[0].y, da->dataBuf.sound + da->settings.frames / 2, da->settings.frames * sizeof(double));
+        memcpy(da->draw1[0].y, da->dataBuf.sound + startFrames, da->settings.frames * sizeof(double));
+        memcpy(da->draw2[0].y, da->dataBuf.sound + startFrames, da->settings.frames * sizeof(double));
 
         // ML data get *********
 
         da->crossPoint.Width =
-            getCross(da->dataBuf.sound + da->settings.frames / 2, da->crossPoint.pos, da->settings.frames);
+            getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->settings.frames);
         if (da->crossPoint.Width <= 0) {
             // printf("Error getCross\n");
             da->crossPoint.Width = 0;
         }
 
-        if (da->flag.selPos && !da->mlFlag.on) { // Click to select point
+        // Select MLData point manually
+
+        if (da->flag.selPos && !da->mlFlag.on) { //  selPos comes from drawArea click-relese-cb()
             da->flag.selPos = 0;
 
             nextpoint = 0;
@@ -225,30 +246,62 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
                 if (nextpoint) {
                     nextpoint = 0;
-                    diffCount = (da->selPointE.x - da->selPointS.x) / 128;
-                    if (diffCount) {
-                        diff = (double)(da->selPointE.x - da->selPointS.x) / 128.0;
-                        *(da->draw2[1].y) = *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x);
-                        *(da->draw2[1].y + 127) = *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + 1);
+                    
+                    if (da->selPointE.x - da->selPointS.x > row) {
+                        // Calcurate Diff
+                        diff = (double)(da->selPointE.x - da->selPointS.x) / (double)row;
+                       
+                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointS.x);
+                        *(da->draw2[1].y + (row - 1)) =
+                            *(da->dataBuf.sound + startFrames + da->selPointS.x + 1);
 
-                        for (i = 1; i < 127; i++) {
+                        for (i = 1; i < (row - 1); i++) {
                             n = (int)((double)i * diff);
                             ratio = (double)i * diff - (double)n;
+                            
                             *(da->draw2[1].y + i) =
-                                (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n) +
-                                 (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n + 1) -
-                                  *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n)) *
+                                (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
+                                 (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
+                                  *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
                                      ratio) -
-                                (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n) +
-                                 (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n + 1) -
-                                  *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n)) *
+                                (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
+                                 (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
+                                  *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
                                      ratio);
                         }
+
+                        // Diff data write
+
+                        memcpy(da->sData[writeCount].xData, da->draw2[1].y, (row - 1) * sizeof(double));
+                        da->sData[writeCount].xData[(row - 1)] = (double)(da->selPointE.x - da->selPointS.x);
+                        da->sData[writeCount].yData = 0.0;
+
+                        if (writeCount < NUM_MLDATA - 1) {
+                            writeCount++;
+                        } else {
+                            printf("ML Data full\n");
+                            strcat(da->statusBuf, "ML Data full");
+                            g_idle_add(statusprint, data);
+                            for (i = 0; i < 8; i++) {
+                                printf("%f>>%f>>%f\n", da->sData[7].xData[i], *(da->draw2[1].y + i),
+                                       da->sData[i].yData);
+                            }
+                        }
+                        sprintf(da->statusBuf, "ML Data %d -> 0 # next %d", writeCount - 1, writeCount);
+                        g_idle_add(statusprint, data);
+
+                    } else {
+                        strcat(da->statusBuf, "Error -> Select points length is under 128pt");
+                        g_idle_add(statusprint, data);
                     }
+                } else {
+                    printf("Error -> No nextpoint so Can't calculate difference  \n");
+                    strcat(da->statusBuf, "No nextpoint so Can't calculate difference");
+                    g_idle_add(statusprint, data);
                 }
 
                 if (autoCount + ECount * 2 < da->crossPoint.Width) {
-                     da->selPointS.y = da->selPointS.x;
+                    da->selPointS.y = da->selPointS.x;
                     autoCount += ECount;
                     change = 1;
                 }
@@ -256,32 +309,61 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                 da->mlFlag.enter1 = 0;
                 if (nextpoint) {
                     nextpoint = 0;
-                    diffCount = (da->selPointE.x - da->selPointS.x) / 128;
-                    if (diffCount) {
-                        diff = (double)(da->selPointE.x - da->selPointS.x) / 128.0;
-                        *(da->draw2[1].y) = *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x) -
-                                            *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x);
-                        *(da->draw2[1].y + 127) = *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x +
-                                                    (da->selPointE.x - da->selPointS.x)) -
-                                                  *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x);
+                    
+                    if (da->selPointE.x - da->selPointS.x > row) {
+                        diff = (double)(da->selPointE.x - da->selPointS.x) / (double)(row);
+                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointE.x) -
+                                            *(da->dataBuf.sound + startFrames + da->selPointS.x);
+                        *(da->draw2[1].y + (row - 1)) =
+                            *(da->dataBuf.sound + startFrames + da->selPointE.x +
+                              (da->selPointE.x - da->selPointS.x)) -
+                            *(da->dataBuf.sound + startFrames + da->selPointE.x);
 
-                        for (i = 1; i < 127; i++) {
+                        for (i = 1; i < (row - 1); i++) {
                             n = (int)((double)i * diff);
                             ratio = (double)i * diff - (double)n;
                             *(da->draw2[1].y + i) =
-                                (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n) +
-                                 (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n + 1) -
-                                  *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointE.x + n)) *
+                                (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
+                                 (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
+                                  *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
                                      ratio) -
-                                (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n) +
-                                 (*(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n + 1) -
-                                  *(da->dataBuf.sound + da->settings.frames / 2 + da->selPointS.x + n)) *
+                                (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
+                                 (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
+                                  *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
                                      ratio);
                         }
+                        // Diff data write *****************
+
+                        memcpy(da->sData[writeCount].xData, da->draw2[1].y, (row - 1) * sizeof(double));
+                        da->sData[writeCount].xData[(row - 1)] = (double)(da->selPointE.x - da->selPointS.x);
+                        da->sData[writeCount].yData = 1.0;
+
+                        if (writeCount < NUM_MLDATA - 1) {
+                            writeCount++;
+                        } else {
+                            printf("ML Data full\n");
+                            strcat(da->statusBuf, "ML Data full");
+                            g_idle_add(statusprint, data);
+                            for (i = 0; i < 12; i++) {
+                                printf("%f>>%f>>%f>>%f*******%d\n", da->sData[7].xData[i], *(da->draw2[1].y + i),
+                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + (int)((double)i * diff)),
+                                     *(da->dataBuf.sound + startFrames + da->selPointE.x + (int)((double)i * diff)),
+                                     (int)((double)i * diff) );
+                            }
+                        }
+                        sprintf(da->statusBuf, "ML Data %d -> 1 # next %d ", writeCount - 1, writeCount);
+                        g_idle_add(statusprint, data);
+                    } else {
+                        strcat(da->statusBuf, "Error -> Select points length is under 128pt");
+                        g_idle_add(statusprint, data);
                     }
+
+                } else {
+                    strcpy(da->statusBuf, "No nextpoint so Can't calculate difference");
+                    g_idle_add(statusprint, data);
                 }
                 if (autoCount + ECount * 2 < da->crossPoint.Width) {
-                     da->selPointS.y = da->selPointS.x;
+                    da->selPointS.y = da->selPointS.x;
                     autoCount += ECount;
                     change = 1;
                 }
@@ -307,16 +389,116 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                 }
             } else if (da->mlFlag.ELeft) {
                 da->mlFlag.ELeft = 0;
-                if (ECount > 1){
-                     ECount--;
-                     change = 1;
+                if (ECount > 1) {
+                    ECount--;
+                    change = 1;
                 }
+            } else if (da->mlFlag.dele1) {
+                da->mlFlag.dele1 = 0;
+                writeCount--;
+
+            } else if (da->mlFlag.deleAll) {
+                da->mlFlag.deleAll = 0;
+                writeCount = 0;
+            } else if (da->mlFlag.right1) {
+                da->mlFlag.right1 = 0;
+                writeCount++;
+            } else if (da->mlFlag.left1) {
+                da->mlFlag.left1 = 0;
+                writeCount--;
+            } else if (da->flag.writeFile) {
+                if (writeCount == NUM_MLDATA - 1) {
+                    int err;
+
+                    // Write csv text
+                    for (k = 0; k < NUM_MLDATA; k++) {
+                        for (i = 0; i < NUM_DATA_X; i++) {
+                            sprintf(csvData + (k * NUM_DATA_X * 9) + i * 9, "%.1f", da->sData[k].xData[i]);
+
+                            *(csvData + (k * NUM_DATA_X * 9) + i * 9 + 8) = 0x2c;
+                        }
+                        *(csvData + (k * NUM_DATA_X * 9) + (NUM_DATA_X - 1) * 9 + 8) = 0x0a;
+                    }
+                    
+                    for (k = 0; k < NUM_DATA_X * NUM_MLDATA; k++) {
+                        for (i = 0; i < 8; i++) {
+                            if (*(csvData + k * 9 + i) < 0x2d || *(csvData + k * 9 + i) > 0x39) {
+                                *(csvData + k * 9 + i) = 0x30;
+                            }
+                        }
+                    }
+
+                    if (da->settings.writefile == NULL) {
+                        g_idle_add(getWritefile, data);
+                        i = 0;
+                        while (da->settings.writefile == NULL) {
+                            sleep(1);
+                            i++;
+                            if (i > 100)
+                                break;
+                            else if (da->flag.writeFile == 0)
+                                break;
+                        }
+                    }
+
+                    if (da->settings.writefile) {
+                        strcat(da->statusBuf, "Data write to ");
+                        strcat(da->statusBuf, da->settings.writefilename);
+                        g_idle_add(statusprint, data);
+
+                        outStream = g_file_open_readwrite(da->settings.writefile, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            sprintf(da->statusBuf, "Could not open %s for writing: %s \n", gSet.readfilename,
+                                    fileErr->message);
+                            g_idle_add(statusprint, data);
+                        }
+                        iostream = G_IO_STREAM(outStream);
+                        inStrm = g_io_stream_get_input_stream(iostream);
+                        outStrm = g_io_stream_get_output_stream(iostream);
+
+                        err = g_seekable_tell(G_SEEKABLE(iostream));
+                        printf("seek offset %d\n", err);
+                        err = g_seekable_seek(G_SEEKABLE(iostream), fileCount, G_SEEK_SET, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlData -> seek\n");
+                        }
+
+                        writeSize = g_output_stream_write(G_OUTPUT_STREAM(outStrm), csvData,
+                                                          NUM_DATA_X * NUM_MLDATA * 9, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlData -> %s ->> writesize %d\n", fileErr->message, writeSize);
+                        } else if (writeSize != NUM_DATA_X * NUM_MLDATA * 9) {
+                            printf("Error in mlData -> writesize %d buffsize %d\n", writeSize,
+                                   NUM_DATA_X * NUM_MLDATA * 11);
+                        }
+                        fileCount += writeSize;
+                        err = g_seekable_tell(G_SEEKABLE(iostream));
+                        printf("seek offset %d\n", err);
+
+                        g_io_stream_close(iostream, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlData ->%s \n", fileErr->message);
+                        } else if (err == FALSE) {
+                            printf("Error in mlData -> outputstream close\n");
+                        }
+                        g_object_unref(outStream);
+
+                    } else {
+                        strcat(da->statusBuf, "File dose not exist");
+                        g_idle_add(statusprint, data);
+                    }
+
+                } else {
+                    strcat(da->statusBuf, "Write Data is not filled");
+                    g_idle_add(statusprint, data);
+                }
+                da->flag.writeFile = 0;
             }
 
             if (change) {
                 change = 0;
                 if (autoCount >= da->crossPoint.Width - 1) autoCount = 0;
-               
+
                 da->selPointS.x = *(da->crossPoint.pos + autoCount);
                 da->selPointE.x = *(da->crossPoint.pos + autoCount + ECount);
                 if (da->selPointS.x + (da->selPointE.x - da->selPointS.x) * 2 < da->settings.frames) {

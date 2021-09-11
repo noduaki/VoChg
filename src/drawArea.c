@@ -14,6 +14,8 @@ static void clear_surface(int i) {
     }
     cairo_paint(cr);
     cairo_destroy(cr);
+
+   
 }
 
 gboolean configure_event_cb(GtkWidget* widget, GdkEventConfigure* event, gpointer data) {
@@ -311,7 +313,7 @@ gboolean update_drawArea1(gpointer data) {
     if (da->crossPoint.on) {
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
         for (i = 0; i < da->crossPoint.Width; i++) {
-            t = (double)(*(da->crossPoint.x + i) - startPos) * width / (double)(da->settings.pcm_buffer_size);
+            t = (double)(*(da->crossPoint.pos + i) - startPos) * width / (double)(da->settings.frames);
             cairo_arc(cr, t + 5.0, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
             cairo_fill(cr);
         }

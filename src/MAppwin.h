@@ -87,6 +87,8 @@ typedef struct _mBuffer {
     int writeSize;
     double* sound;
     int soundSize;
+    double* tmp;
+    int tmpSize;
     double* row;
     int rowSize;
 
@@ -117,11 +119,16 @@ typedef struct _mFlag {
     int drawArea2;
     int drawResize;
     int drawReSlider;
+    int selPos;
+
+    //Button control flags
+    int deviceflag;
+    int octaveHi;
+    int octaveLo; 
     int pause;
     int nextWave;
     int prevWave;
-    int selPos;
-    int deviceflag;
+    int writeFile; //14th
 
 } mFlag;
 
@@ -133,6 +140,11 @@ typedef struct _mlAuto {
     int SLeft;
     int ERight;
     int ELeft;
+    int dele1;
+    int deleAll;
+    int right1;
+    int left1;
+
 } mlAuto;
 
 typedef struct _mScale {
@@ -163,9 +175,11 @@ typedef struct _mSetting {
     int rate;
     int frames;
     char deviceName[256];
-    char filename[256];
-    GFile* file;
-    int filter;
+    char readfilename[256];
+    char writefilename[256];
+    GFile* readfile;
+    GFile* writefile;
+    
 } mSettings;
 
 typedef struct _mDraw {
@@ -184,6 +198,7 @@ typedef struct _mStatus {
     int open;
     int selNum;
     int ref;
+    int filter;
 } mStatus;
 
 typedef struct _mlData {

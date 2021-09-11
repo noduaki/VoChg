@@ -14,9 +14,10 @@ mSettings gSet = {SOUNDBUFFERSIZE,
                   SOUNDRATE,
                   SOUNDFRAMES,
                   "default", //"hw:CARD=PCH,DEV=0"
-                  "0",
+                  "\0",
+                  "\0",
                   NULL,
-                  0};
+                  NULL};
 
 
 

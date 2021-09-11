@@ -78,6 +78,32 @@ int wavCheck(gpointer tmp) {
         return 0;
     else {
         printf("It's not WAV !\n");
+        strcat(da->statusBuf, "It's not WAV! ");
         return 1;
     }
+}
+
+gboolean getWritefile(gpointer data) {
+    VApp* da = (VApp*)data;
+    GtkWidget* dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    int res = 0;
+    dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"),
+                                         GTK_RESPONSE_ACCEPT, NULL);
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (res == GTK_RESPONSE_ACCEPT) {
+        gchar* filename;
+
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        snprintf(da->settings.writefilename, 255, "%s", filename);
+        da->settings.writefile = g_file_new_for_path(filename);
+
+        g_free(filename);
+    } else {
+        if (da->flag.writeFile == 1) {
+            da->flag.writeFile = 0;
+        }
+    }
+    gtk_widget_destroy(dialog);
+    return FALSE;
 }

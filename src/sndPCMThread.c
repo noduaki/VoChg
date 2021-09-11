@@ -772,7 +772,7 @@ void initSound(GTask* stask, gpointer source_object, gpointer data, GCancellable
         }
         if (da->flag.soundFile) {
             strcat(da->statusBuf, " open file ");
-            strcat(da->statusBuf, da->settings.filename);
+            strcat(da->statusBuf, da->settings.readfilename);
         } else {
             strcat(da->statusBuf, "--TestWaveMode");
         }

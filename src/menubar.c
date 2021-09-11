@@ -24,8 +24,8 @@ void activate_openfile(GSimpleAction* simple, GVariant* parameter, gpointer app)
 
         gchar* filename;
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-        snprintf(gSet.filename, 255, "%s", filename);
-        gSet.file = g_file_new_for_path(filename);
+        snprintf(gSet.readfilename, 255, "%s", filename);
+        gSet.readfile = g_file_new_for_path(filename);
 
         g_free(filename);
     }

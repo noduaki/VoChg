@@ -17,40 +17,36 @@ int initVar(VApp* data) {
         // DrawArea **********
 
         for (i = 0; i < 5; i++) {
-            data->draw1[i].x =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+            data->draw1[i].x = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].x == NULL) error = 1;
-            data->draw1[i].y =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+            data->draw1[i].y = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw1[i].y == NULL) error = 1;
             data->draw1[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
             if (data->draw1[i].pos == NULL) error = 1;
             data->draw1[i].Height = 65536;
-            data->draw1[i].Width = data->settings.pcm_buffer_size;
+            data->draw1[i].Width = data->settings.frames;
             data->draw1[i].on = 0;
             data->draw1[i].log = 0;
             data->draw1[i].bar = 0;
 
-            data->draw2[i].x =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+            data->draw2[i].x = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].x == NULL) error = 1;
-            data->draw2[i].y =
-                (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+            data->draw2[i].y = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
             if (data->draw2[i].y == NULL) error = 1;
             data->draw2[i].pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
             if (data->draw2[i].pos == NULL) error = 1;
             data->draw2[i].Height = 65536;
-            data->draw2[i].Width = data->settings.pcm_buffer_size / 2;
+            data->draw2[i].Width = data->settings.frames / 2;
             data->draw2[i].on = 0;
             data->draw2[i].log = 0;
             data->draw2[i].bar = 0;
         }
-        data->crossPoint.x = (double*)malloc(data->settings.pcm_buffer_size * sizeof(double));
+        data->crossPoint.x = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.x == NULL) error = 1;
-        data->crossPoint.y = (double*)malloc(data->settings.pcm_buffer_size * sizeof(double));
+        data->crossPoint.y = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.y == NULL) error = 1;
-         data->crossPoint.pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
-            if (data->crossPoint.pos == NULL) error = 1;
+        data->crossPoint.pos = (int*)calloc(data->settings.frames * data->settings.channels, sizeof(int));
+        if (data->crossPoint.pos == NULL) error = 1;
         data->crossPoint.Height = 0;
         data->crossPoint.Width = 0;
         data->crossPoint.on = 0;
@@ -59,19 +55,20 @@ int initVar(VApp* data) {
 
         // Sound Data ***********
 
-        data->dataBuf.sound =
-            (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double) * 2);
+        data->dataBuf.sound = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.sound == NULL) error = 1;
-        data->dataBuf.soundSize = data->settings.pcm_buffer_size * data->settings.channels * 2;
-        data->dataBuf.row =
-            (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double) * 2);
+        data->dataBuf.soundSize = data->settings.frames * data->settings.channels * 2;
+        data->dataBuf.row = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.row == NULL) error = 1;
-        data->dataBuf.rowSize = data->settings.pcm_buffer_size * data->settings.channels * 2;
+        data->dataBuf.rowSize = data->settings.frames * data->settings.channels * 2;
+        data->dataBuf.tmp = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
+        if (data->dataBuf.tmp == NULL) error = 1;
+        data->dataBuf.tmpSize = data->settings.frames * data->settings.channels * 2;
 
-        if (gSet.file != NULL) {
-            inStream = g_file_read(gSet.file, NULL, &fileErr);
+        if (gSet.readfile != NULL) {
+            inStream = g_file_read(gSet.readfile, NULL, &fileErr);
             if (fileErr != NULL) {
-                printf("Could not open %s for reading: %s \n", gSet.filename, fileErr->message);
+                printf("Could not open %s for reading: %s \n", gSet.readfilename, fileErr->message);
                 data->flag.soundFile = 0;
             }
             info = g_file_input_stream_query_info(G_FILE_INPUT_STREAM(inStream), G_FILE_ATTRIBUTE_STANDARD_SIZE, NULL,
@@ -88,9 +85,9 @@ int initVar(VApp* data) {
 
             if (total_size > 0) {
                 if (data->dataBuf.read == NULL) {
-                    data->dataBuf.read = (int16_t*)malloc(total_size);
-                    data->dataBuf.write = (int16_t*)malloc(total_size);
-                    memset(data->dataBuf.read, 0, total_size);
+                    data->dataBuf.read = (int16_t*)calloc(total_size, 1);
+                    data->dataBuf.write = (int16_t*)calloc(total_size, 1);
+                   
                     if ((length = g_input_stream_read(G_INPUT_STREAM(inStream), data->dataBuf.read, total_size, NULL,
                                                       &fileErr)) != -1) {
                         data->dataBuf.readSize = length;
@@ -110,7 +107,7 @@ int initVar(VApp* data) {
             if (err == FALSE) printf("Error in initVar -> stream_close failed\n");
             g_object_unref(inStream);
             g_object_unref(info);
-            g_clear_object(&gSet.file);
+            g_clear_object(&gSet.readfile);
         }
         if (data->flag.soundFile == 1) {
             ok = wavCheck(data);
@@ -120,11 +117,9 @@ int initVar(VApp* data) {
             }
         }
 
-        data->soundRead.samples =
-            (int16_t*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(short));
+        data->soundRead.samples = (int16_t*)malloc(data->settings.frames * data->settings.channels * sizeof(short));
         if (data->soundRead.samples == NULL) error = 1;
-        data->soundWrite.samples =
-            (int16_t*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(short));
+        data->soundWrite.samples = (int16_t*)malloc(data->settings.frames * data->settings.channels * sizeof(short));
         if (data->soundWrite.samples == NULL) error = 1;
         data->soundRead.areas = (snd_pcm_channel_area_t*)malloc(sizeof(snd_pcm_channel_area_t) * 2);
         if (data->soundRead.areas == NULL) error = 1;
@@ -141,59 +136,56 @@ int initVar(VApp* data) {
         // FFT ***********
 
         data->fftForward.dataIn =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftForward.dataIn == NULL) error = 1;
         data->fftForward.dataOut =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftForward.dataOut == NULL) error = 1;
-        data->fftForward.fftPlan = fftw_plan_dft_1d(data->settings.pcm_buffer_size, data->fftForward.dataIn,
+        data->fftForward.fftPlan = fftw_plan_dft_1d(data->settings.frames, data->fftForward.dataIn,
                                                     data->fftForward.dataOut, FFTW_FORWARD, FFTW_ESTIMATE);
-        data->fftForward.size = data->settings.pcm_buffer_size * data->settings.channels;
+        data->fftForward.size = data->settings.frames * data->settings.channels;
 
         data->fftBack.dataIn =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftBack.dataIn == NULL) error = 1;
         data->fftBack.dataOut =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftBack.dataOut == NULL) error = 1;
-        data->fftBack.size = data->settings.pcm_buffer_size * data->settings.channels;
-        data->fftBack.fftPlan = fftw_plan_dft_1d(data->settings.pcm_buffer_size, data->fftBack.dataIn,
-                                                 data->fftBack.dataOut, FFTW_BACKWARD, FFTW_ESTIMATE);
+        data->fftBack.size = data->settings.frames * data->settings.channels;
+        data->fftBack.fftPlan = fftw_plan_dft_1d(data->settings.frames, data->fftBack.dataIn, data->fftBack.dataOut,
+                                                 FFTW_BACKWARD, FFTW_ESTIMATE);
         data->fftCep.dataIn =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftCep.dataIn == NULL) error = 1;
         data->fftCep.dataOut =
-            (fftw_complex*)fftw_malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(fftw_complex));
+            (fftw_complex*)fftw_malloc(data->settings.frames * data->settings.channels * sizeof(fftw_complex));
         if (data->fftCep.dataOut == NULL) error = 1;
-        data->fftCep.fftPlan = fftw_plan_dft_1d(data->settings.pcm_buffer_size, data->fftCep.dataIn,
-                                                data->fftCep.dataOut, FFTW_FORWARD, FFTW_ESTIMATE);
-        data->fftCep.size = data->settings.pcm_buffer_size * data->settings.channels;
+        data->fftCep.fftPlan = fftw_plan_dft_1d(data->settings.frames, data->fftCep.dataIn, data->fftCep.dataOut,
+                                                FFTW_FORWARD, FFTW_ESTIMATE);
+        data->fftCep.size = data->settings.frames * data->settings.channels;
 
-        data->fftWindow = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+        data->fftWindow = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
         if (data->fftWindow == NULL) error = 1;
-        data->fftPower = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+        data->fftPower = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
         if (data->fftPower == NULL) error = 1;
-        data->fftCepstrum = (double*)malloc(data->settings.pcm_buffer_size * data->settings.channels * sizeof(double));
+        data->fftCepstrum = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double));
         if (data->fftCepstrum == NULL) error = 1;
-        for (i = 0; i < data->settings.pcm_buffer_size; i++) {
+        for (i = 0; i < data->settings.frames; i++) {
             *(data->fftWindow + i) =
-                (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.pcm_buffer_size - 1)));
+                (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.frames - 1)));
         }
         // etc.
-        data->flag.drawArea1 = 0;
-        data->flag.drawArea2 = 0;
+        for (i = 2; i < 14; i++) {
+            int* flag = (int*)&data->flag;
+            *(flag + i) = 0;
+        }
+        for (i = 0; i < 11; i++) {
+            int* flag = (int*)&data->mlFlag;
+            *(flag + i) = 0;
+        }
         data->flag.drawResize = 1;
-        data->flag.drawReSlider = 0;
-        data->flag.nextWave = 0;
-        data->flag.prevWave = 0;
-        data->flag.selPos = 0;
-        data->mlFlag.on = 0;
-        data->mlFlag.enter0 = 0;
-        data->mlFlag.enter1 = 0;
-        data->mlFlag.SRight = 0;
-        data->mlFlag.SLeft = 0;
-        data->mlFlag.ERight = 0;
-        data->mlFlag.ELeft = 0;
+        data->status.filter   = 0; //IIR Lo
+
         data->selPointS.x = 0;
         data->selPointE.x = 0;
         data->nextPoint.x = 0;
@@ -210,8 +202,8 @@ int initVar(VApp* data) {
         gtk_button_set_label(GTK_BUTTON(data->priv->button1), "IIR L");
         gtk_button_set_label(GTK_BUTTON(data->priv->button2), "Row");
         gtk_button_set_label(GTK_BUTTON(data->priv->button3), "Procd");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button4), "4");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button5), "5");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button4), "Oct Hi");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button5), "Oct Lo");
         gtk_button_set_label(GTK_BUTTON(data->priv->button6), "6");
         gtk_button_set_label(GTK_BUTTON(data->priv->button7), "7");
         gtk_button_set_label(GTK_BUTTON(data->priv->button8), "8");
@@ -260,20 +252,20 @@ int initVar(VApp* data) {
         if (data->crossPoint.x == NULL) error = 1;
         data->crossPoint.y = (double*)malloc(data->settings.frames * sizeof(double));
         if (data->crossPoint.y == NULL) error = 1;
-         data->crossPoint.pos = (int*)malloc(data->settings.frames * data->settings.channels * sizeof(int));
-            if (data->crossPoint.pos == NULL) error = 1;
+        data->crossPoint.pos = (int*)calloc(data->settings.frames * data->settings.channels, sizeof(int));
+        if (data->crossPoint.pos == NULL) error = 1;
         data->crossPoint.Height = 0;
         data->crossPoint.Width = 0;
         data->crossPoint.on = 0;
         data->crossPoint.log = 0;
         data->crossPoint.bar = 0;
-        
+
         // File read *********
 
-        if (gSet.file != NULL) {
-            inStream = g_file_read(gSet.file, NULL, &fileErr);
+        if (gSet.readfile != NULL) {
+            inStream = g_file_read(gSet.readfile, NULL, &fileErr);
             if (fileErr != NULL) {
-                printf("Could not open %s for reading: %s \n", gSet.filename, fileErr->message);
+                printf("Could not open %s for reading: %s \n", gSet.readfilename, fileErr->message);
                 data->flag.soundFile = 0;
             }
             info = g_file_input_stream_query_info(G_FILE_INPUT_STREAM(inStream), G_FILE_ATTRIBUTE_STANDARD_SIZE, NULL,
@@ -291,9 +283,9 @@ int initVar(VApp* data) {
             if (total_size > 0) {
                 if (data->dataBuf.read == NULL) {
 
-                    data->dataBuf.read = (int16_t*)malloc(total_size);
-                    data->dataBuf.write = (int16_t*)malloc(total_size);
-                    memset(data->dataBuf.read, 0, total_size);
+                    data->dataBuf.read = (int16_t*)calloc(total_size, 1);
+                    data->dataBuf.write = (int16_t*)calloc(total_size, 1);
+                    
                     if ((length = g_input_stream_read(G_INPUT_STREAM(inStream), data->dataBuf.read, total_size, NULL,
                                                       &fileErr)) != -1) {
                         data->dataBuf.readSize = length;
@@ -313,10 +305,10 @@ int initVar(VApp* data) {
             if (err == FALSE) printf("Error in initVar -> stream_close failed\n");
             g_object_unref(inStream);
             g_object_unref(info);
-            g_clear_object(&gSet.file);
+            g_clear_object(&gSet.readfile);
         }
 
-        if (strlen(gSet.filename) < 199) strcpy(data->statusBuf, gSet.filename);
+        if (strlen(gSet.readfilename) < 199) strcpy(data->statusBuf, gSet.readfilename);
         statusprint((void*)data);
 
         if (data->flag.soundFile == 1) {
@@ -334,22 +326,21 @@ int initVar(VApp* data) {
         if (data->dataBuf.sound == NULL) error = 1;
         data->dataBuf.row = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
         if (data->dataBuf.row == NULL) error = 1;
+        data->dataBuf.tmp = (double*)malloc(data->settings.frames * data->settings.channels * sizeof(double) * 2);
+        if (data->dataBuf.tmp == NULL) error = 1;
 
         // ect **********
-        data->flag.drawArea1 = 0;
-        data->flag.drawArea2 = 0;
-        data->flag.nextWave = 0;
-        data->flag.prevWave = 0;
+        for (i = 0; i < 14; i++) {
+            int* flag = (int*)&data->flag;
+            *(flag + i) = 0;
+        }
+        for (i = 0; i < 11; i++) {
+            int* flag = (int*)&data->mlFlag;
+            *(flag + i) = 0;
+        }
         data->flag.drawResize = 1;
-        data->flag.drawReSlider = 0;
-        data->flag.selPos = 0;
-        data->mlFlag.on = 0;
-        data->mlFlag.enter0 = 0;
-        data->mlFlag.enter1 = 0;
-        data->mlFlag.SRight = 0;
-        data->mlFlag.SLeft = 0;
-        data->mlFlag.ERight = 0;
-        data->mlFlag.ELeft = 0;
+        data->status.filter   = 0; //IIR Lo
+        
         data->selPointS.x = 0;
         data->selPointE.x = 0;
         data->nextPoint.x = 0;
@@ -371,10 +362,10 @@ int initVar(VApp* data) {
         gtk_button_set_label(GTK_BUTTON(data->priv->button6), "Ent.0");
         gtk_button_set_label(GTK_BUTTON(data->priv->button7), "Ent.1");
         gtk_button_set_label(GTK_BUTTON(data->priv->button8), "Auto -");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button11), "11");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button12), "12");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button13), "13");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button14), "14");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button11), "Dele 1");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button12), "<- 1");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button13), "1 ->");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button14), "Dele all");
         gtk_button_set_label(GTK_BUTTON(data->priv->button15), "15");
         gtk_button_set_label(GTK_BUTTON(data->priv->button16), "16");
         gtk_button_set_label(GTK_BUTTON(data->priv->button17), "17");
@@ -413,8 +404,8 @@ int delVar(VApp* data) {
         data->crossPoint.x = NULL;
         free(data->crossPoint.y);
         data->crossPoint.y = NULL;
-        free(data->crossPoint.pos); data->crossPoint.pos = NULL;
-
+        free(data->crossPoint.pos);
+        data->crossPoint.pos = NULL;
 
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
@@ -422,6 +413,10 @@ int delVar(VApp* data) {
         data->dataBuf.write = NULL;
         free(data->dataBuf.sound);
         data->dataBuf.sound = NULL;
+         free(data->dataBuf.row);
+        data->dataBuf.row = NULL;
+         free(data->dataBuf.tmp);
+        data->dataBuf.tmp = NULL;
 
         free(data->soundRead.samples);
         data->soundRead.samples = NULL;
@@ -463,27 +458,20 @@ int delVar(VApp* data) {
         data->drawstatus1.y = NULL;
 
         data->status.selNum = 0;
-        data->flag.soundFile = 0;
-        data->flag.soundMic = 0;
-        data->flag.pause = 0;
-        data->flag.drawArea1 = 0;
-        data->flag.drawArea2 = 0;
-        data->flag.drawResize = 0;
-        data->flag.nextWave = 0;
-        data->flag.prevWave = 0;
-        data->flag.selPos = 0;
-        data->mlFlag.on = 0;
-        data->mlFlag.enter0 = 0;
-        data->mlFlag.enter1 = 0;
-        data->mlFlag.SRight = 0;
-        data->mlFlag.SLeft = 0;
-        data->mlFlag.ERight = 0;
-        data->mlFlag.ELeft = 0;
+        data->status.filter   = 0; //IIR Lo
 
-        data->status.open  = 0;
+        for (i = 0; i < 14; i++) {
+            int* flag = (int*)&data->flag;
+            *(flag + i) = 0;
+        }
+        for (i = 0; i < 11; i++) {
+            int* flag = (int*)&data->mlFlag;
+            *(flag + i) = 0;
+        }
+        data->status.open = 0;
 
     } else if (data->status.selNum == 3) { //************************************:
-         for (i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             free(data->draw1[i].x);
             data->draw1[i].x = NULL;
             free(data->draw1[i].y);
@@ -501,8 +489,9 @@ int delVar(VApp* data) {
         data->crossPoint.x = NULL;
         free(data->crossPoint.y);
         data->crossPoint.y = NULL;
-        free(data->crossPoint.pos); data->crossPoint.pos = NULL;
-       
+        free(data->crossPoint.pos);
+        data->crossPoint.pos = NULL;
+
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
         free(data->dataBuf.write);
@@ -514,31 +503,27 @@ int delVar(VApp* data) {
         data->dataBuf.sound = NULL;
         free(data->dataBuf.row);
         data->dataBuf.row = NULL;
+        free(data->dataBuf.tmp);
+        data->dataBuf.tmp = NULL;
 
         free(data->drawstatus1.x);
         data->drawstatus1.x = NULL;
         free(data->drawstatus1.y);
         data->drawstatus1.y = NULL;
 
-        data->status.selNum = 0;
-        data->flag.soundFile = 0;
-        data->flag.soundMic = 0;
-        data->flag.pause = 0;
-        data->flag.drawArea1 = 0;
-        data->flag.drawArea2 = 0;
-        data->flag.drawResize = 0;
-        data->flag.nextWave = 0;
-        data->flag.prevWave = 0;
-        data->flag.selPos = 0;
-        data->mlFlag.on = 0;
-        data->mlFlag.enter0 = 0;
-        data->mlFlag.enter1 = 0;
-        data->mlFlag.SRight = 0;
-        data->mlFlag.SLeft = 0;
-        data->mlFlag.ERight = 0;
-        data->mlFlag.ELeft = 0;
+        data->status.selNum  = 0;
+        data->status.filter  = 0; //IIR Lo
 
-        data->status.open  = 0;
+        for (i = 0; i < 14; i++) {
+            int* flag = (int*)&data->flag;
+            *(flag + i) = 0;
+        }
+        for (i = 0; i < 11; i++) {
+            int* flag = (int*)&data->mlFlag;
+            *(flag + i) = 0;
+        }
+       
+        data->status.open = 0;
 
     } else {
         printf("Error in delVar");
