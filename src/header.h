@@ -20,8 +20,8 @@
 #define SOUNDPERIODSIZE 2048
 #define SOUNDFRAMES     SOUNDBUFFERSIZE
 
-#define NUM_MLDATA      8
-#define NUM_DATA_X       12
+#define NUM_MLDATA      300        //Number of samples
+#define NUM_DATA_X      128         //Number of data point per sample
 
 #define M_APP_TYPE (M_app_get_type ())
 G_DECLARE_FINAL_TYPE (MApp, M_app, M, APP, GtkApplication)

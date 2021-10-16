@@ -61,7 +61,8 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
     GOutputStream* outStrm;
     GIOStream* iostream;
 
-    char csvData[NUM_MLDATA * NUM_DATA_X * 9] = {0};
+    char csvDataX[NUM_MLDATA * NUM_DATA_X * 9] = {0};
+    char csvDataT[NUM_MLDATA * NUM_DATA_X * 9] = {0};
     int csvCount = 0;
 
     da->status.ref++;
@@ -157,8 +158,7 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
         // ML data get *********
 
-        da->crossPoint.Width =
-            getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->settings.frames);
+        da->crossPoint.Width = getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->settings.frames);
         if (da->crossPoint.Width <= 0) {
             // printf("Error getCross\n");
             da->crossPoint.Width = 0;
@@ -246,34 +246,34 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
                 if (nextpoint) {
                     nextpoint = 0;
-                    
+
                     if (da->selPointE.x - da->selPointS.x > row) {
                         // Calcurate Diff
                         diff = (double)(da->selPointE.x - da->selPointS.x) / (double)row;
-                       
-                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointS.x);
+                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointE.x) -
+                                            *(da->dataBuf.sound + startFrames + da->selPointS.x);
                         *(da->draw2[1].y + (row - 1)) =
-                            *(da->dataBuf.sound + startFrames + da->selPointS.x + 1);
+                            *(da->dataBuf.sound + startFrames + da->selPointE.x + (da->selPointE.x - da->selPointS.x)) -
+                            *(da->dataBuf.sound + startFrames + da->selPointE.x);
 
                         for (i = 1; i < (row - 1); i++) {
                             n = (int)((double)i * diff);
                             ratio = (double)i * diff - (double)n;
-                            
-                            *(da->draw2[1].y + i) =
-                                (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
-                                 (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
-                                  *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
-                                     ratio) -
-                                (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
-                                 (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
-                                  *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
-                                     ratio);
+
+                            *(da->draw2[1].y + i) = (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
+                                                     (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
+                                                      *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
+                                                         ratio) -
+                                                    (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
+                                                     (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
+                                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
+                                                         ratio);
                         }
 
                         // Diff data write
 
-                        memcpy(da->sData[writeCount].xData, da->draw2[1].y, (row - 1) * sizeof(double));
-                        da->sData[writeCount].xData[(row - 1)] = (double)(da->selPointE.x - da->selPointS.x);
+                        memcpy(da->sData[writeCount].xData, da->draw2[1].y, row * sizeof(double));
+
                         da->sData[writeCount].yData = 0.0;
 
                         if (writeCount < NUM_MLDATA - 1) {
@@ -282,10 +282,6 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                             printf("ML Data full\n");
                             strcat(da->statusBuf, "ML Data full");
                             g_idle_add(statusprint, data);
-                            for (i = 0; i < 8; i++) {
-                                printf("%f>>%f>>%f\n", da->sData[7].xData[i], *(da->draw2[1].y + i),
-                                       da->sData[i].yData);
-                            }
                         }
                         sprintf(da->statusBuf, "ML Data %d -> 0 # next %d", writeCount - 1, writeCount);
                         g_idle_add(statusprint, data);
@@ -309,33 +305,31 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                 da->mlFlag.enter1 = 0;
                 if (nextpoint) {
                     nextpoint = 0;
-                    
+
                     if (da->selPointE.x - da->selPointS.x > row) {
                         diff = (double)(da->selPointE.x - da->selPointS.x) / (double)(row);
                         *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointE.x) -
                                             *(da->dataBuf.sound + startFrames + da->selPointS.x);
                         *(da->draw2[1].y + (row - 1)) =
-                            *(da->dataBuf.sound + startFrames + da->selPointE.x +
-                              (da->selPointE.x - da->selPointS.x)) -
+                            *(da->dataBuf.sound + startFrames + da->selPointE.x + (da->selPointE.x - da->selPointS.x)) -
                             *(da->dataBuf.sound + startFrames + da->selPointE.x);
 
                         for (i = 1; i < (row - 1); i++) {
                             n = (int)((double)i * diff);
                             ratio = (double)i * diff - (double)n;
-                            *(da->draw2[1].y + i) =
-                                (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
-                                 (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
-                                  *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
-                                     ratio) -
-                                (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
-                                 (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
-                                  *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
-                                     ratio);
+                            *(da->draw2[1].y + i) = (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
+                                                     (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
+                                                      *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
+                                                         ratio) -
+                                                    (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
+                                                     (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
+                                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
+                                                         ratio);
                         }
                         // Diff data write *****************
 
                         memcpy(da->sData[writeCount].xData, da->draw2[1].y, (row - 1) * sizeof(double));
-                        da->sData[writeCount].xData[(row - 1)] = (double)(da->selPointE.x - da->selPointS.x);
+
                         da->sData[writeCount].yData = 1.0;
 
                         if (writeCount < NUM_MLDATA - 1) {
@@ -344,12 +338,6 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                             printf("ML Data full\n");
                             strcat(da->statusBuf, "ML Data full");
                             g_idle_add(statusprint, data);
-                            for (i = 0; i < 12; i++) {
-                                printf("%f>>%f>>%f>>%f*******%d\n", da->sData[7].xData[i], *(da->draw2[1].y + i),
-                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + (int)((double)i * diff)),
-                                     *(da->dataBuf.sound + startFrames + da->selPointE.x + (int)((double)i * diff)),
-                                     (int)((double)i * diff) );
-                            }
                         }
                         sprintf(da->statusBuf, "ML Data %d -> 1 # next %d ", writeCount - 1, writeCount);
                         g_idle_add(statusprint, data);
@@ -413,25 +401,26 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                     // Write csv text
                     for (k = 0; k < NUM_MLDATA; k++) {
                         for (i = 0; i < NUM_DATA_X; i++) {
-                            sprintf(csvData + (k * NUM_DATA_X * 9) + i * 9, "%.1f", da->sData[k].xData[i]);
-
-                            *(csvData + (k * NUM_DATA_X * 9) + i * 9 + 8) = 0x2c;
+                            sprintf(csvDataX + (k * NUM_DATA_X * 9) + i * 9, "%.1f", da->sData[k].xData[i]);
+                            *(csvDataX + (k * NUM_DATA_X * 9) + i * 9 + 8) = 0x2c;
                         }
-                        *(csvData + (k * NUM_DATA_X * 9) + (NUM_DATA_X - 1) * 9 + 8) = 0x0a;
+                        sprintf(csvDataT + k * 4, "%f", da->sData[k].yData);
+                        *(csvDataT + k * 4 + 3) = 0x0a;
+                        *(csvDataX + (k * NUM_DATA_X * 9) + (NUM_DATA_X - 1) * 9 + 8) = 0x0a;
                     }
-                    
+
                     for (k = 0; k < NUM_DATA_X * NUM_MLDATA; k++) {
                         for (i = 0; i < 8; i++) {
-                            if (*(csvData + k * 9 + i) < 0x2d || *(csvData + k * 9 + i) > 0x39) {
-                                *(csvData + k * 9 + i) = 0x30;
+                            if (*(csvDataX + k * 9 + i) < 0x2d || *(csvDataX + k * 9 + i) > 0x39) {
+                                *(csvDataX + k * 9 + i) = 0x30;
                             }
                         }
                     }
-
-                    if (da->settings.writefile == NULL) {
+                    // Select files to write data
+                    if (da->settings.writefileX == NULL) {
                         g_idle_add(getWritefile, data);
                         i = 0;
-                        while (da->settings.writefile == NULL) {
+                        while (da->settings.writefileT == NULL) {
                             sleep(1);
                             i++;
                             if (i > 100)
@@ -441,14 +430,15 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                         }
                     }
 
-                    if (da->settings.writefile) {
+                    if (da->settings.writefileX) {
                         strcat(da->statusBuf, "Data write to ");
-                        strcat(da->statusBuf, da->settings.writefilename);
+                        strcat(da->statusBuf, da->settings.writefileXname);
                         g_idle_add(statusprint, data);
 
-                        outStream = g_file_open_readwrite(da->settings.writefile, NULL, &fileErr);
+                        // Write X Data
+                        outStream = g_file_open_readwrite(da->settings.writefileX, NULL, &fileErr);
                         if (fileErr != NULL) {
-                            sprintf(da->statusBuf, "Could not open %s for writing: %s \n", gSet.readfilename,
+                            sprintf(da->statusBuf, "Can't open %s for writing X: %s \n", gSet.readfilename,
                                     fileErr->message);
                             g_idle_add(statusprint, data);
                         }
@@ -457,32 +447,70 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                         outStrm = g_io_stream_get_output_stream(iostream);
 
                         err = g_seekable_tell(G_SEEKABLE(iostream));
-                        printf("seek offset %d\n", err);
+                        printf("seek offset X %d\n", err);
                         err = g_seekable_seek(G_SEEKABLE(iostream), fileCount, G_SEEK_SET, NULL, &fileErr);
                         if (fileErr != NULL) {
-                            printf("Error in mlData -> seek\n");
+                            printf("Error in mlData -> X seek\n");
                         }
 
-                        writeSize = g_output_stream_write(G_OUTPUT_STREAM(outStrm), csvData,
+                        writeSize = g_output_stream_write(G_OUTPUT_STREAM(outStrm), csvDataX,
                                                           NUM_DATA_X * NUM_MLDATA * 9, NULL, &fileErr);
+
                         if (fileErr != NULL) {
-                            printf("Error in mlData -> %s ->> writesize %d\n", fileErr->message, writeSize);
+                            printf("Error in mlDataX -> %s ->> writesize %d\n", fileErr->message, writeSize);
                         } else if (writeSize != NUM_DATA_X * NUM_MLDATA * 9) {
-                            printf("Error in mlData -> writesize %d buffsize %d\n", writeSize,
-                                   NUM_DATA_X * NUM_MLDATA * 11);
+                            printf("Error in mlDataX -> writesize %d buffsize %d\n", writeSize,
+                                   NUM_DATA_X * NUM_MLDATA * 9);
                         }
                         fileCount += writeSize;
                         err = g_seekable_tell(G_SEEKABLE(iostream));
-                        printf("seek offset %d\n", err);
+                        printf("seek offset X %d\n", err);
 
                         g_io_stream_close(iostream, NULL, &fileErr);
                         if (fileErr != NULL) {
-                            printf("Error in mlData ->%s \n", fileErr->message);
+                            printf("Error in mlDataX ->%s \n", fileErr->message);
                         } else if (err == FALSE) {
-                            printf("Error in mlData -> outputstream close\n");
+                            printf("Error in mlDataX -> outputstream close\n");
                         }
                         g_object_unref(outStream);
 
+                        // Write T Data
+                        fileCount = 0;
+                        outStream = g_file_open_readwrite(da->settings.writefileT, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            sprintf(da->statusBuf, "Can't open %s for writingT: %s \n", gSet.readfilename,
+                                    fileErr->message);
+                            g_idle_add(statusprint, data);
+                        }
+                        iostream = G_IO_STREAM(outStream);
+                        inStrm = g_io_stream_get_input_stream(iostream);
+                        outStrm = g_io_stream_get_output_stream(iostream);
+
+                        err = g_seekable_tell(G_SEEKABLE(iostream));
+                        printf("seek offset T %d\n", err);
+                        err = g_seekable_seek(G_SEEKABLE(iostream), fileCount, G_SEEK_SET, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlDataT-> seek\n");
+                        }
+
+                        writeSize =
+                            g_output_stream_write(G_OUTPUT_STREAM(outStrm), csvDataT, NUM_MLDATA * 4, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlDataT -> %s ->> writesize %d\n", fileErr->message, writeSize);
+                        } else if (writeSize != NUM_MLDATA * 4) {
+                            printf("Error in mlDataT -> writesize %d buffsize %d\n", writeSize, NUM_MLDATA * 4);
+                        }
+                        fileCount += writeSize;
+                        err = g_seekable_tell(G_SEEKABLE(iostream));
+                        printf("seek offset T %d\n", err);
+
+                        g_io_stream_close(iostream, NULL, &fileErr);
+                        if (fileErr != NULL) {
+                            printf("Error in mlDataT ->%s \n", fileErr->message);
+                        } else if (err == FALSE) {
+                            printf("Error in mlDataT -> outputstream close\n");
+                        }
+                        g_object_unref(outStream);
                     } else {
                         strcat(da->statusBuf, "File dose not exist");
                         g_idle_add(statusprint, data);

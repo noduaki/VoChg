@@ -129,7 +129,8 @@ static void M_app_window_init(MAppWindow* win) {
     g_signal_connect(vApp.priv->button20, "clicked", G_CALLBACK(b20), &vApp);
 
     // Scales*****************************
-    vApp.scale.slider1 = 200.0;
+    //Initial value
+    vApp.scale.slider1 = 1000.0;
     vApp.scale.slider2 = 1.0;
     vApp.scale.slider3 = 1.0;
     vApp.scale.slider4 = 1.0;
@@ -145,7 +146,8 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.scale.slider14 = 0.0;
     vApp.scale.slider15 = 0.0;
 
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 200.0);
+    //Slider set value
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 1000.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale4), 1.0);

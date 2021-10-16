@@ -176,9 +176,11 @@ typedef struct _mSetting {
     int frames;
     char deviceName[256];
     char readfilename[256];
-    char writefilename[256];
+    char writefileXname[256];
+    char writefileTname[256];
     GFile* readfile;
-    GFile* writefile;
+    GFile* writefileX;
+    GFile* writefileT;
     
 } mSettings;
 
