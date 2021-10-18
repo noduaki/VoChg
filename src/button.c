@@ -91,6 +91,56 @@ void selButton3(GtkWidget* widget, gpointer data) {
     }
 }
 
+void selButton4(GtkWidget* widget, gpointer data) {
+    VApp* da = (VApp*)data;
+    printf("SelButton4\n");
+    getWeight(widget, data);
+}
+
+void selButton5(GtkWidget* widget, gpointer data) {
+    VApp* da = (VApp*)data;
+    GtkWidget* dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    int res = 0;
+
+    if(da->W[0].weight == NULL){
+        printf("Error in mlTest -> Weight was not found\n");
+        strcpy(da->statusBuf, "Weight and bias was not found");
+        statusprint(data);
+        return;
+    }
+    if (!da->status.open) {
+        da->status.selNum = 5;
+        da->status.open = 1;
+        da->flag.soundFile = 1;
+
+        dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"),
+                                             GTK_RESPONSE_ACCEPT, NULL);
+        res = gtk_dialog_run(GTK_DIALOG(dialog));
+        if (res == GTK_RESPONSE_ACCEPT) {
+            gchar* filename;
+
+            filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+            snprintf(gSet.readfilename, 255, "%s", filename);
+            gSet.readfile = g_file_new_for_path(filename);
+
+            g_free(filename);
+            mlTestThread(widget, data);
+
+        } else {
+            da->flag.soundFile = 0;
+            da->status.open = 0;
+            da->status.selNum = 0;
+            printf("File cancel\n");
+        }
+
+        gtk_widget_destroy(dialog);
+    } else {
+        strcpy(da->statusBuf, "Please push stop button Button");
+        statusprint(data);
+    }
+}
+
 void stpButton(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
     da->status.open = 0;

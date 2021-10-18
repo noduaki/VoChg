@@ -10,6 +10,10 @@ int wavCheck(gpointer tmp) {
     int i = 0;
 
     while (ok) {
+        if(da->dataBuf.readSize < 44){
+            ok = 0;
+            break;
+        }
         if (data[i] == 0x52 && data[i + 1] == 0x49 && data[i + 2] == 0x46 && data[i + 3] == 0x46)
             break; // seek "RIFF"
         else {
@@ -122,6 +126,30 @@ gboolean getWritefile(gpointer data) {
         if (da->flag.writeFile == 1) {
             da->flag.writeFile = 0;
         }
+    }
+    gtk_widget_destroy(dialog);
+
+    return FALSE;
+}
+
+gboolean getFilePath(GFile* file, char* name) {
+   
+    GtkWidget* dialog;
+    GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+    int res = 0;
+    dialog = gtk_file_chooser_dialog_new("Open File", NULL, action, ("_Cancel"), GTK_RESPONSE_CANCEL, ("_Open"),
+                                         GTK_RESPONSE_ACCEPT, NULL);
+    res = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (res == GTK_RESPONSE_ACCEPT) {
+        gchar* filename;
+
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        snprintf(name, 255, "%s", filename);
+        file = g_file_new_for_path(filename);
+
+        g_free(filename);
+    } else {
+       file = NULL;
     }
     gtk_widget_destroy(dialog);
 

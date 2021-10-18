@@ -7,6 +7,7 @@
 #include <gio/gio.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h> 
 #include <math.h>
 #include <fftw3.h>
 #include <time.h>
@@ -45,6 +46,7 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "soundProcess.h"
 #include "utility.h"
 #include "mlDataProcess.h"
+#include "MLTest.h"
 
 
 

@@ -16,6 +16,8 @@ typedef struct _MAppWindowPrivate {
     GtkWidget* selectButton1;
     GtkWidget* selectButton2;
     GtkWidget* selectButton3;
+    GtkWidget* selectButton4;
+    GtkWidget* selectButton5;
     GtkWidget* stopButton;
     GtkWidget* selLowerButton1;
     GtkWidget* selLowerButton2;
@@ -121,14 +123,14 @@ typedef struct _mFlag {
     int drawReSlider;
     int selPos;
 
-    //Button control flags
+    // Button control flags
     int deviceflag;
     int octaveHi;
-    int octaveLo; 
+    int octaveLo;
     int pause;
     int nextWave;
     int prevWave;
-    int writeFile; //14th
+    int writeFile; // 14th
 
 } mFlag;
 
@@ -181,7 +183,7 @@ typedef struct _mSetting {
     GFile* readfile;
     GFile* writefileX;
     GFile* writefileT;
-    
+
 } mSettings;
 
 typedef struct _mDraw {
@@ -208,6 +210,13 @@ typedef struct _mlData {
     double yData;
 } mlData;
 
+typedef struct _weight {
+    double* weight;
+    double* bias;
+} weights;
+
+
+
 typedef struct _VApp {
     MAppWindowPrivate* priv;
     mStatus status;
@@ -222,7 +231,7 @@ typedef struct _VApp {
     mDraw draw1[5];
     mDraw draw2[5];
     mDraw crossPoint;
-    
+
     double entry1;
 
     mAsyncData soundRead;
@@ -237,6 +246,7 @@ typedef struct _VApp {
     double* fftCepstrum;
 
     mlData* sData;
+    weights W[10]; //Init. to NULL in MAppWinInit()
     mInt clickPos;
     mInt selPointS;
     mInt selPointE;
@@ -246,8 +256,10 @@ typedef struct _VApp {
     int drawEndPos;
 } VApp;
 
+void getWeight(GtkWidget* window, gpointer data);
 void soundThread(GtkWidget* window, gpointer data);
 void mlDataThread(GtkWidget* window, gpointer data);
+void mlTestThread(GtkWidget* window, gpointer data);
 void SB3Thread(GtkWidget* window, gpointer data);
 MAppWindow* M_app_window_new(MApp* app);
 void M_app_text_open(MAppWindow* win, GFile* file);

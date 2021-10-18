@@ -5,23 +5,23 @@ struct _MAppWindow {
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(MAppWindow, M_app_window, GTK_TYPE_APPLICATION_WINDOW);
+// Non Thread func. ************************************************************************
 
 // Thread launcher *************************************************************************
 
 void soundThread(GtkWidget* window, gpointer data) {
     VApp* da = (VApp*)data;
     GTask* soundTask;
-    int error = 0;
+    int err = 0;
 
     if ((da->status.selNum == 1 || da->status.selNum == 2) && da->status.open == 1) {
-        error = initVar(da);
-        if (error) {
+        err = initVar(da);
+        if (err) {
             delVar(da);
             printf("Error in soundThread() -> malloc\n");
             strcat(da->statusBuf, " Error");
             statusprint(data);
-            goto err;
-            // exit(1);
+            return;
         }
 
         da->status.ref++;
@@ -30,49 +30,73 @@ void soundThread(GtkWidget* window, gpointer data) {
         g_task_run_in_thread(soundTask, initSound);
 
     } else {
-        printf("soundThread() selNum error status.open = %d, selnum = %d \n", da->status.open, da->status.selNum);
+        printf("soundThread() selNum err status.open = %d, selnum = %d \n", da->status.open, da->status.selNum);
         strcat(da->statusBuf, "Please One more time");
         statusprint(data);
-        error = 1;
-        goto err;
+        return;
     }
-err:
-    if(error)printf("Error soundthread()\n");
 }
 
 void mlDataThread(GtkWidget* window, gpointer data) {
     VApp* da = (VApp*)data;
     GTask* mlDataTask;
-    int error = 0;
+    int err = 0;
 
     if (da->status.selNum == 3 && da->status.open == 1) {
-        error = initVar(da);
-        if (error) {
+        err = initVar(da);
+        if (err) {
             delVar(da);
             printf("Error in mlDataThread() -> malloc");
             strcat(da->statusBuf, "Error");
             statusprint(data);
-            goto err;
-            // exit(1);
+            return;
         }
+
+        da->status.ref++;
         mlDataTask = g_task_new(NULL, NULL, NULL, NULL);
         g_task_set_task_data(mlDataTask, data, NULL);
         g_task_run_in_thread(mlDataTask, mlDataProcess);
 
     } else {
-        printf("mlDataThread() selNum error\n");
+        printf("mlDataThread() selNum err\n");
         strcat(da->statusBuf, "Please One more time");
         statusprint(data);
-        error = 1;
-        goto err;
+        return;
     }
-err:
-    if(error)printf("Error mlDatathread()\n");
+}
+
+void mlTestThread(GtkWidget* window, gpointer data){
+    VApp* da = (VApp*)data;
+    GTask* mlTestTask;
+    int err = 0;
+
+    
+
+    if (da->status.selNum == 5 && da->status.open == 1) {
+        err = initVar(da);
+        if (err) {
+            delVar(da);
+            printf("Error in mlTest() -> malloc");
+            strcat(da->statusBuf, "Error");
+            statusprint(data);
+            return;
+        }
+        da->status.ref++;
+        mlTestTask = g_task_new(NULL, NULL, NULL, NULL);
+        g_task_set_task_data(mlTestTask, data, NULL);
+        g_task_run_in_thread(mlTestTask, mlTest);
+    } else {
+        printf("mlTest() selNum err\n");
+        strcat(da->statusBuf, "Please One more time");
+        statusprint(data);
+        return;
+    }
 }
 
 // Init Windows *******************************************************************
 
 static void M_app_window_init(MAppWindow* win) {
+    int i;
     static VApp vApp;
 
     guint statusBar;
@@ -91,6 +115,11 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.flag.drawResize = 0;
     vApp.flag.pause = 0;
 
+    for (i = 0; i < 10; i++) {
+        vApp.W[i].weight = NULL;
+        vApp.W[i].bias = NULL;
+    }
+
     vApp.statusBuf = (char*)malloc(200);
     *(vApp.statusBuf) = '\0';
     if (vApp.statusBuf == NULL) exit(1);
@@ -100,10 +129,20 @@ static void M_app_window_init(MAppWindow* win) {
     statusBar = gtk_statusbar_get_context_id(GTK_STATUSBAR(vApp.priv->entrytext), "settings");
     gtk_statusbar_push(GTK_STATUSBAR(vApp.priv->entrytext), 1, "Start");
 
+    // How to add widget
+    // Go to window.ui -> write widget xml with id-name then go to Terminal
+    // Command "glib-compile-resources MLData.gresource.xml --target=resources.c --generate-source"
+    // Go to MAppwin.h -> add widget id-name at struct->MAppWindowPrivate
+    // Add widget id-name in M_app_window_class_init() it's next next func.
+    // Add signal_connect in below
+    // Write callback func.
+
     // Buttons**************************
     g_signal_connect(vApp.priv->selectButton1, "clicked", G_CALLBACK(selButton1), &vApp);
     g_signal_connect(vApp.priv->selectButton2, "clicked", G_CALLBACK(selButton2), &vApp);
     g_signal_connect(vApp.priv->selectButton3, "clicked", G_CALLBACK(selButton3), &vApp);
+    g_signal_connect(vApp.priv->selectButton4, "clicked", G_CALLBACK(selButton4), &vApp);
+    g_signal_connect(vApp.priv->selectButton5, "clicked", G_CALLBACK(selButton5), &vApp);
     g_signal_connect(vApp.priv->stopButton, "clicked", G_CALLBACK(stpButton), &vApp);
     g_signal_connect(vApp.priv->selLowerButton1, "clicked", G_CALLBACK(sLowerButton1), &vApp);
     g_signal_connect(vApp.priv->selLowerButton2, "clicked", G_CALLBACK(sLowerButton2), &vApp);
@@ -129,7 +168,7 @@ static void M_app_window_init(MAppWindow* win) {
     g_signal_connect(vApp.priv->button20, "clicked", G_CALLBACK(b20), &vApp);
 
     // Scales*****************************
-    //Initial value
+    // Initial value
     vApp.scale.slider1 = 1000.0;
     vApp.scale.slider2 = 1.0;
     vApp.scale.slider3 = 1.0;
@@ -146,7 +185,7 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.scale.slider14 = 0.0;
     vApp.scale.slider15 = 0.0;
 
-    //Slider set value
+    // Slider set value
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale1), 1000.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 1.0);
@@ -237,6 +276,8 @@ static void M_app_window_class_init(MAppWindowClass* class) {
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton1);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton2);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton3);
+    gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton4);
+    gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton5);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, stopButton);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selLowerButton1);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selLowerButton2);

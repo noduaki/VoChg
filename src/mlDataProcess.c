@@ -65,7 +65,7 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
     char csvDataT[NUM_MLDATA * NUM_DATA_X * 9] = {0};
     int csvCount = 0;
 
-    da->status.ref++;
+    
 
     while (da->status.open) {
         if (da->flag.nextWave || da->flag.prevWave) {
