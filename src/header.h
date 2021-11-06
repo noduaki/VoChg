@@ -24,6 +24,11 @@
 #define NUM_MLDATA      300        //Number of samples
 #define NUM_DATA_X      128         //Number of data point per sample
 
+#define NEURONS_1    12
+#define NEURONS_2    20
+#define NEURONS_3    20
+#define NUM_LAYER    3
+
 #define M_APP_TYPE (M_app_get_type ())
 G_DECLARE_FINAL_TYPE (MApp, M_app, M, APP, GtkApplication)
 

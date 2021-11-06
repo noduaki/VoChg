@@ -1,6 +1,6 @@
 #ifndef __DRAWAREA__H
 #define __DRAWAREA__H
-#include "header.h"
+//#include "header.h"
 
 gboolean configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 gboolean draw_cb(GtkWidget *widget, cairo_t *cr, gpointer data);

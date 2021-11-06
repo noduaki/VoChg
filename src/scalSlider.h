@@ -1,6 +1,6 @@
 #ifndef __SCALESLIDER__H
 #define __SCALESLIDER__H
-#include "header.h"
+//#include "header.h"
 
 void fscale1(GtkWidget* widget, gpointer data);
 void fscale2(GtkWidget* widget, gpointer data);

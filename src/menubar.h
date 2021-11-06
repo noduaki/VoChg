@@ -1,6 +1,6 @@
 #ifndef __MENUBAR__H
 #define __MENUBAR__H
-#include "header.h"
+//#include "header.h"
 
 MAppPrefs * M_app_prefs_new(MAppWindow * win);
 

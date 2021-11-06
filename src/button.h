@@ -1,7 +1,7 @@
 #ifndef __BUTTON__H
 #define __BUTTON__H
 
-#include "header.h"
+//#include "header.h"
 void selButton1(GtkWidget *widget, gpointer data);
 void selButton2(GtkWidget *widget, gpointer data);
 void selButton3(GtkWidget *widget, gpointer data);

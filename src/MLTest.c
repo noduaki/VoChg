@@ -76,20 +76,20 @@ void getWeight(GtkWidget* window, gpointer data) {
         return;
     }
 
-    // k is num of w and b
+    // k is num of w and b It's k-layers nn network
     // num[k] is size of each w or b
 
     k = 0;
     weightSize = 0;
     tmp = 0;
     for (i = 0; i < total_size; i++) {
-        if (*(read + i) == 0x2c || *(read + i) == 0x0d) weightSize++;
-        if (*(read + i) == 0x0a) {
+        if (*(read + i) == 0x2c || *(read + i) == 0x0d) weightSize++; //0x2c = ',' 0x0d = CR
+        if (*(read + i) == 0x0a) {                                    //0x0a = LF
             num[k] = weightSize;
             charSize[k] = i;
             k++;
-            if (k > 10) {
-                printf("Error in getWeight -> too much Weights\n");
+            if (k > NUM_LAYER * 2) {
+                printf("Error in getWeight -> too much Weights-%d\n", k);
                 strcat(da->statusBuf, " Error-> too much Weights");
                 statusprint(data);
                 return;
@@ -153,6 +153,8 @@ void getWeight(GtkWidget* window, gpointer data) {
     }
 
     free(read);
+
+  
 }
 
 static int getCross(double* sound, int* pos, int n) {
