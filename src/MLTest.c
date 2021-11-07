@@ -83,8 +83,8 @@ void getWeight(GtkWidget* window, gpointer data) {
     weightSize = 0;
     tmp = 0;
     for (i = 0; i < total_size; i++) {
-        if (*(read + i) == 0x2c || *(read + i) == 0x0d) weightSize++; //0x2c = ',' 0x0d = CR
-        if (*(read + i) == 0x0a) {                                    //0x0a = LF
+        if (*(read + i) == 0x2c || *(read + i) == 0x0d) weightSize++; // 0x2c = ',' 0x0d = CR
+        if (*(read + i) == 0x0a) {                                    // 0x0a = LF
             num[k] = weightSize;
             charSize[k] = i;
             k++;
@@ -153,8 +153,6 @@ void getWeight(GtkWidget* window, gpointer data) {
     }
 
     free(read);
-
-  
 }
 
 static int getCross(double* sound, int* pos, int n) {
@@ -173,26 +171,36 @@ static int getCross(double* sound, int* pos, int n) {
 void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* cancellable) {
     VApp* da = (VApp*)data;
     int i;
+    int k;
+    int n;
+    int posCount = 0;
+    int err;
+    int judge = 0;
 
     struct timespec req = {0, 200000000}; // 0.2 second
 
     int bufferCount = 0;
     int startFrames = da->settings.frames / 2;
 
-    //DrawArea -> Select line for drawing 
-    da->draw1[0].on = 1; 
+    // DrawArea -> Select line for drawing
+    da->draw1[0].on = 1;
     da->draw2[0].on = 1;
-    da->crossPoint.on = 1;  
+    da->crossPoint.on = 1;
+    da->selCross.on = 1;
 
     double in1 = 0.0;
     double in2 = 0.0;
     double out1 = 0.0;
     double out2 = 0.0;
 
+    double* diffWave = (double*)malloc(NUM_DATA_X * sizeof(double));
+    double* diffTmp1 = (double*)malloc(NUM_DATA_X * NEURONS_1 * sizeof(double));
+    double* diffTmp2 = (double*)malloc(NUM_DATA_X * NEURONS_1 * sizeof(double));
+
     while (da->status.open) {
 
         if (da->flag.nextWave || da->flag.prevWave) {
-            
+
             if (da->flag.nextWave) {
                 da->flag.nextWave = 0;
 
@@ -279,30 +287,72 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
         memcpy(da->draw1[0].y, da->dataBuf.sound + startFrames, da->settings.frames * sizeof(double));
         memcpy(da->draw2[0].y, da->dataBuf.sound + startFrames, da->settings.frames * sizeof(double));
 
-        // Data is divided into each cycle *******************************************************************************
+        // Data is divided into each cycle
+        // *******************************************************************************
 
         da->crossPoint.Width = getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->settings.frames);
         if (da->crossPoint.Width <= 0) {
             // printf("Error getCross\n");
             da->crossPoint.Width = 0;
         }
-
-
-
-
-
+        if (da->crossPoint.Width > 5) {
+            posCount = 0;
+            k = 0;
+            i = 0;
+            n = 0;
+            while (k < da->crossPoint.Width) {
+                for (i = 0; (i + k) < da->crossPoint.Width; i++) {
+                    if (*(da->crossPoint.pos + k + i) - *(da->crossPoint.pos + k) > 500){
+                        break;
+                    }
+                } 
+                if(i < da->crossPoint.Width){
+                    for (n = i; n >= 1; n--) {
+                        if(*(da->crossPoint.pos + k + n) - *(da->crossPoint.pos + k) < NUM_DATA_X){
+                             k++;
+                             break;
+                        }
+                        err = waveDiff(*(da->crossPoint.pos + k), *(da->crossPoint.pos + k + n),
+                                        da->dataBuf.sound + startFrames, diffWave);
+                        if (err < 0) printf("Error in diff calcuration -> diff\n");
+                        judge = judgeWave(da->W, diffWave, diffTmp1, diffTmp2);
+                        if (judge == 1) {
+                            *(da->selCross.pos + posCount) = *(da->crossPoint.pos + k);
+                            posCount++;
+                            *(da->selCross.pos + posCount) = *(da->crossPoint.pos + k + n);
+                            posCount++;
+                            k += n;
+                            break;
+                        } else if (judge < 0){
+                            printf("Error in diff calcuration -> judge = %d\n", judge);
+                            k++;
+                            break;
+                        }
+                    }
+                }else k++;
+                
+               
+            }
+        }
+        da->selCross.Width = posCount;
         //****************************************************************************************************************
-        da->flag.drawArea1 = 1; // write 0 in drawArea()
+        da->flag.drawArea1 = 1; // write to 0 in drawArea()
         g_idle_add(update_drawArea3, da);
-        da->flag.drawArea2 = 1; // write 0 in drawArea()
+        da->flag.drawArea2 = 1; // write to 0 in drawArea()
         g_idle_add(update_drawArea4, da);
 
         nanosleep(&req, NULL);
     }
 
     // Closing Thread ********************
-    
-    if (da->flag.drawArea2) sleep(1); //waiting DrawArea is done
+    free(diffWave);
+    diffWave = NULL;
+    free(diffTmp1);
+    diffTmp1 = NULL;
+    free(diffTmp2);
+    diffTmp2 = NULL;
+
+    if (da->flag.drawArea2) sleep(1); // waiting DrawArea is done
 
     i = 0;
     while (da->status.ref > 1) {

@@ -231,6 +231,7 @@ typedef struct _VApp {
     mDraw draw1[5];
     mDraw draw2[5];
     mDraw crossPoint;
+    mDraw selCross;
 
     double entry1;
 
@@ -254,6 +255,7 @@ typedef struct _VApp {
     mlAuto mlFlag;
     int drawStartPos;
     int drawEndPos;
+    int tmpInt;
 } VApp;
 
 void getWeight(GtkWidget* window, gpointer data);

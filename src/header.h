@@ -24,9 +24,9 @@
 #define NUM_MLDATA      300        //Number of samples
 #define NUM_DATA_X      128         //Number of data point per sample
 
-#define NEURONS_1    12
+#define NEURONS_1    128
 #define NEURONS_2    20
-#define NEURONS_3    20
+#define NEURONS_3    2
 #define NUM_LAYER    3
 
 #define M_APP_TYPE (M_app_get_type ())
@@ -52,6 +52,7 @@ G_DECLARE_FINAL_TYPE (MAppPrefs, M_app_prefs, M, APP_PREFS, GtkDialog)
 #include "utility.h"
 #include "mlDataProcess.h"
 #include "MLTest.h"
+#include "nnetwork.h"
 
 
 

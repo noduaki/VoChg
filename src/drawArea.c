@@ -14,8 +14,6 @@ static void clear_surface(int i) {
     }
     cairo_paint(cr);
     cairo_destroy(cr);
-
-   
 }
 
 gboolean configure_event_cb(GtkWidget* widget, GdkEventConfigure* event, gpointer data) {
@@ -635,28 +633,28 @@ gboolean update_drawArea3(gpointer data) {
             cairo_fill(cr);
         }
     }
-    //Previous select start point 
+    // Previous select start point
     if (da->selPointS.y > 0) {
         cairo_set_source_rgba(cr, 0.035933, 0.980000, 0.276702, 1.0);
         t = (double)(da->selPointS.y - startPos) * width / (double)da->settings.frames;
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
-    //Start point
+    // Start point
     if (da->selPointS.x > 0) {
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
         t = (double)(da->selPointS.x - startPos) * width / (double)(da->settings.frames);
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 5.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
-    //End point
+    // End point
     if (da->selPointE.x > 0) {
         cairo_set_source_rgba(cr, 0.0, 0.8, 0.3, 1.0);
         t = (double)(da->selPointE.x - startPos) * width / (double)(da->settings.frames);
         cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 5.0, 0.0, 6.28318);
         cairo_fill(cr);
     }
-    //Next points
+    // Next points
     if (da->nextPoint.x > 0) {
         cairo_set_source_rgba(cr, 0.0, 0.1, 0.1, 1.0);
         t = (double)(da->nextPoint.x - startPos) * width / (double)(da->settings.frames);
@@ -671,6 +669,17 @@ gboolean update_drawArea3(gpointer data) {
         cairo_line_to(cr, t, (double)(da->drawstatus1.Height / 2) + 3.0);
         cairo_stroke(cr);
     }
+//Tmp*****************************************
+//*******************************************
+    if (da->selCross.on) {
+        cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
+        for (i = 0; i < da->selCross.Width; i++) {
+            t = (double)(*(da->selCross.pos + i) - startPos) * width / (double)da->settings.frames;
+            cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
+            cairo_fill(cr);
+        }
+    }
+   
 
     da->flag.drawArea1 = 0; // DrawArea closing notification for end of thread sequence
     g_mutex_unlock(&mutex_drawArea1);

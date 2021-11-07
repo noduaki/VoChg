@@ -87,7 +87,7 @@ int initVar(VApp* data) {
                 if (data->dataBuf.read == NULL) {
                     data->dataBuf.read = (int16_t*)calloc(total_size, 1);
                     data->dataBuf.write = (int16_t*)calloc(total_size, 1);
-                   
+
                     if ((length = g_input_stream_read(G_INPUT_STREAM(inStream), data->dataBuf.read, total_size, NULL,
                                                       &fileErr)) != -1) {
                         data->dataBuf.readSize = length;
@@ -184,7 +184,7 @@ int initVar(VApp* data) {
             *(flag + i) = 0;
         }
         data->flag.drawResize = 1;
-        data->status.filter   = 0; //IIR Lo
+        data->status.filter = 0; // IIR Lo
 
         data->selPointS.x = 0;
         data->selPointE.x = 0;
@@ -219,9 +219,9 @@ int initVar(VApp* data) {
         gtk_button_set_label(GTK_BUTTON(data->priv->button20), "Pause");
 
     } else if (data->status.selNum == 3) {
-       
+
         // 333333**************
-        
+
         // DrawArea ***********
         data->settings = gSet;
         for (i = 0; i < 5; i++) {
@@ -286,7 +286,7 @@ int initVar(VApp* data) {
 
                     data->dataBuf.read = (int16_t*)calloc(total_size, 1);
                     data->dataBuf.write = (int16_t*)calloc(total_size, 1);
-                    
+
                     if ((length = g_input_stream_read(G_INPUT_STREAM(inStream), data->dataBuf.read, total_size, NULL,
                                                       &fileErr)) != -1) {
                         data->dataBuf.readSize = length;
@@ -331,7 +331,7 @@ int initVar(VApp* data) {
         if (data->dataBuf.tmp == NULL) error = 1;
 
         // ect **********
-        //0 clear flags
+        // 0 clear flags
         for (i = 0; i < 14; i++) {
             int* flag = (int*)&data->flag;
             *(flag + i) = 0;
@@ -341,8 +341,8 @@ int initVar(VApp* data) {
             *(flag + i) = 0;
         }
         data->flag.drawResize = 1;
-        data->status.filter   = 0; //IIR Lo
-        
+        data->status.filter = 0; // IIR Lo
+
         data->selPointS.x = 0;
         data->selPointE.x = 0;
         data->nextPoint.x = 0;
@@ -375,10 +375,10 @@ int initVar(VApp* data) {
         gtk_button_set_label(GTK_BUTTON(data->priv->button19), "Next");
         gtk_button_set_label(GTK_BUTTON(data->priv->button20), "Prev.");
 
-    }else if (data->status.selNum == 5) {
-       
+    } else if (data->status.selNum == 5) {
+
         // 55555555 **************
-        
+
         // DrawArea ***********
         data->settings = gSet;
         for (i = 0; i < 5; i++) {
@@ -418,6 +418,18 @@ int initVar(VApp* data) {
         data->crossPoint.log = 0;
         data->crossPoint.bar = 0;
 
+        data->selCross.x = (double*)malloc(data->settings.frames * sizeof(double));
+        if (data->selCross.x == NULL) error = 1;
+        data->selCross.y = (double*)malloc(data->settings.frames * sizeof(double));
+        if (data->selCross.y == NULL) error = 1;
+        data->selCross.pos = (int*)calloc(data->settings.frames * data->settings.channels, sizeof(int));
+        if (data->selCross.pos == NULL) error = 1;
+        data->selCross.Height = 0;
+        data->selCross.Width = 0;
+        data->selCross.on = 0;
+        data->selCross.log = 0;
+        data->selCross.bar = 0;
+
         // File read *********
 
         if (gSet.readfile != NULL) {
@@ -443,7 +455,7 @@ int initVar(VApp* data) {
 
                     data->dataBuf.read = (int16_t*)calloc(total_size, 1);
                     data->dataBuf.write = (int16_t*)calloc(total_size, 1);
-                    
+
                     if ((length = g_input_stream_read(G_INPUT_STREAM(inStream), data->dataBuf.read, total_size, NULL,
                                                       &fileErr)) != -1) {
                         data->dataBuf.readSize = length;
@@ -488,7 +500,7 @@ int initVar(VApp* data) {
         if (data->dataBuf.tmp == NULL) error = 1;
 
         // ect **********
-        //0 clear flags
+        // 0 clear flags
         for (i = 0; i < 14; i++) {
             int* flag = (int*)&data->flag;
             *(flag + i) = 0;
@@ -498,8 +510,8 @@ int initVar(VApp* data) {
             *(flag + i) = 0;
         }
         data->flag.drawResize = 1;
-        data->status.filter   = 0; //IIR Lo
-        
+        data->status.filter = 0; // IIR Lo
+
         data->selPointS.x = 0;
         data->selPointE.x = 0;
         data->nextPoint.x = 0;
@@ -542,6 +554,7 @@ int initVar(VApp* data) {
 int delVar(VApp* data) {
     int i;
     int error = 0;
+    int* flag = NULL;
 
     if (data->status.selNum == 1 || data->status.selNum == 2) {
 
@@ -558,6 +571,14 @@ int delVar(VApp* data) {
             data->draw2[i].y = NULL;
             free(data->draw2[i].pos);
             data->draw2[i].pos = NULL;
+
+            data->draw1[i].on = 0;
+            data->draw1[i].log = 0;
+            data->draw1[i].bar = 0;
+
+            data->draw2[i].on = 0;
+            data->draw2[i].log = 0;
+            data->draw2[i].bar = 0;
         }
         free(data->crossPoint.x);
         data->crossPoint.x = NULL;
@@ -566,15 +587,19 @@ int delVar(VApp* data) {
         free(data->crossPoint.pos);
         data->crossPoint.pos = NULL;
 
+        data->crossPoint.on = 0;
+        data->crossPoint.log = 0;
+        data->crossPoint.bar = 0;
+
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
         free(data->dataBuf.write);
         data->dataBuf.write = NULL;
         free(data->dataBuf.sound);
         data->dataBuf.sound = NULL;
-         free(data->dataBuf.row);
+        free(data->dataBuf.row);
         data->dataBuf.row = NULL;
-         free(data->dataBuf.tmp);
+        free(data->dataBuf.tmp);
         data->dataBuf.tmp = NULL;
 
         free(data->soundRead.samples);
@@ -617,14 +642,14 @@ int delVar(VApp* data) {
         data->drawstatus1.y = NULL;
 
         data->status.selNum = 0;
-        data->status.filter   = 0; //IIR Lo
+        data->status.filter = 0; // IIR Lo
 
+        flag = (int*)&data->flag;
         for (i = 0; i < 14; i++) {
-            int* flag = (int*)&data->flag;
             *(flag + i) = 0;
         }
+        flag = (int*)&data->mlFlag;
         for (i = 0; i < 11; i++) {
-            int* flag = (int*)&data->mlFlag;
             *(flag + i) = 0;
         }
         data->status.open = 0;
@@ -643,6 +668,14 @@ int delVar(VApp* data) {
             data->draw2[i].y = NULL;
             free(data->draw2[i].pos);
             data->draw2[i].pos = NULL;
+
+            data->draw1[i].on = 0;
+            data->draw1[i].log = 0;
+            data->draw1[i].bar = 0;
+
+            data->draw2[i].on = 0;
+            data->draw2[i].log = 0;
+            data->draw2[i].bar = 0;
         }
         free(data->crossPoint.x);
         data->crossPoint.x = NULL;
@@ -650,6 +683,10 @@ int delVar(VApp* data) {
         data->crossPoint.y = NULL;
         free(data->crossPoint.pos);
         data->crossPoint.pos = NULL;
+
+        data->crossPoint.on = 0;
+        data->crossPoint.log = 0;
+        data->crossPoint.bar = 0;
 
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
@@ -670,18 +707,17 @@ int delVar(VApp* data) {
         free(data->drawstatus1.y);
         data->drawstatus1.y = NULL;
 
-        data->status.selNum  = 0;
-        data->status.filter  = 0; //IIR Lo
-
+        data->status.selNum = 0;
+        data->status.filter = 0; // IIR Lo
+        flag = (int*)&data->flag;
         for (i = 0; i < 14; i++) {
-            int* flag = (int*)&data->flag;
             *(flag + i) = 0;
         }
+        flag = (int*)&data->mlFlag;
         for (i = 0; i < 11; i++) {
-            int* flag = (int*)&data->mlFlag;
             *(flag + i) = 0;
         }
-       
+
         data->status.open = 0;
 
     } else if (data->status.selNum == 5) { //************************************:
@@ -692,12 +728,25 @@ int delVar(VApp* data) {
             data->draw1[i].y = NULL;
             free(data->draw1[i].pos);
             data->draw1[i].pos = NULL;
+
             free(data->draw2[i].x);
             data->draw2[i].x = NULL;
             free(data->draw2[i].y);
             data->draw2[i].y = NULL;
             free(data->draw2[i].pos);
             data->draw2[i].pos = NULL;
+
+            data->draw1[i].Height = 65536;
+            data->draw1[i].Width = data->settings.frames;
+            data->draw1[i].on = 0;
+            data->draw1[i].log = 0;
+            data->draw1[i].bar = 0;
+
+            data->draw2[i].Height = 65536;
+            data->draw2[i].Width = data->settings.frames;
+            data->draw2[i].on = 0;
+            data->draw2[i].log = 0;
+            data->draw2[i].bar = 0;
         }
         free(data->crossPoint.x);
         data->crossPoint.x = NULL;
@@ -705,6 +754,25 @@ int delVar(VApp* data) {
         data->crossPoint.y = NULL;
         free(data->crossPoint.pos);
         data->crossPoint.pos = NULL;
+
+        data->crossPoint.Height = 0;
+        data->crossPoint.Width = 0;
+        data->crossPoint.on = 0;
+        data->crossPoint.log = 0;
+        data->crossPoint.bar = 0;
+
+        free(data->selCross.x);
+        data->selCross.x = NULL;
+        free(data->selCross.y);
+        data->selCross.y = NULL;
+        free(data->selCross.pos);
+        data->selCross.pos = NULL;
+
+        data->selCross.Height = 0;
+        data->selCross.Width = 0;
+        data->selCross.on = 0;
+        data->selCross.log = 0;
+        data->selCross.bar = 0;
 
         free(data->dataBuf.read);
         data->dataBuf.read = NULL;
@@ -725,18 +793,18 @@ int delVar(VApp* data) {
         free(data->drawstatus1.y);
         data->drawstatus1.y = NULL;
 
-        data->status.selNum  = 0;
-        data->status.filter  = 0; //IIR Lo
-         //0 set flags
+        data->status.selNum = 0;
+        data->status.filter = 0; // IIR Lo
+                                 // 0 set flags
+        flag = (int*)&data->flag;
         for (i = 0; i < 14; i++) {
-            int* flag = (int*)&data->flag;
             *(flag + i) = 0;
         }
+        flag = (int*)&data->mlFlag;
         for (i = 0; i < 11; i++) {
-            int* flag = (int*)&data->mlFlag;
             *(flag + i) = 0;
         }
-       
+
         data->status.open = 0;
 
     } else {

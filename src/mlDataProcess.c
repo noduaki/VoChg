@@ -1,5 +1,27 @@
 #include "header.h"
 
+int waveDiff(int startX, int endX, double* wave, double *diffWave) {
+
+    int i;
+    int n;
+    int row = NUM_DATA_X;
+    double ratio;
+    double diff;
+    if (endX - startX > row) {
+        diff = (double)(endX - startX) / (double)(row);
+        *(diffWave) = (*(wave + endX) - *(wave + startX));
+        *(diffWave + (row - 1)) = (*(wave + endX + (endX - startX)) - *(wave + endX));
+
+        for (i = 1; i < (row - 1); i++) {
+            n = (int)((double)i * diff);
+            ratio = (double)i * diff - (double)n;
+            *(diffWave + i) = ((*(wave + endX + n) + (*(wave + endX + n + 1) - *(wave + endX + n)) * ratio) -
+                              (*(wave + startX + n) + (*(wave + startX + n + 1) - *(wave + startX + n)) * ratio));
+        }
+        return 0;
+    }else return -1;
+
+}
 static int getCross(double* sound, int* pos, int n) {
     int i;
     int count = 0;
@@ -64,8 +86,6 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
     char csvDataX[NUM_MLDATA * NUM_DATA_X * 9] = {0};
     char csvDataT[NUM_MLDATA * NUM_DATA_X * 9] = {0};
     int csvCount = 0;
-
-    
 
     while (da->status.open) {
         if (da->flag.nextWave || da->flag.prevWave) {
@@ -241,35 +261,18 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
 
         // Auto move to select point **************************************************
         if (da->mlFlag.on) {
+            waveDiff(da->selPointS.x, da->selPointE.x, da->dataBuf.sound + startFrames, da->draw2[1].y);
             if (da->mlFlag.enter0) {
                 da->mlFlag.enter0 = 0;
 
                 if (nextpoint) {
                     nextpoint = 0;
 
+
                     if (da->selPointE.x - da->selPointS.x > row) {
-                        // Calcurate Diff
-                        diff = (double)(da->selPointE.x - da->selPointS.x) / (double)row;
-                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointE.x) -
-                                            *(da->dataBuf.sound + startFrames + da->selPointS.x);
-                        *(da->draw2[1].y + (row - 1)) =
-                            *(da->dataBuf.sound + startFrames + da->selPointE.x + (da->selPointE.x - da->selPointS.x)) -
-                            *(da->dataBuf.sound + startFrames + da->selPointE.x);
+                        waveDiff(da->selPointS.x, da->selPointE.x, da->dataBuf.sound + startFrames, da->draw2[1].y);
 
-                        for (i = 1; i < (row - 1); i++) {
-                            n = (int)((double)i * diff);
-                            ratio = (double)i * diff - (double)n;
-
-                            *(da->draw2[1].y + i) = (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
-                                                     (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
-                                                      *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
-                                                         ratio) -
-                                                    (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
-                                                     (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
-                                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
-                                                         ratio);
-                        }
-
+                  
                         // Diff data write
 
                         memcpy(da->sData[writeCount].xData, da->draw2[1].y, row * sizeof(double));
@@ -307,25 +310,8 @@ void mlDataProcess(GTask* stask, gpointer source_object, gpointer data, GCancell
                     nextpoint = 0;
 
                     if (da->selPointE.x - da->selPointS.x > row) {
-                        diff = (double)(da->selPointE.x - da->selPointS.x) / (double)(row);
-                        *(da->draw2[1].y) = *(da->dataBuf.sound + startFrames + da->selPointE.x) -
-                                            *(da->dataBuf.sound + startFrames + da->selPointS.x);
-                        *(da->draw2[1].y + (row - 1)) =
-                            *(da->dataBuf.sound + startFrames + da->selPointE.x + (da->selPointE.x - da->selPointS.x)) -
-                            *(da->dataBuf.sound + startFrames + da->selPointE.x);
-
-                        for (i = 1; i < (row - 1); i++) {
-                            n = (int)((double)i * diff);
-                            ratio = (double)i * diff - (double)n;
-                            *(da->draw2[1].y + i) = (*(da->dataBuf.sound + startFrames + da->selPointE.x + n) +
-                                                     (*(da->dataBuf.sound + startFrames + da->selPointE.x + n + 1) -
-                                                      *(da->dataBuf.sound + startFrames + da->selPointE.x + n)) *
-                                                         ratio) -
-                                                    (*(da->dataBuf.sound + startFrames + da->selPointS.x + n) +
-                                                     (*(da->dataBuf.sound + startFrames + da->selPointS.x + n + 1) -
-                                                      *(da->dataBuf.sound + startFrames + da->selPointS.x + n)) *
-                                                         ratio);
-                        }
+                        waveDiff(da->selPointS.x, da->selPointE.x, da->dataBuf.sound + startFrames, da->draw2[1].y);
+                      
                         // Diff data write *****************
 
                         memcpy(da->sData[writeCount].xData, da->draw2[1].y, (row - 1) * sizeof(double));
