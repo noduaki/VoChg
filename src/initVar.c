@@ -175,10 +175,12 @@ int initVar(VApp* data) {
                 (0.54 - 0.46 * cos((G_PI * 2.0) * (double)i / (double)(data->settings.frames - 1)));
         }
         // etc.
-        for (i = 2; i < 14; i++) {
+        
+        for (i = 2; i < 18; i++) {
             int* flag = (int*)&data->flag;
             *(flag + i) = 0;
         }
+
         for (i = 0; i < 11; i++) {
             int* flag = (int*)&data->mlFlag;
             *(flag + i) = 0;
@@ -200,11 +202,11 @@ int initVar(VApp* data) {
         if (data->drawstatus1.y == NULL) error = 1;
         *(data->drawstatus1.y) = 0.0;
         gtk_button_set_label(GTK_BUTTON(data->priv->button1), "IIR L");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button2), "Row");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "Procd");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button2), "Row ON");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button3), "Procd ON");
         gtk_button_set_label(GTK_BUTTON(data->priv->button4), "Oct Hi");
         gtk_button_set_label(GTK_BUTTON(data->priv->button5), "Oct Lo");
-        gtk_button_set_label(GTK_BUTTON(data->priv->button6), "6");
+        gtk_button_set_label(GTK_BUTTON(data->priv->button6), "Decomp");
         gtk_button_set_label(GTK_BUTTON(data->priv->button7), "7");
         gtk_button_set_label(GTK_BUTTON(data->priv->button8), "8");
         gtk_button_set_label(GTK_BUTTON(data->priv->button11), "Log");
@@ -332,7 +334,7 @@ int initVar(VApp* data) {
 
         // ect **********
         // 0 clear flags
-        for (i = 0; i < 14; i++) {
+        for (i = 0; i < 18; i++) {
             int* flag = (int*)&data->flag;
             *(flag + i) = 0;
         }

@@ -2,6 +2,9 @@
 #define __DRAWAREA__H
 //#include "header.h"
 
+GMutex mutex_drawArea1;
+GMutex mutex_drawArea2;
+
 gboolean configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
 gboolean draw_cb(GtkWidget *widget, cairo_t *cr, gpointer data);
 gboolean button_press_event_cb(GtkWidget *widget, GdkEventButton *event, gpointer data);

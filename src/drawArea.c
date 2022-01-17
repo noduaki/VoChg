@@ -164,9 +164,6 @@ gboolean motion_notify_event_cb(GtkWidget* widget, GdkEventMotion* event, gpoint
 // **                                                     **
 // *********************************************************
 
-GMutex mutex_drawArea1;
-GMutex mutex_drawArea2;
-
 gboolean update_drawArea1(gpointer data) {
     int i;
     int n;
@@ -633,13 +630,8 @@ gboolean update_drawArea3(gpointer data) {
             cairo_fill(cr);
         }
     }
-    // Previous select start point
-    if (da->selPointS.y > 0) {
-        cairo_set_source_rgba(cr, 0.035933, 0.980000, 0.276702, 1.0);
-        t = (double)(da->selPointS.y - startPos) * width / (double)da->settings.frames;
-        cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
-        cairo_fill(cr);
-    }
+
+  
     // Start point
     if (da->selPointS.x > 0) {
         cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
@@ -669,17 +661,22 @@ gboolean update_drawArea3(gpointer data) {
         cairo_line_to(cr, t, (double)(da->drawstatus1.Height / 2) + 3.0);
         cairo_stroke(cr);
     }
-//Tmp*****************************************
-//*******************************************
+    // Tmp*****************************************
+    //*******************************************
     if (da->selCross.on) {
-        cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 1.0);
+        cairo_set_source_rgba(cr, 1.0, 0.0, 0.5, 1.0);
         for (i = 0; i < da->selCross.Width; i++) {
             t = (double)(*(da->selCross.pos + i) - startPos) * width / (double)da->settings.frames;
             cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
             cairo_fill(cr);
         }
+         cairo_set_source_rgba(cr, 1.0, 1.0, 0.0, 1.0);
+        for (i = 0; i < da->draw1[1].Width; i++) {
+            t = (double)(*(da->draw1[1].pos + i) - startPos) * width / (double)da->settings.frames;
+            cairo_arc(cr, t, (double)(da->drawstatus1.Height / 2), 3.0, 0.0, 6.28318);
+            cairo_fill(cr);
+        }
     }
-   
 
     da->flag.drawArea1 = 0; // DrawArea closing notification for end of thread sequence
     g_mutex_unlock(&mutex_drawArea1);
@@ -810,6 +807,16 @@ gboolean update_drawArea4(gpointer data) {
             t = (double)*(da->crossPoint.pos + i) * width / (double)da->settings.frames;
             cairo_arc(cr, t, (double)(da->drawstatus2.Height / 2), 3.0, 0.0, 6.28318);
             cairo_fill(cr);
+        }
+        if (da->crossPoint.on) {
+            cairo_set_source_rgba(cr, 0.505083, 0.114978, 1.0, 1.0);
+            for (i = 0; i < da->crossPoint.Width; i++) {
+                t = (double)(*(da->crossPoint.pos + i) - startPos) * width / (double)da->settings.frames;
+                si = (double)(da->drawstatus1.Height / 2) -
+                     (*(da->crossPoint.y + i) * height / (double)da->draw1[n].Height);
+                cairo_arc(cr, t, si, 3.0, 0.0, 6.28318);
+                cairo_fill(cr);
+            }
         }
     }
     if (da->selPointS.y > 0) {

@@ -145,6 +145,12 @@ void stpButton(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
     da->status.open = 0;
 }
+//TMP Button
+void sLowerButton0(GtkWidget* widget, gpointer data) {
+    VApp* da = (VApp*)data;
+    testnn(widget, data);
+    
+}
 
 void sLowerButton1(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
@@ -169,7 +175,7 @@ void sLowerButton1(GtkWidget* widget, gpointer data) {
         statusprint(data);
     }
 }
-
+//ML DATA Write
 void sLowerButton2(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
     if (da->status.selNum == 3) {
@@ -204,8 +210,10 @@ void b2(GtkWidget* widget, gpointer data) {
     if (da->status.selNum == 1 || da->status.selNum == 2) {
         if (da->draw1[0].on == 0) {
             da->draw1[0].on = 1;
+            gtk_button_set_label(GTK_BUTTON(widget), "Row ON");
         } else if (da->draw1[0].on == 1) {
             da->draw1[0].on = 0;
+            gtk_button_set_label(GTK_BUTTON(widget), "Row");
         } else {
             printf("b2 Error draw1 - 0.on\n");
         }
@@ -223,8 +231,10 @@ void b3(GtkWidget* widget, gpointer data) {
     if (da->status.selNum == 1 || da->status.selNum == 2) {
         if (da->draw1[1].on == 0) {
             da->draw1[1].on = 1;
+            gtk_button_set_label(GTK_BUTTON(widget), "Procd ON");
         } else if (da->draw1[1].on == 1) {
             da->draw1[1].on = 0;
+            gtk_button_set_label(GTK_BUTTON(widget), "Procd");
         } else {
             printf("b3 Error draw1-1 on\n");
         }
@@ -242,8 +252,11 @@ void b4(GtkWidget* widget, gpointer data) {
     if (da->status.selNum == 1 || da->status.selNum == 2) {
         if (da->flag.octaveHi == 0 && !da->flag.octaveLo == 1) {
             da->flag.octaveHi = 1;
+            gtk_button_set_label(GTK_BUTTON(widget), "Hi ON");
+
         } else if (da->flag.octaveHi == 1) {
             da->flag.octaveHi = 0;
+            gtk_button_set_label(GTK_BUTTON(widget), "Oct Hi");
         } else {
             printf("b4 Error octave\n");
         }
@@ -261,8 +274,10 @@ void b5(GtkWidget* widget, gpointer data) {
     if (da->status.selNum == 1 || da->status.selNum == 2) {
         if (da->flag.octaveLo == 0 && !da->flag.octaveHi == 1) {
             da->flag.octaveLo = 1;
+            gtk_button_set_label(GTK_BUTTON(widget), "Lo ON");
         } else if (da->flag.octaveLo == 1) {
             da->flag.octaveLo = 0;
+            gtk_button_set_label(GTK_BUTTON(widget), "Oct Lo");
         } else {
             printf("b5 Error octave\n");
         }
@@ -277,7 +292,17 @@ void b5(GtkWidget* widget, gpointer data) {
 
 void b6(GtkWidget* widget, gpointer data) {
     VApp* da = (VApp*)data;
-    if (da->status.selNum == 3) {
+    if (da->status.selNum == 1 || da->status.selNum == 2) {
+        if (da->flag.decomp == 0) {
+            da->flag.decomp = 1;
+            gtk_button_set_label(GTK_BUTTON(widget), "Dcp ON");
+        } else if (da->flag.decomp == 1) {
+            da->flag.decomp = 0;
+            gtk_button_set_label(GTK_BUTTON(widget), "Decomp");
+        } else {
+            printf("b6 Error Decomp\n");
+        }
+    } else if (da->status.selNum == 3) {
         if (da->mlFlag.enter0 == 0) {
             da->mlFlag.enter0 = 1;
         } else {

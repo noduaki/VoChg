@@ -151,21 +151,9 @@ void getWeight(GtkWidget* window, gpointer data) {
         }
         strtmp = read + charSize[i + (k / 2)] + 1;
     }
+    // printf("BIASSSS->%f,,,%f\n", *(da->W[2].bias), *(da->W[2].bias + 1));
 
     free(read);
-}
-
-static int getCross(double* sound, int* pos, int n) {
-    int i;
-    int count = 0;
-
-    for (i = 0; i < n - 1; i++) {
-        if (*(sound + i) > 0.0 && *(sound + i + 1) < 0.0) {
-            *(pos + count) = i;
-            count++;
-        }
-    }
-    return count;
 }
 
 void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* cancellable) {
@@ -173,9 +161,18 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
     int i;
     int k;
     int n;
-    int posCount = 0;
+    int m;
+
+    int o = 0;
+    int p = 0;
+
+    int posCount1 = 0;
+    int posCount2 = 0;
+    int SCount = 0;
+    int ECount = 0;
     int err;
     int judge = 0;
+    int divi = 0;
 
     struct timespec req = {0, 200000000}; // 0.2 second
 
@@ -187,6 +184,8 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
     da->draw2[0].on = 1;
     da->crossPoint.on = 1;
     da->selCross.on = 1;
+
+    double max;
 
     double in1 = 0.0;
     double in2 = 0.0;
@@ -212,10 +211,7 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
                 bufferCount += da->settings.frames * da->settings.channels;
                 if (bufferCount + da->settings.frames * da->settings.channels >= da->dataBuf.readSize / 2)
                     bufferCount = 0;
-                da->selPointS.x = 0;
-                da->selPointE.x = 0;
-                da->nextPoint.x = 0;
-                da->nextPoint.y = 0;
+
             } else if (da->flag.prevWave) {
                 da->flag.prevWave = 0;
 
@@ -226,11 +222,14 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
                     *(da->dataBuf.row + i) = (double)(*(da->dataBuf.read + i * da->settings.channels + bufferCount));
                 }
                 bufferCount += da->settings.frames * da->settings.channels * 2;
-                da->selPointS.x = 0;
-                da->selPointE.x = 0;
-                da->nextPoint.x = 0;
-                da->nextPoint.y = 0;
             }
+            da->selPointS.x = 0;
+            da->selPointE.x = 0;
+            da->nextPoint.x = 0;
+            da->nextPoint.y = 0;
+            posCount1 = 0;
+            posCount2 = 0;
+            k = 0;
         }
 
         // IIR Filter
@@ -290,51 +289,82 @@ void mlTest(GTask* stask, gpointer source_object, gpointer data, GCancellable* c
         // Data is divided into each cycle
         // *******************************************************************************
 
-        da->crossPoint.Width = getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->settings.frames);
+        da->crossPoint.Width =
+            getCross(da->dataBuf.sound + startFrames, da->crossPoint.pos, da->crossPoint.y, da->settings.frames);
         if (da->crossPoint.Width <= 0) {
             // printf("Error getCross\n");
             da->crossPoint.Width = 0;
         }
-        if (da->crossPoint.Width > 5) {
-            posCount = 0;
-            k = 0;
-            i = 0;
-            n = 0;
-            while (k < da->crossPoint.Width) {
+        if (da->crossPoint.Width > 5 && posCount1 == 0) {
+            struct timespec ts, te;
+            struct timespec start_time, end_time;
+            clock_t start_clock, end_clock;
+           
+            timespec_get(&ts, TIME_UTC);
+            start_clock = clock();
+            while (k < da->crossPoint.Width - 1) {
+
                 for (i = 0; (i + k) < da->crossPoint.Width; i++) {
-                    if (*(da->crossPoint.pos + k + i) - *(da->crossPoint.pos + k) > 500){
+                    if (*(da->crossPoint.pos + k + i) - *(da->crossPoint.pos + k) > 500) {
                         break;
                     }
-                } 
-                if(i < da->crossPoint.Width){
+                }
+                if (i + k < da->crossPoint.Width) {
                     for (n = i; n >= 1; n--) {
-                        if(*(da->crossPoint.pos + k + n) - *(da->crossPoint.pos + k) < NUM_DATA_X){
-                             k++;
-                             break;
+                        if (*(da->crossPoint.pos + k + n) - *(da->crossPoint.pos + k) < NUM_DATA_X) {
+                            k++;
+                            break;
                         }
                         err = waveDiff(*(da->crossPoint.pos + k), *(da->crossPoint.pos + k + n),
-                                        da->dataBuf.sound + startFrames, diffWave);
+                                       da->dataBuf.sound + startFrames, diffWave);
                         if (err < 0) printf("Error in diff calcuration -> diff\n");
                         judge = judgeWave(da->W, diffWave, diffTmp1, diffTmp2);
                         if (judge == 1) {
-                            *(da->selCross.pos + posCount) = *(da->crossPoint.pos + k);
-                            posCount++;
-                            *(da->selCross.pos + posCount) = *(da->crossPoint.pos + k + n);
-                            posCount++;
+                            divi = (*(da->crossPoint.pos + k + n) - *(da->crossPoint.pos + k)) / 2;
+                            m = n / 2;
+                            o = (int)((double)(*(da->crossPoint.pos + k + m) - *(da->crossPoint.pos + k)) * 0.9);
+                            p = (int)((double)(*(da->crossPoint.pos + k + m) - *(da->crossPoint.pos + k)) * 1.1);
+                            if ((m == 1 || m == 2) && divi > NUM_DATA_X &&
+                                (divi >
+                                     (int)((double)(*(da->crossPoint.pos + k + m) - *(da->crossPoint.pos + k)) * 0.9) &&
+                                 divi < (int)((double)(*(da->crossPoint.pos + k + m) - *(da->crossPoint.pos + k)) *
+                                              1.1))) {
+                                err = waveDiff(*(da->crossPoint.pos + k), *(da->crossPoint.pos + k + m),
+                                               da->dataBuf.sound + startFrames, diffWave);
+                                if (err < 0) printf("Error in diff calcuration -> diff\n");
+                                judge = judgeWave(da->W, diffWave, diffTmp1, diffTmp2);
+                                if (judge == 1) {
+                                    *(da->draw1[1].pos + posCount2) = *(da->crossPoint.pos + k + m);
+                                    posCount2++;
+                                }
+                            }
+                            *(da->selCross.pos + posCount1) = *(da->crossPoint.pos + k);
+                            posCount1++;
+                            *(da->selCross.pos + posCount1) = *(da->crossPoint.pos + k + n);
+                            posCount1++;
                             k += n;
                             break;
-                        } else if (judge < 0){
+
+                        } else if (judge < 0) {
                             printf("Error in diff calcuration -> judge = %d\n", judge);
                             k++;
                             break;
                         }
                     }
-                }else k++;
-                
-               
+                    if (n == 0) k++;
+                } else
+                    k++;
             }
+             timespec_get(&te, TIME_UTC);
+            end_clock = clock();
+
+            /* 計測時間の表示 */
+            printf("time:%ld\n", te.tv_nsec - ts.tv_nsec);
+
+            printf("clock:%f\n", (double)(end_clock - start_clock) / CLOCKS_PER_SEC);
         }
-        da->selCross.Width = posCount;
+        da->selCross.Width = posCount1;
+        da->draw1[1].Width = posCount2;
         //****************************************************************************************************************
         da->flag.drawArea1 = 1; // write to 0 in drawArea()
         g_idle_add(update_drawArea3, da);

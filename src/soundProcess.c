@@ -1,18 +1,5 @@
 #include "soundProcess.h"
 
-static int getCross(double* sound, int* pos, int n) {
-    int i;
-    int count = 0;
-
-    for (i = 0; i < n - 1; i++) {
-        if (*(sound + i) > 0.0 && *(sound + i + 1) < 0.0) {
-            *(pos + count) = i;
-            count++;
-        }
-    }
-    return count;
-}
-
 int octaveHi(VApp* da, int overlength, int prepos) {
     int n;
     int i;
@@ -133,6 +120,10 @@ int octaveLo(VApp* da, int overlength, int prepos) {
     return overlength;
 }
 
+void decomp(VApp* da, int pos){
+    
+}
+
 void soundProcessPoll(VApp* da) {
     int i;
 
@@ -145,6 +136,16 @@ void soundProcessPoll(VApp* da) {
 
     _Thread_local static int overlength = 0;
     _Thread_local static int prepos = 0;
+
+    _Thread_local static double omega = 0.0;
+    _Thread_local static double alpha = 0.0;
+
+    _Thread_local static double a0 = 0.0;
+    _Thread_local static double a1 = 0.0;
+    _Thread_local static double a2 = 0.0;
+    _Thread_local static double b0 = 0.0;
+    _Thread_local static double b1 = 0.0;
+    _Thread_local static double b2 = 0.0;
 
     if (da->flag.soundFile) {
         // Data Buffer has two room. Second room is used new data
@@ -178,15 +179,14 @@ void soundProcessPoll(VApp* da) {
     memmove(da->dataBuf.tmp, da->dataBuf.tmp + da->settings.frames, da->settings.frames * sizeof(double));
     if (da->status.filter == 0) {
         // Lo pass filter coefficient
-        double omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
-        double alpha = sin(omega) / (2.0 * da->scale.slider2);
-
-        double a0 = 1.0 + alpha;
-        double a1 = -2.0 * cos(omega);
-        double a2 = 1.0 - alpha;
-        double b0 = (1.0 - cos(omega)) / 2.0;
-        double b1 = 1.0 - cos(omega);
-        double b2 = (1.0 - cos(omega)) / 2.0;
+        omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
+        alpha = sin(omega) / (2.0 * da->scale.slider2);
+        a0 = 1.0 + alpha;
+        a1 = -2.0 * cos(omega);
+        a2 = 1.0 - alpha;
+        b0 = (1.0 - cos(omega)) / 2.0;
+        b1 = 1.0 - cos(omega);
+        b2 = (1.0 - cos(omega)) / 2.0;
 
         for (i = 0; i < da->settings.frames; i++) {
             *(da->dataBuf.tmp + da->settings.frames + i) =
@@ -201,15 +201,15 @@ void soundProcessPoll(VApp* da) {
         }
     } else if (da->status.filter == 1) {
         // Hi pass filter coefficient
-        double omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
-        double alpha = sin(omega) / (2.0 * da->scale.slider2);
+        omega = 2.0 * G_PI * da->scale.slider1 / (double)da->settings.rate;
+        alpha = sin(omega) / (2.0 * da->scale.slider2);
 
-        double a0 = 1.0 + alpha;
-        double a1 = -2.0 * cos(omega);
-        double a2 = 1.0 - alpha;
-        double b0 = (1.0 + cos(omega)) / 2.0;
-        double b1 = -(1.0 + cos(omega));
-        double b2 = (1.0 + cos(omega)) / 2.0;
+        a0 = 1.0 + alpha;
+        a1 = -2.0 * cos(omega);
+        a2 = 1.0 - alpha;
+        b0 = (1.0 + cos(omega)) / 2.0;
+        b1 = -(1.0 + cos(omega));
+        b2 = (1.0 + cos(omega)) / 2.0;
 
         for (i = 0; i < da->settings.frames; i++) {
             *(da->dataBuf.tmp + da->settings.frames + i) =
@@ -233,13 +233,21 @@ void soundProcessPoll(VApp* da) {
         prepos = *(da->crossPoint.pos + (da->crossPoint.Width - 1));
     } else
         prepos = 0;
-    da->crossPoint.Width = getCross(da->dataBuf.tmp + da->settings.frames, da->crossPoint.pos, da->settings.frames);
+    da->crossPoint.Width =
+        getCross(da->dataBuf.tmp + da->settings.frames, da->crossPoint.pos, da->crossPoint.y, da->settings.frames);
     if (da->crossPoint.Width <= 0) {
         // printf("Error getCross\n");
         da->crossPoint.Width = 0;
     }
 
     // Sound process ************
+
+    if (da->flag.decomp) {
+        for(i = da->settings.frames; i < da->settings.frames * 2; i++){
+            *(da->dataBuf.tmp + i) = (1 / (1 + exp(-((da->scale.slider5 + 1.0)* (*(da->dataBuf.tmp + i) / 32768.0)))) - 0.5) * (da->scale.slider6 * 3276.8);
+        }
+       
+    }
     memmove(da->dataBuf.sound, da->dataBuf.sound + da->settings.frames, da->settings.frames * sizeof(double));
     if (da->flag.octaveHi) {
         if (da->crossPoint.Width >= 2)
@@ -263,9 +271,13 @@ void soundProcessPoll(VApp* da) {
             overlength = 0;
             printf("Error in soundProcess()overlength limit over-Lo\n");
         }
+    } else if (0) {
+    } else if (0) {
     } else {
         memcpy(da->dataBuf.sound, da->dataBuf.tmp + da->settings.frames, da->settings.frames * sizeof(double));
     }
+
+    
 
     // FFT Cal. **********
 

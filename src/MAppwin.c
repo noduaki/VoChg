@@ -144,6 +144,7 @@ static void M_app_window_init(MAppWindow* win) {
     g_signal_connect(vApp.priv->selectButton4, "clicked", G_CALLBACK(selButton4), &vApp);
     g_signal_connect(vApp.priv->selectButton5, "clicked", G_CALLBACK(selButton5), &vApp);
     g_signal_connect(vApp.priv->stopButton, "clicked", G_CALLBACK(stpButton), &vApp);
+    g_signal_connect(vApp.priv->selLowerButton0, "clicked", G_CALLBACK(sLowerButton0), &vApp);
     g_signal_connect(vApp.priv->selLowerButton1, "clicked", G_CALLBACK(sLowerButton1), &vApp);
     g_signal_connect(vApp.priv->selLowerButton2, "clicked", G_CALLBACK(sLowerButton2), &vApp);
     g_signal_connect(vApp.priv->button1, "clicked", G_CALLBACK(b1), &vApp);
@@ -173,8 +174,8 @@ static void M_app_window_init(MAppWindow* win) {
     vApp.scale.slider2 = 1.0;
     vApp.scale.slider3 = 1.0;
     vApp.scale.slider4 = 1.0;
-    vApp.scale.slider5 = 0.0;
-    vApp.scale.slider6 = 0.0;
+    vApp.scale.slider5 = 2.0;
+    vApp.scale.slider6 = 7.0;
     vApp.scale.slider7 = 0.0;
     vApp.scale.slider8 = 0.0;
     vApp.scale.slider9 = 0.0;
@@ -190,8 +191,8 @@ static void M_app_window_init(MAppWindow* win) {
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale2), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale3), 1.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale4), 1.0);
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale5), 0.0);
-    gtk_range_set_value(GTK_RANGE(vApp.priv->scale6), 0.0);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale5), 2.0);
+    gtk_range_set_value(GTK_RANGE(vApp.priv->scale6), 7.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale7), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale8), 0.0);
     gtk_range_set_value(GTK_RANGE(vApp.priv->scale9), 0.0);
@@ -205,6 +206,8 @@ static void M_app_window_init(MAppWindow* win) {
     gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale2), 0.01, GTK_POS_TOP, "IIR Q");
     gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale3), 1.0, GTK_POS_TOP, "Height");
     gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale4), 1.0, GTK_POS_TOP, "Width");
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale5), 0.0, GTK_POS_TOP, "D-Gain");
+    gtk_scale_add_mark(GTK_SCALE(vApp.priv->scale6), 0.0, GTK_POS_TOP, "D-OutV");
     g_signal_connect(vApp.priv->scale1, "value-changed", G_CALLBACK(fscale1), &vApp);
     g_signal_connect(vApp.priv->scale2, "value-changed", G_CALLBACK(fscale2), &vApp);
     g_signal_connect(vApp.priv->scale3, "value-changed", G_CALLBACK(fscale3), &vApp);
@@ -279,6 +282,7 @@ static void M_app_window_class_init(MAppWindowClass* class) {
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton4);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selectButton5);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, stopButton);
+     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selLowerButton0);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selLowerButton1);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, selLowerButton2);
     gtk_widget_class_bind_template_child_private(GTK_WIDGET_CLASS(class), MAppWindow, button1);

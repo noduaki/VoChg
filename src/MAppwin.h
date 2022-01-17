@@ -19,6 +19,7 @@ typedef struct _MAppWindowPrivate {
     GtkWidget* selectButton4;
     GtkWidget* selectButton5;
     GtkWidget* stopButton;
+    GtkWidget* selLowerButton0;
     GtkWidget* selLowerButton1;
     GtkWidget* selLowerButton2;
     GtkWidget* button1;
@@ -127,10 +128,14 @@ typedef struct _mFlag {
     int deviceflag;
     int octaveHi;
     int octaveLo;
+    int decomp;
+    int flag12;
+    int flag13;
+    int flag14;
     int pause;
     int nextWave;
     int prevWave;
-    int writeFile; // 14th
+    int writeFile; // 19th
 
 } mFlag;
 
@@ -232,6 +237,7 @@ typedef struct _VApp {
     mDraw draw2[5];
     mDraw crossPoint;
     mDraw selCross;
+    
 
     double entry1;
 
