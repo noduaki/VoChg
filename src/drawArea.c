@@ -1,4 +1,6 @@
 #include "header.h"
+GMutex mutex_drawArea1;
+GMutex mutex_drawArea2;
 
 cairo_surface_t* surface1 = NULL;
 cairo_surface_t* surface2 = NULL;

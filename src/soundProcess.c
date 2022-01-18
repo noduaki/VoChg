@@ -244,7 +244,7 @@ void soundProcessPoll(VApp* da) {
 
     if (da->flag.decomp) {
         for(i = da->settings.frames; i < da->settings.frames * 2; i++){
-            *(da->dataBuf.tmp + i) = (1 / (1 + exp(-((da->scale.slider5 + 1.0)* (*(da->dataBuf.tmp + i) / 32768.0)))) - 0.5) * (da->scale.slider6 * 3276.8);
+            *(da->dataBuf.tmp + i) = (1 / (1 + exp(-((da->scale.slider5 + 1.0)* (*(da->dataBuf.tmp + i) / 32768.0)))) - 0.5) * (da->scale.slider6 * 6553.6);
         }
        
     }
